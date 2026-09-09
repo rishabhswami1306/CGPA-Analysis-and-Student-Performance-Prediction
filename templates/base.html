@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-50">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}EduForecast – Intelligent Academic & Attendance Analytics{% endblock %}</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#EFF6FF',
+              100: '#DBEAFE',
+              500: '#3B82F6',
+              600: '#2563EB',
+              700: '#1D4ED8',
+              900: '#0F172A',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts & FontAwesome -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Chart.js & Socket.IO -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.min.js"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="h-full bg-slate-50 text-slate-800 antialiased font-sans flex">
+
+  {% if auth_user %}
+  <!-- Mobile Sidebar Backdrop -->
+  <div id="sidebar-backdrop" onclick="toggleSidebar()" class="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm hidden md:hidden transition-opacity"></div>
+
+  <!-- Left Sidebar Navigation -->
+  <aside id="sidebar-nav" class="fixed inset-y-0 left-0 z-50 w-64 lg:w-72 bg-slate-900 text-slate-300 flex flex-col border-r border-slate-800 transform -translate-x-full md:translate-x-0 transition-transform duration-200 ease-in-out">
+    
+    <!-- Sidebar Branding Header -->
+    <div class="h-20 px-5 flex items-center justify-between border-b border-slate-800 bg-slate-950/60">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
+          <i class="fa-solid fa-graduation-cap text-lg text-white"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <span class="brand-font text-base font-bold text-white tracking-tight">EduForecast</span>
+            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30">AI</span>
+          </div>
+          <p class="text-[10px] text-slate-400 font-medium">R. C. Patel Inst. of Tech.</p>
+        </div>
+      </div>
+      <button onclick="toggleSidebar()" class="md:hidden text-slate-400 hover:text-white text-lg">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- Active User Card -->
+    <div class="p-4 mx-3 my-3 rounded-xl bg-slate-800/60 border border-slate-700/60">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-full bg-blue-600/20 text-blue-400 border border-blue-500/30 flex items-center justify-center font-bold text-sm">
+          {{ auth_user.name[:1] if auth_user.name else 'U' }}
+        </div>
+        <div class="overflow-hidden flex-1">
+          <p class="text-xs font-bold text-white truncate">{{ auth_user.name }}</p>
+          <div class="flex items-center gap-1.5 mt-0.5">
+            <span class="text-[10px] font-mono font-semibold text-blue-400 bg-blue-950 px-1.5 py-0.2 rounded border border-blue-800/50">
+              {{ auth_prn }}
+            </span>
+            <span class="text-[9px] uppercase font-bold px-1.5 py-0.2 rounded {% if auth_role == 'admin' %}bg-purple-900/60 text-purple-300 border border-purple-700/50{% elif auth_role == 'faculty' %}bg-amber-900/60 text-amber-300 border border-amber-700/50{% else %}bg-emerald-900/60 text-emerald-300 border border-emerald-700/50{% endif %}">
+              {{ auth_role }}
+            </span>
+          </div>
+          <p class="text-[10px] text-slate-400 mt-1">TY BTech DS (A) • Sem I</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scrollable Navigation Links -->
+    <nav class="flex-1 overflow-y-auto px-3 space-y-5 text-xs py-2">
+      
+      <!-- Core Portals -->
+      <div>
+        <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">Core Dashboard</p>
+        <div class="mt-2 space-y-1">
+          {% if auth_role == 'admin' %}
+          <a href="/admin/dashboard" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-all hover:bg-slate-800 hover:text-white {% if request.path == '/admin/dashboard' %}bg-blue-600 text-white shadow-lg shadow-blue-600/30{% endif %}">
+            <i class="fa-solid fa-chart-line w-4 text-center"></i>
+            <span>Admin Control Hub</span>
+          </a>
+          {% elif auth_role == 'faculty' %}
+          <a href="/faculty/dashboard" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-all hover:bg-slate-800 hover:text-white {% if request.path == '/faculty/dashboard' %}bg-blue-600 text-white shadow-lg shadow-blue-600/30{% endif %}">
+            <i class="fa-solid fa-chalkboard-user w-4 text-center"></i>
+            <span>Faculty Dashboard</span>
+          </a>
+          {% endif %}
+          <a href="/student/dashboard" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-all hover:bg-slate-800 hover:text-white {% if request.path == '/student/dashboard' %}bg-blue-600 text-white shadow-lg shadow-blue-600/30{% endif %}">
+            <i class="fa-solid fa-house-user w-4 text-center"></i>
+            <span>Student Dashboard</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Attendance & Detention System -->
+      <div>
+        <div class="flex items-center justify-between px-3">
+          <p class="text-[10px] font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+            <i class="fa-solid fa-user-clock text-amber-400"></i>
+            <span>Attendance Intelligence</span>
+          </p>
+          <span class="text-[9px] font-bold bg-amber-400/10 text-amber-300 px-1.5 py-0.5 rounded border border-amber-400/20">75% Target</span>
+        </div>
+        <div class="mt-2 space-y-1">
+          <a href="/attendance/forecast" class="flex items-center justify-between px-3 py-2.5 rounded-xl font-semibold transition-all hover:bg-slate-800 hover:text-white {% if '/attendance/forecast' in request.path or request.path == '/attendance' or request.path == '/attendance/' %}bg-blue-600 text-white shadow-lg shadow-blue-600/30{% endif %}">
+            <div class="flex items-center gap-3">
+              <i class="fa-solid fa-chart-pie w-4 text-center text-blue-400"></i>
+              <span>Attendance Forecast</span>
+            </div>
+            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300">Live AI</span>
+          </a>
+          <a href="/attendance/detention-list" class="flex items-center justify-between px-3 py-2.5 rounded-xl font-semibold transition-all hover:bg-slate-800 hover:text-white {% if '/attendance/detention-list' in request.path %}bg-blue-600 text-white shadow-lg shadow-blue-600/30{% endif %}">
+            <div class="flex items-center gap-3">
+              <i class="fa-solid fa-triangle-exclamation w-4 text-center text-amber-400"></i>
+              <span>First Detention List</span>
+            </div>
+            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-red-500/20 text-red-300">66 TY DS</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Predictive ML Solvers -->
+      <div>
+        <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">Predictive Solvers</p>
+        <div class="mt-2 space-y-1">
+          <a href="/student/what-if" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-all hover:bg-slate-800 hover:text-white {% if request.path == '/student/what-if' %}bg-blue-600 text-white shadow-lg shadow-blue-600/30{% endif %}">
+            <i class="fa-solid fa-calculator w-4 text-center text-indigo-400"></i>
+            <span>What-If Goal Planner</span>
+          </a>
+          <a href="/student/placement-eligibility" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-all hover:bg-slate-800 hover:text-white {% if request.path == '/student/placement-eligibility' %}bg-blue-600 text-white shadow-lg shadow-blue-600/30{% endif %}">
+            <i class="fa-solid fa-briefcase w-4 text-center text-emerald-400"></i>
+            <span>Placement Matrix</span>
+          </a>
+          <a href="/student/resume-analyzer" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-all hover:bg-slate-800 hover:text-white {% if request.path == '/student/resume-analyzer' %}bg-blue-600 text-white shadow-lg shadow-blue-600/30{% endif %}">
+            <i class="fa-solid fa-file-lines w-4 text-center text-teal-400"></i>
+            <span>Resume ATS Analyzer</span>
+          </a>
+          <a href="/student/transcript/pdf" target="_blank" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-all hover:bg-slate-800 hover:text-white text-slate-300">
+            <i class="fa-solid fa-file-pdf w-4 text-center text-red-400"></i>
+            <span>Download Transcript PDF</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Faculty / Admin Management -->
+      {% if auth_role in ['faculty', 'admin'] %}
+      <div>
+        <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">Faculty Tools</p>
+        <div class="mt-2 space-y-1">
+          <a href="/faculty/grade-entry" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-all hover:bg-slate-800 hover:text-white {% if request.path == '/faculty/grade-entry' %}bg-blue-600 text-white shadow-lg shadow-blue-600/30{% endif %}">
+            <i class="fa-solid fa-pen-to-square w-4 text-center text-sky-400"></i>
+            <span>Enter & Update Marks</span>
+          </a>
+        </div>
+      </div>
+      {% endif %}
+
+    </nav>
+
+    <!-- Bottom Status & Actions -->
+    <div class="p-3 border-t border-slate-800 bg-slate-950/70 space-y-2">
+      <div class="flex items-center justify-between px-2 text-[11px] text-slate-400">
+        <div class="flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>WebSocket Active</span>
+        </div>
+        <a href="/apidocs" target="_blank" class="hover:text-white transition-colors" title="Swagger API Documentation">
+          <i class="fa-solid fa-code"></i> API
+        </a>
+      </div>
+
+      <a href="/auth/logout" class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-slate-800 hover:bg-red-600/80 text-slate-300 hover:text-white font-semibold text-xs transition-all border border-slate-700">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        <span>Sign Out</span>
+      </a>
+    </div>
+
+  </aside>
+  {% endif %}
+
+  <!-- Main Content Layout Container -->
+  <div class="flex-1 flex flex-col min-h-screen {% if auth_user %}md:pl-64 lg:pl-72{% endif %}">
+    
+    <!-- Top Mobile Header & Quick Controls -->
+    <header class="bg-white/90 backdrop-blur-md border-b border-slate-200 sticky top-0 z-30 px-4 sm:px-6 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        {% if auth_user %}
+        <button onclick="toggleSidebar()" class="md:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus:outline-none">
+          <i class="fa-solid fa-bars text-lg"></i>
+        </button>
+        {% endif %}
+        <div>
+          <h2 class="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
+            <span>R. C. Patel Institute of Technology</span>
+            <span class="hidden sm:inline-block text-[11px] font-medium text-slate-500">• TY BTech DS (A)</span>
+          </h2>
+          <p class="text-[10px] text-slate-400">Academic Year 2026-27 Sem-I • Attendance & Academic Predictive System</p>
+        </div>
+      </div>
+
+      <!-- Quick Action Badges -->
+      <div class="flex items-center gap-2">
+        {% if auth_user %}
+        <a href="/attendance/detention-list" class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition-all">
+          <i class="fa-solid fa-clipboard-list text-amber-500"></i>
+          <span>Detention List</span>
+        </a>
+        <a href="/attendance/forecast" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-all">
+          <i class="fa-solid fa-user-clock text-blue-500"></i>
+          <span>Attendance 75%</span>
+        </a>
+        {% else %}
+        <a href="/auth/login" class="text-xs font-semibold text-blue-600 hover:text-blue-800">Sign In</a>
+        {% endif %}
+      </div>
+    </header>
+
+    <!-- Flash Notifications Container -->
+    <div class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 mt-3">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="flash-alert mb-3 p-3.5 rounded-xl flex items-center justify-between shadow-sm border {% if category == 'danger' %}bg-red-50 text-red-800 border-red-200{% elif category == 'success' %}bg-emerald-50 text-emerald-800 border-emerald-200{% elif category == 'warning' %}bg-amber-50 text-amber-800 border-amber-200{% else %}bg-blue-50 text-blue-800 border-blue-200{% endif %}">
+              <div class="flex items-center space-x-2">
+                <i class="fa-solid {% if category == 'danger' %}fa-circle-exclamation text-red-500{% elif category == 'success' %}fa-circle-check text-emerald-500{% elif category == 'warning' %}fa-triangle-exclamation text-amber-500{% else %}fa-circle-info text-blue-500{% endif %}"></i>
+                <span class="text-xs sm:text-sm font-medium">{{ message }}</span>
+              </div>
+              <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-600 text-sm">&times;</button>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+    </div>
+
+    <!-- Main Dynamic Content -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5">
+      {% block content %}
+      {% endblock %}
+    </main>
+
+    <!-- App Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 px-4 sm:px-6 lg:px-8 mt-auto">
+      <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-500 gap-2">
+        <p>&copy; 2026 SES's R. C. Patel Institute of Technology, Shirpur. All rights reserved.</p>
+        <div class="flex items-center space-x-3">
+          <span>Odd Semester (20 Jul – 06 Nov 2026)</span>
+          <span class="text-slate-300">|</span>
+          <span class="text-blue-600 font-semibold">Attendance Threshold: 75% Mandatory</span>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Scripts -->
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar-nav');
+      const backdrop = document.getElementById('sidebar-backdrop');
+      if (!sidebar) return;
+      if (sidebar.classList.contains('-translate-x-full')) {
+        sidebar.classList.remove('-translate-x-full');
+        backdrop?.classList.remove('hidden');
+      } else {
+        sidebar.classList.add('-translate-x-full');
+        backdrop?.classList.add('hidden');
+      }
+    }
+  </script>
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/realtime.js') }}"></script>
+  {% block extra_scripts %}
+  {% endblock %}
+</body>
+</html>

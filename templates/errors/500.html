@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}500 - Server Error | Intelligent Analytics{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto my-16 text-center">
+  <div class="w-16 h-16 rounded-3xl bg-amber-100 text-amber-600 flex items-center justify-center mx-auto mb-4 text-2xl">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+  </div>
+  <h1 class="text-3xl font-extrabold text-slate-900 brand-font">500 - Internal Server Error</h1>
+  <p class="text-xs text-slate-500 mt-2 mb-6">An unexpected error occurred while processing the request. Our administrative team has been notified.</p>
+  <a href="/" class="bg-slate-800 hover:bg-slate-900 text-white font-semibold text-xs px-5 py-2.5 rounded-xl shadow-md transition-all">
+    Return to Dashboard
+  </a>
+</div>
+{% endblock %}

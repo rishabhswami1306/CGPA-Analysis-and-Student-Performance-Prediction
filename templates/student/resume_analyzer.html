@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+
+{% block title %}Resume ATS & Skill-Gap Analyzer — EduForecast{% endblock %}
+
+{% block nav_links %}
+  <a href="/student/dashboard" class="text-xs text-slate-300 hover:text-white px-3 py-1.5 rounded-lg hover:bg-slate-800 transition-colors">
+    <i class="fa-solid fa-chart-line mr-1"></i> Dashboard
+  </a>
+  <a href="/student/what-if" class="text-xs text-slate-300 hover:text-white px-3 py-1.5 rounded-lg hover:bg-slate-800 transition-colors">
+    <i class="fa-solid fa-calculator mr-1"></i> Goal Planner
+  </a>
+  <a href="/student/placement-eligibility" class="text-xs text-slate-300 hover:text-white px-3 py-1.5 rounded-lg hover:bg-slate-800 transition-colors">
+    <i class="fa-solid fa-building mr-1"></i> Placement Matrix
+  </a>
+  <a href="/student/resume-analyzer" class="text-xs text-blue-400 bg-slate-800/80 font-semibold px-3 py-1.5 rounded-lg border border-blue-500/30 transition-colors">
+    <i class="fa-solid fa-file-lines mr-1"></i> Resume ATS
+  </a>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-6xl mx-auto">
+
+  <!-- Header Banner -->
+  <div class="bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 rounded-2xl p-6 text-white shadow-xl border border-slate-800 relative overflow-hidden">
+    <div class="absolute -right-12 -bottom-12 w-48 h-48 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none"></div>
+    <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-semibold mb-2 border border-blue-400/30">
+          <i class="fa-solid fa-file-shield"></i> Natural Language ATS Screening & Course Alignment
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-bold brand-font tracking-tight">Resume ATS & Skill-Gap Analyzer</h1>
+        <p class="text-xs sm:text-sm text-slate-400 mt-1 max-w-2xl">
+          Screen your PDF resume against Tier-1 recruitment keywords, extract technical proficiencies, and identify curriculum-aligned remedial actions.
+        </p>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <a href="/student/placement-eligibility" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition-all flex items-center gap-2">
+          <i class="fa-solid fa-building"></i> View Eligible Companies
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upload and Config Card -->
+  <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+    <form action="{{ url_for('student.resume_analyzer_view') }}" method="POST" enctype="multipart/form-data" class="space-y-5">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <!-- File Input Drop Area -->
+        <div class="md:col-span-2">
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Upload Resume (PDF format)</label>
+          <div class="border-2 border-dashed border-slate-300 hover:border-blue-500 rounded-xl p-6 text-center cursor-pointer transition-colors bg-slate-50 hover:bg-blue-50/40 relative">
+            <input type="file" name="resume_file" id="resumeFileInput" accept=".pdf" required class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="updateFileName(this)">
+            <div class="flex flex-col items-center justify-center pointer-events-none">
+              <i class="fa-solid fa-cloud-arrow-up text-3xl text-blue-600 mb-2"></i>
+              <span class="text-sm font-semibold text-slate-800" id="uploadLabelText">Choose a PDF resume or drag it here</span>
+              <span class="text-xs text-slate-400 mt-1">Standard 1–2 page PDF resume (Max 5MB)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Role Track Selector -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Target Job Track</label>
+          <select name="target_track" class="w-full px-3 py-2.5 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white">
+            <option value="full_stack" {% if selected_track == 'full_stack' %}selected{% endif %}>Full Stack Software Engineering</option>
+            <option value="data_science_ml" {% if selected_track == 'data_science_ml' %}selected{% endif %}>Data Science & AI / ML</option>
+            <option value="cloud_devops" {% if selected_track == 'cloud_devops' %}selected{% endif %}>Cloud Computing & DevOps</option>
+            <option value="core_cs" {% if selected_track == 'core_cs' %}selected{% endif %}>Core Systems & Software Eng</option>
+          </select>
+          <p class="text-[11px] text-slate-500 mt-2">
+            The analyzer benchmarks your resume specifically against industry keywords required for this job role.
+          </p>
+          <button type="submit" class="w-full mt-4 py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold uppercase tracking-wider rounded-xl shadow-md shadow-blue-500/20 transition-all flex items-center justify-center gap-2">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Run ATS Audit
+          </button>
+        </div>
+
+      </div>
+    </form>
+  </div>
+
+  {% if report %}
+    {% if report.error %}
+      <div class="p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm">
+        <i class="fa-solid fa-triangle-exclamation mr-1"></i> {{ report.error }}
+      </div>
+    {% else %}
+      <!-- Analysis Results Section -->
+      <div class="space-y-6">
+
+        <!-- Top Score Summary Card -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+          <div class="flex flex-col lg:flex-row items-center justify-between gap-6">
+            
+            <!-- Radial / Score Highlight -->
+            <div class="flex items-center space-x-6">
+              <div class="relative w-28 h-28 flex items-center justify-center rounded-2xl bg-gradient-to-tr {% if report.ats_score >= 80 %}from-emerald-600 to-teal-500{% elif report.ats_score >= 60 %}from-blue-600 to-indigo-500{% elif report.ats_score >= 40 %}from-amber-500 to-orange-500{% else %}from-rose-600 to-red-500{% endif %} text-white shadow-lg">
+                <div class="text-center">
+                  <span class="text-3xl font-extrabold tracking-tight block">{{ report.ats_score }}%</span>
+                  <span class="text-[10px] uppercase tracking-wider font-semibold opacity-90">ATS Score</span>
+                </div>
+              </div>
+
+              <div>
+                <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold mb-1 {% if report.rating_color == 'emerald' %}bg-emerald-50 text-emerald-800 border border-emerald-200{% elif report.rating_color == 'blue' %}bg-blue-50 text-blue-800 border border-blue-200{% elif report.rating_color == 'amber' %}bg-amber-50 text-amber-800 border border-amber-200{% else %}bg-rose-50 text-rose-800 border border-rose-200{% endif %}">
+                  <i class="fa-solid fa-shield-check"></i> {{ report.rating_label }}
+                </div>
+                <h3 class="text-xl font-bold text-slate-900">{{ report.track_title }}</h3>
+                <p class="text-xs text-slate-600 max-w-xl mt-1 leading-relaxed">{{ report.verdict }}</p>
+              </div>
+            </div>
+
+            <!-- Readability Audit Badges -->
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs space-y-2 w-full lg:w-72">
+              <div class="font-bold text-slate-700 uppercase tracking-wider text-[11px] pb-1 border-b border-slate-200 flex items-center justify-between">
+                <span>ATS Formatting Check</span>
+                <i class="fa-solid fa-clipboard-check text-blue-600"></i>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-slate-500">Word Count:</span>
+                <span class="font-semibold text-slate-800">{{ report.readability.word_count }} words ({{ report.readability.length_status }})</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-slate-500">Contact / Email:</span>
+                <span class="font-semibold {% if report.readability.has_contact_info %}text-emerald-700{% else %}text-red-600{% endif %}">
+                  {% if report.readability.has_contact_info %}Detected ✓{% else %}Missing ✗{% endif %}
+                </span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-slate-500">GitHub / LinkedIn:</span>
+                <span class="font-semibold {% if report.readability.has_github_or_linkedin %}text-emerald-700{% else %}text-amber-600{% endif %}">
+                  {% if report.readability.has_github_or_linkedin %}Detected ✓{% else %}Not Linked ⚠{% endif %}
+                </span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Skills Breakdown Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          <!-- Detected Skills -->
+          <div class="bg-white rounded-2xl p-6 border border-emerald-200 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+              <h4 class="text-sm font-bold text-emerald-900 flex items-center gap-2">
+                <i class="fa-solid fa-circle-check text-emerald-600"></i> Matched Industry Keywords
+              </h4>
+              <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">
+                {{ report.matched_count }} / {{ report.total_skills }} Detected
+              </span>
+            </div>
+
+            {% if report.matched_skills %}
+              <div class="flex flex-wrap gap-2">
+                {% for s in report.matched_skills %}
+                  <span class="px-3 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-semibold flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-check text-emerald-600 text-[10px]"></i> {{ s }}
+                  </span>
+                {% endfor %}
+              </div>
+            {% else %}
+              <p class="text-xs text-slate-500 italic">No standard technical keywords for this track detected on the resume.</p>
+            {% endif %}
+          </div>
+
+          <!-- Missing Skills -->
+          <div class="bg-white rounded-2xl p-6 border border-rose-200 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+              <h4 class="text-sm font-bold text-rose-900 flex items-center gap-2">
+                <i class="fa-solid fa-circle-xmark text-rose-600"></i> Missing Critical Competencies
+              </h4>
+              <span class="px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 text-xs font-bold">
+                {{ report.missing_skills|length }} Gaps
+              </span>
+            </div>
+
+            {% if report.missing_skills %}
+              <div class="flex flex-wrap gap-2">
+                {% for s in report.missing_skills %}
+                  <span class="px-3 py-1 rounded-lg bg-rose-50 text-rose-800 border border-rose-200 text-xs font-semibold flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-plus text-rose-500 text-[10px]"></i> {{ s }}
+                  </span>
+                {% endfor %}
+              </div>
+            {% else %}
+              <p class="text-xs text-emerald-700 font-semibold">Incredible! All high-priority keywords for this track were found.</p>
+            {% endif %}
+          </div>
+
+        </div>
+
+        <!-- Actionable Coursework Alignment -->
+        {% if report.recommendations %}
+          <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h4 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                  <i class="fa-solid fa-graduation-cap text-blue-600"></i> Curriculum-Aligned Remedial Roadmap
+                </h4>
+                <p class="text-xs text-slate-500 mt-0.5">Directly bridge resume gaps by leveraging past and ongoing college course modules.</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {% for rec in report.recommendations[:6] %}
+                <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-between space-y-2 hover:border-blue-300 transition-colors">
+                  <div class="flex items-start justify-between gap-2">
+                    <span class="font-bold text-xs text-slate-900">{{ rec.skill }}</span>
+                    <span class="px-2 py-0.5 rounded bg-blue-100 text-blue-800 text-[10px] font-mono font-bold">{{ rec.course_code }}</span>
+                  </div>
+                  <div class="text-[11px] text-slate-500 font-medium">{{ rec.course_name }}</div>
+                  <p class="text-xs text-slate-700 bg-white p-2.5 rounded-lg border border-slate-200 leading-relaxed">
+                    <i class="fa-solid fa-arrow-right text-blue-600 text-[10px] mr-1"></i> {{ rec.action }}
+                  </p>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+
+      </div>
+    {% endif %}
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  function updateFileName(input) {
+    if (input.files && input.files[0]) {
+      const fileName = input.files[0].name;
+      document.getElementById('uploadLabelText').innerHTML = `<i class="fa-solid fa-file-pdf text-red-500 mr-2"></i> Selected: <strong>${fileName}</strong>`;
+    }
+  }
+</script>
+{% endblock %}

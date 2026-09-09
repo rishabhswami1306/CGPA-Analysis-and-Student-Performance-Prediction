@@ -1,0 +1,673 @@
+{% extends "base.html" %}
+
+{% block title %}Attendance Forecasting & Intelligence | {{ user.name }}{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+  <!-- Student Header & Selector Bar -->
+  <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+    <div>
+      <div class="flex items-center gap-3">
+        <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">{{ user.name }}</h1>
+        <span class="font-mono text-xs font-bold px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 border border-blue-200">
+          PRN: {{ student_prn }}
+        </span>
+        {% if user.roll_no %}
+        <span class="text-xs font-bold px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600 border border-slate-200">
+          Roll #{{ user.roll_no }}
+        </span>
+        {% endif %}
+      </div>
+      <p class="text-xs text-slate-500 mt-1">
+        Class: <b>TY BTech DS (A)</b> | Semester I (AY 2026-27) | Local Guardian: <b>{{ att_record.local_guardian or 'Faculty Mentor' }}</b>
+        {% if forecast.honors %}
+        | Honors Course: <span class="font-semibold text-purple-700 bg-purple-50 px-2 py-0.5 rounded border border-purple-200">{{ forecast.honors.subject }}</span>
+        {% endif %}
+      </p>
+    </div>
+
+    <!-- Actions & Admin/Faculty Student Switcher -->
+    <div class="flex flex-wrap items-center gap-3">
+      {% if students_dropdown %}
+      <div class="flex items-center gap-2">
+        <label for="student-selector" class="text-xs font-semibold text-slate-500 whitespace-nowrap">Switch Student:</label>
+        <select id="student-selector" onchange="window.location.href='/attendance/forecast?student_prn=' + this.value"
+                class="bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none max-w-xs">
+          {% for s in students_dropdown %}
+          <option value="{{ s.prn }}" {% if s.prn == student_prn %}selected{% endif %}>
+            {{ s.roll_no }}. {{ s.name }} ({{ s.pct }}%{% if s.is_detained %} - Detained{% endif %})
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      {% endif %}
+
+      <a href="/attendance/detention-list" class="bg-slate-800 hover:bg-slate-900 text-white font-semibold text-xs px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 shadow-sm">
+        <i class="fa-solid fa-list-check text-amber-400"></i>
+        <span>Full Detention List (66)</span>
+      </a>
+      <button onclick="window.print()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs px-3 py-2 rounded-xl border border-slate-300 transition-all flex items-center gap-1.5">
+        <i class="fa-solid fa-print"></i>
+        <span>Print Report</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Overall Attendance Status Alert Banner -->
+  {% set ov = forecast.overall %}
+  <div class="rounded-2xl p-5 border {% if ov.is_detained %}bg-gradient-to-r from-red-500/10 via-amber-500/10 to-transparent border-red-200{% else %}bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-transparent border-emerald-200{% endif %}">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="flex items-start gap-4">
+        <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-xl flex-shrink-0 {% if ov.is_detained %}bg-red-100 text-red-600 border border-red-200{% else %}bg-emerald-100 text-emerald-600 border border-emerald-200{% endif %}">
+          <i class="fa-solid {% if ov.is_detained %}fa-triangle-exclamation animate-bounce{% else %}fa-shield-check{% endif %}"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h2 class="text-lg font-bold {% if ov.is_detained %}text-red-900{% else %}text-emerald-900{% endif %}">
+              {% if ov.is_detained %}
+                ATTENDANCE DETENTION ALERT – Current: {{ ov.current_pct }}% (< 75% Threshold)
+              {% else %}
+                ATTENDANCE ON TRACK – Current: {{ ov.current_pct }}% (≥ 75% Compliant)
+              {% endif %}
+            </h2>
+            <span class="text-xs font-bold px-2.5 py-0.5 rounded-full {% if ov.is_detained %}bg-red-600 text-white{% else %}bg-emerald-600 text-white{% endif %}">
+              {{ ov.status }}
+            </span>
+          </div>
+          <p class="text-xs {% if ov.is_detained %}text-red-700{% else %}text-emerald-700{% endif %} mt-1 max-w-3xl">
+            {% if ov.is_detained %}
+              You are currently on the <b>First Detention List</b>. To reach the mandatory <b>75.0% threshold</b>, you must attend the next 
+              <span class="underline font-bold text-red-800">{{ ov.must_attend_now }} consecutive classes</span> without missing any.
+              Across the rest of the semester ({{ ov.remaining_classes }} estimated classes remaining till Nov 6), you must attend at least 
+              <b>{{ ov.min_to_attend_remaining }}</b> classes.
+            {% else %}
+              Your attendance satisfies the 75% college norm. You can safely miss up to 
+              <span class="font-bold text-emerald-800">{{ ov.can_miss_now }} lecture(s)</span> right now without falling below 75%.
+              Across the remainder of the semester, you have a buffer of <b>{{ ov.safe_bunks_remaining }} safe bunks</b>.
+            {% endif %}
+          </p>
+        </div>
+      </div>
+
+      <!-- Quick Numbers Pillar -->
+      <div class="flex items-center gap-6 bg-white/80 backdrop-blur px-5 py-3 rounded-xl border border-slate-200/80 shadow-sm flex-shrink-0">
+        <div class="text-center">
+          <p class="text-[10px] uppercase font-bold text-slate-400">Total Attended</p>
+          <p class="text-xl font-extrabold text-blue-600">{{ ov.total_attended }} / {{ ov.total_conducted }}</p>
+        </div>
+        <div class="h-8 w-px bg-slate-200"></div>
+        <div class="text-center">
+          <p class="text-[10px] uppercase font-bold text-slate-400">Max Achievable</p>
+          <p class="text-xl font-extrabold text-purple-600">{{ ov.max_achievable_pct }}%</p>
+        </div>
+        <div class="h-8 w-px bg-slate-200"></div>
+        <div class="text-center">
+          <p class="text-[10px] uppercase font-bold text-slate-400">Days Left</p>
+          <p class="text-xl font-extrabold text-slate-800">{{ forecast.days_remaining }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI Cards: Overall & Predictive Metrics -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    
+    <!-- Current Overall % -->
+    <div class="glass-card rounded-2xl p-5 border border-slate-200 hover-lift">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Current Combined %</span>
+        <span class="w-8 h-8 rounded-xl {% if ov.is_detained %}bg-red-50 text-red-600{% else %}bg-emerald-50 text-emerald-600{% endif %} flex items-center justify-center text-sm">
+          <i class="fa-solid fa-percent"></i>
+        </span>
+      </div>
+      <div class="flex items-baseline gap-2">
+        <p class="text-3xl font-extrabold {% if ov.is_detained %}text-red-600{% else %}text-emerald-600{% endif %}">
+          {{ ov.current_pct }}%
+        </p>
+        <span class="text-xs font-semibold text-slate-400">/ 75% target</span>
+      </div>
+      <!-- Progress Bar -->
+      <div class="w-full bg-slate-100 rounded-full h-2 mt-3 overflow-hidden">
+        <div class="h-2 rounded-full {% if ov.is_detained %}bg-red-500{% else %}bg-emerald-500{% endif %}" style="width: {{ [ov.current_pct, 100]|min }}%"></div>
+      </div>
+      <p class="text-[11px] text-slate-500 mt-2">
+        Gap to 75%: <b>{{ (75.0 - ov.current_pct)|round(1) if ov.is_detained else 0.0 }}%</b>
+      </p>
+    </div>
+
+    <!-- Consecutive Classes Needed -->
+    <div class="glass-card rounded-2xl p-5 border border-slate-200 hover-lift">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Must Attend Consecutive</span>
+        <span class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-sm">
+          <i class="fa-solid fa-arrow-trend-up"></i>
+        </span>
+      </div>
+      <div class="flex items-baseline gap-2">
+        <p class="text-3xl font-extrabold {% if ov.must_attend_now > 0 %}text-amber-600{% else %}text-slate-700{% endif %}">
+          {{ ov.must_attend_now }}
+        </p>
+        <span class="text-xs text-slate-400">classes</span>
+      </div>
+      <p class="text-[11px] text-slate-500 mt-2">
+        {% if ov.must_attend_now > 0 %}
+        To recover from detention immediately without bunking.
+        {% else %}
+        Already ≥ 75.0%. No urgent attendance recovery needed!
+        {% endif %}
+      </p>
+    </div>
+
+    <!-- Safe Bunk Allowance -->
+    <div class="glass-card rounded-2xl p-5 border border-slate-200 hover-lift">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Safe Bunks Buffer</span>
+        <span class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-sm">
+          <i class="fa-solid fa-couch"></i>
+        </span>
+      </div>
+      <div class="flex items-baseline gap-2">
+        <p class="text-3xl font-extrabold text-blue-600">{{ ov.can_miss_now }}</p>
+        <span class="text-xs text-slate-400">now ({{ ov.safe_bunks_remaining }} total sem)</span>
+      </div>
+      <p class="text-[11px] text-slate-500 mt-2">
+        Classes you can miss without dropping below 75%.
+      </p>
+    </div>
+
+    <!-- Semester Projection -->
+    <div class="glass-card rounded-2xl p-5 border border-slate-200 hover-lift">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">End-Sem Feasibility</span>
+        <span class="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-sm">
+          <i class="fa-solid fa-bullseye"></i>
+        </span>
+      </div>
+      <div class="flex items-baseline gap-2">
+        <p class="text-3xl font-extrabold text-purple-600">{{ ov.max_achievable_pct }}%</p>
+        <span class="text-xs text-slate-400">max cap</span>
+      </div>
+      <p class="text-[11px] text-slate-500 mt-2">
+        {% if ov.is_achievable %}
+        <span class="text-emerald-600 font-bold">✓ 75% achievable</span> if you attend {{ ov.min_to_attend_remaining }} of {{ ov.remaining_classes }} remaining.
+        {% else %}
+        <span class="text-red-600 font-bold">⚠️ Warning:</span> 75% mathematically impossible even with 100% attendance.
+        {% endif %}
+      </p>
+    </div>
+
+  </div>
+
+  <!-- Interactive What-If Simulator -->
+  <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-6 shadow-xl border border-slate-700">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="w-8 h-8 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center">
+            <i class="fa-solid fa-sliders"></i>
+          </span>
+          <h2 class="text-lg font-bold brand-font text-white">Interactive Attendance Simulator (What-If Engine)</h2>
+        </div>
+        <p class="text-xs text-slate-400 mt-1">
+          Simulate how attending or missing future lectures affects your overall or subject-wise attendance percentage.
+        </p>
+      </div>
+
+      <!-- Scope Selector -->
+      <div class="flex items-center gap-2 bg-slate-800/80 p-1.5 rounded-xl border border-slate-700">
+        <label for="sim-subject" class="text-xs font-medium text-slate-400 px-2">Scope:</label>
+        <select id="sim-subject" onchange="updateSimulatorBase()" class="bg-slate-900 text-white text-xs font-semibold rounded-lg px-3 py-1.5 border border-slate-600 focus:outline-none focus:ring-1 focus:ring-blue-400">
+          <option value="OVERALL">Combined Overall Attendance</option>
+          {% for code, s in forecast.subjects.items() %}
+          <option value="{{ code }}">{{ code }} ({{ s.current_pct }}%)</option>
+          {% endfor %}
+          {% if forecast.honors %}
+          <option value="{{ forecast.honors.subject }}">Honors: {{ forecast.honors.subject }} ({{ forecast.honors.current_pct }}%)</option>
+          {% endif %}
+        </select>
+      </div>
+    </div>
+
+    <!-- Simulator Controls & Real-time Live Result -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
+      
+      <!-- Sliders Column -->
+      <div class="lg:col-span-2 space-y-5 bg-slate-950/40 p-5 rounded-xl border border-slate-800">
+        
+        <!-- Classes to Attend Slider -->
+        <div>
+          <div class="flex justify-between items-center mb-1.5">
+            <label class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+              <i class="fa-solid fa-user-plus"></i>
+              <span>Additional Classes You Will ATTEND:</span>
+            </label>
+            <span id="attend-val" class="font-mono text-base font-extrabold text-emerald-400 bg-emerald-950/80 px-2.5 py-0.5 rounded border border-emerald-800">0</span>
+          </div>
+          <input type="range" id="attend-slider" min="0" max="40" value="0" oninput="runLiveSimulation()"
+                 class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+          <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+            <span>0</span>
+            <span>10</span>
+            <span>20</span>
+            <span>30</span>
+            <span>40 classes</span>
+          </div>
+        </div>
+
+        <!-- Classes to Miss Slider -->
+        <div>
+          <div class="flex justify-between items-center mb-1.5">
+            <label class="text-xs font-bold text-red-400 flex items-center gap-1.5">
+              <i class="fa-solid fa-user-minus"></i>
+              <span>Additional Classes You Will MISS (Bunks):</span>
+            </label>
+            <span id="miss-val" class="font-mono text-base font-extrabold text-red-400 bg-red-950/80 px-2.5 py-0.5 rounded border border-red-800">0</span>
+          </div>
+          <input type="range" id="miss-slider" min="0" max="30" value="0" oninput="runLiveSimulation()"
+                 class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-red-500">
+          <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+            <span>0</span>
+            <span>5</span>
+            <span>10</span>
+            <span>20</span>
+            <span>30 classes</span>
+          </div>
+        </div>
+
+        <!-- Quick Presets -->
+        <div class="pt-2 flex flex-wrap gap-2 items-center text-xs">
+          <span class="text-[11px] text-slate-400">Quick Scenarios:</span>
+          <button onclick="setSimValues({{ ov.must_attend_now }}, 0)" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 font-medium">
+            🎯 Attend {{ ov.must_attend_now }} to clear detention
+          </button>
+          <button onclick="setSimValues(5, 0)" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-slate-700 font-medium">
+            +5 Perfect Attendance
+          </button>
+          <button onclick="setSimValues(0, 3)" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-red-300 border border-slate-700 font-medium">
+            Bunk Next 3 Classes
+          </button>
+          <button onclick="setSimValues(0, 0)" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-400 border border-slate-700 font-medium">
+            Reset
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Projected Outcome Box -->
+      <div id="sim-result-box" class="bg-slate-950/80 rounded-xl p-6 border border-slate-700 text-center flex flex-col justify-center items-center">
+        <p class="text-xs uppercase font-bold text-slate-400 tracking-wider">Projected Attendance</p>
+        
+        <div class="my-3">
+          <span id="sim-pct" class="text-5xl font-black text-emerald-400 tracking-tight">{{ ov.current_pct }}%</span>
+        </div>
+
+        <div id="sim-badge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold {% if ov.is_detained %}bg-red-900/60 text-red-300 border border-red-700{% else %}bg-emerald-900/60 text-emerald-300 border border-emerald-700{% endif %}">
+          <span id="sim-status">{{ ov.status }}</span>
+        </div>
+
+        <div class="mt-4 pt-4 border-t border-slate-800 w-full space-y-1.5 text-xs text-slate-300">
+          <div class="flex justify-between">
+            <span class="text-slate-400">Current Base:</span>
+            <span id="sim-base" class="font-mono font-bold">{{ ov.current_pct }}%</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-400">Net Delta:</span>
+            <span id="sim-delta" class="font-mono font-bold text-slate-300">+0.0%</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-400">New Ratio:</span>
+            <span id="sim-ratio" class="font-mono font-bold">{{ ov.total_attended }} / {{ ov.total_conducted }}</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Subject-wise Attendance & Prediction Grid -->
+  <div>
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-lg font-bold text-slate-900 brand-font flex items-center gap-2">
+          <i class="fa-solid fa-books text-blue-600"></i>
+          <span>Individual Subject Attendance & Action Directives</span>
+        </h2>
+        <p class="text-xs text-slate-500">Detailed breakdown of theory lectures, practicals, and required recovery actions per course.</p>
+      </div>
+      <span class="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-lg border border-slate-200">
+        Threshold: 75.0% Mandatory per Subject
+      </span>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      {% for code, s in forecast.subjects.items() %}
+      <div class="bg-white rounded-2xl p-5 border {% if s.is_detained %}border-red-200 shadow-sm shadow-red-500/5{% else %}border-slate-200 shadow-sm{% endif %} hover-lift flex flex-col justify-between">
+        
+        <!-- Card Header -->
+        <div>
+          <div class="flex items-start justify-between gap-2 mb-2">
+            <div>
+              <span class="font-mono text-xs font-extrabold px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
+                {{ code }}
+              </span>
+              <p class="text-xs font-bold text-slate-800 mt-1.5 line-clamp-1" title="{{ s.teacher }}">
+                Faculty: {{ s.teacher }}
+              </p>
+            </div>
+            <span class="text-xs font-bold px-2.5 py-0.5 rounded-full {% if s.is_detained %}bg-red-100 text-red-700 border border-red-200{% elif s.current_pct >= 85 %}bg-emerald-100 text-emerald-700 border border-emerald-200{% else %}bg-amber-100 text-amber-700 border border-amber-200{% endif %}">
+              {{ s.status }}
+            </span>
+          </div>
+
+          <!-- Attendance Percentage Display -->
+          <div class="flex items-baseline justify-between mt-3">
+            <div>
+              <span class="text-3xl font-extrabold {% if s.is_detained %}text-red-600{% else %}text-slate-900{% endif %}">
+                {{ s.current_pct }}%
+              </span>
+              <span class="text-xs text-slate-400 ml-1">attendance</span>
+            </div>
+            <span class="text-xs font-semibold text-slate-500 font-mono">
+              {{ s.total_attended }} / {{ s.total_conducted }}
+            </span>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="w-full bg-slate-100 rounded-full h-2 mt-2 overflow-hidden">
+            <div class="h-2 rounded-full {% if s.is_detained %}bg-red-500{% elif s.current_pct >= 85 %}bg-emerald-500{% else %}bg-amber-500{% endif %}"
+                 style="width: {{ [s.current_pct, 100]|min }}%"></div>
+          </div>
+
+          <!-- Breakdown: Lecture vs Practical -->
+          <div class="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-slate-100 text-[11px]">
+            <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
+              <span class="text-slate-400 block font-semibold">Theory (L)</span>
+              <span class="font-bold text-slate-700">{{ s.lecture_attended }} / {{ s.lecture_conducted }}</span>
+            </div>
+            <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
+              <span class="text-slate-400 block font-semibold">Practical (P)</span>
+              <span class="font-bold text-slate-700">{{ s.practical_attended }} / {{ s.practical_conducted }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Predictive Action Directive -->
+        <div class="mt-4 pt-3 border-t border-slate-100 text-xs">
+          {% if s.is_detained %}
+          <div class="p-2.5 rounded-xl bg-red-50 border border-red-100 text-red-800 space-y-1">
+            <p class="font-bold flex items-center gap-1.5">
+              <i class="fa-solid fa-circle-exclamation text-red-600"></i>
+              <span>Must Attend: <b>{{ s.must_attend_now }} consecutive</b></span>
+            </p>
+            <p class="text-[11px] text-red-600">
+              Classes remaining till Nov 6: ~{{ s.remaining_classes }} (Min {{ s.min_to_attend_remaining }} needed).
+            </p>
+          </div>
+          {% else %}
+          <div class="p-2.5 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-800 space-y-1">
+            <p class="font-bold flex items-center gap-1.5">
+              <i class="fa-solid fa-circle-check text-emerald-600"></i>
+              <span>Can Safely Bunk: <b>{{ s.can_miss_now }} lecture(s)</b></span>
+            </p>
+            <p class="text-[11px] text-emerald-600">
+              Safe bunks across remaining semester: {{ s.safe_bunks_remaining }} classes.
+            </p>
+          </div>
+          {% endif %}
+        </div>
+
+      </div>
+      {% endfor %}
+
+      <!-- Honors Subject Card (If Enrolled) -->
+      {% if forecast.honors %}
+      {% set h = forecast.honors %}
+      <div class="bg-white rounded-2xl p-5 border border-purple-200 shadow-sm shadow-purple-500/5 hover-lift flex flex-col justify-between">
+        <div>
+          <div class="flex items-start justify-between gap-2 mb-2">
+            <div>
+              <span class="font-mono text-xs font-extrabold px-2 py-0.5 rounded bg-purple-100 text-purple-800 border border-purple-300">
+                ⭐ HONORS: {{ h.subject }}
+              </span>
+              <p class="text-xs font-bold text-slate-800 mt-1.5">
+                Faculty: {{ h.teacher }}
+              </p>
+            </div>
+            <span class="text-xs font-bold px-2.5 py-0.5 rounded-full {% if h.is_detained %}bg-red-100 text-red-700 border border-red-200{% else %}bg-emerald-100 text-emerald-700 border border-emerald-200{% endif %}">
+              {{ h.status }}
+            </span>
+          </div>
+
+          <div class="flex items-baseline justify-between mt-3">
+            <div>
+              <span class="text-3xl font-extrabold {% if h.is_detained %}text-red-600{% else %}text-purple-700{% endif %}">
+                {{ h.current_pct }}%
+              </span>
+              <span class="text-xs text-slate-400 ml-1">attendance</span>
+            </div>
+            <span class="text-xs font-semibold text-slate-500 font-mono">
+              {{ h.total_attended }} / {{ h.total_conducted }}
+            </span>
+          </div>
+
+          <div class="w-full bg-slate-100 rounded-full h-2 mt-2 overflow-hidden">
+            <div class="h-2 rounded-full {% if h.is_detained %}bg-red-500{% else %}bg-purple-600{% endif %}"
+                 style="width: {{ [h.current_pct, 100]|min }}%"></div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-slate-100 text-[11px]">
+            <div class="bg-purple-50/60 p-2 rounded-lg border border-purple-100">
+              <span class="text-slate-500 block font-semibold">Attended</span>
+              <span class="font-bold text-purple-900">{{ h.total_attended }}</span>
+            </div>
+            <div class="bg-purple-50/60 p-2 rounded-lg border border-purple-100">
+              <span class="text-slate-500 block font-semibold">Conducted</span>
+              <span class="font-bold text-purple-900">{{ h.total_conducted }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 pt-3 border-t border-slate-100 text-xs">
+          {% if h.is_detained %}
+          <div class="p-2.5 rounded-xl bg-red-50 border border-red-100 text-red-800">
+            <p class="font-bold">Must attend {{ h.must_attend_now }} consecutive classes</p>
+          </div>
+          {% else %}
+          <div class="p-2.5 rounded-xl bg-purple-50 border border-purple-100 text-purple-800">
+            <p class="font-bold">Can bunk {{ h.can_miss_now }} class(es) safely</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+
+  <!-- Academic Calendar Milestones & Timetable Pattern -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    
+    <!-- Academic Calendar Milestones (July - Nov 2026) -->
+    <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm lg:col-span-1">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h3 class="text-sm font-bold text-slate-900 brand-font flex items-center gap-2">
+            <i class="fa-regular fa-calendar-days text-blue-600"></i>
+            <span>Academic Calendar AY 2026-27</span>
+          </h3>
+          <p class="text-[11px] text-slate-500 mt-0.5">Sem I: 20 Jul 2026 – 06 Nov 2026</p>
+        </div>
+        <span class="text-[11px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+          {{ milestones.progress_pct }}% Elapsed
+        </span>
+      </div>
+
+      <!-- Semester Progress Bar -->
+      <div class="w-full bg-slate-100 rounded-full h-2 mb-4 overflow-hidden">
+        <div class="h-2 rounded-full bg-blue-600" style="width: {{ milestones.progress_pct }}%"></div>
+      </div>
+
+      <!-- Timeline Items -->
+      <div class="space-y-3 max-h-[380px] overflow-y-auto pr-1">
+        {% for m in milestones.milestones %}
+        <div class="flex items-start gap-3 p-2.5 rounded-xl transition-colors {% if m.done %}bg-slate-50 border border-slate-100 opacity-75{% else %}bg-white border border-blue-100 shadow-xs{% endif %}">
+          <div class="text-base flex-shrink-0 mt-0.5">{{ m.icon }}</div>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-bold text-slate-800 truncate">{{ m.label }}</p>
+            <p class="text-[11px] text-slate-500 font-mono">{{ m.date }}</p>
+          </div>
+          {% if m.done %}
+          <span class="text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
+            <i class="fa-solid fa-check"></i> Done
+          </span>
+          {% else %}
+          <span class="text-[10px] text-blue-600 font-semibold">Upcoming</span>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Timetable Weekly Lecture Schedule Pattern -->
+    <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm lg:col-span-2">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+        <div>
+          <h3 class="text-sm font-bold text-slate-900 brand-font flex items-center gap-2">
+            <i class="fa-solid fa-table-cells text-indigo-600"></i>
+            <span>Weekly Class Timetable Pattern (TY DS A)</span>
+          </h3>
+          <p class="text-[11px] text-slate-500">Official schedule used to calculate projected remaining lectures per subject.</p>
+        </div>
+        <div class="flex items-center gap-2 text-[10px] font-bold text-slate-600">
+          <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Theory (L)</span>
+          <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Practical (P)</span>
+        </div>
+      </div>
+
+      <!-- Timetable Days Tabs/Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+        {% for day in timetable_days %}
+        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+          <div class="flex items-center justify-between mb-2 pb-1 border-b border-slate-200">
+            <span class="text-xs font-bold text-slate-800">{{ day.name }}</span>
+            <span class="text-[10px] font-semibold text-slate-400">{{ day.slots|length }} sessions</span>
+          </div>
+          <div class="space-y-1.5">
+            {% for slot in day.slots %}
+            <div class="flex items-center justify-between px-2 py-1 rounded-md text-[11px] {% if slot[1] == 'L' %}bg-blue-50 text-blue-800 border border-blue-100{% else %}bg-emerald-50 text-emerald-800 border border-emerald-100{% endif %}">
+              <span class="font-bold font-mono">{{ slot[0] }}</span>
+              <span class="text-[10px] font-semibold">
+                {{ 'Theory' if slot[1] == 'L' else 'Lab ' + (slot[2] or 'All') }}
+              </span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Weekly Frequency Summary Footer -->
+      <div class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between text-xs text-slate-500 gap-2">
+        <span>Weekly Theory Loads:</span>
+        <div class="flex flex-wrap gap-2">
+          {% for code, freq in weekly_theory.items() %}
+          <span class="bg-slate-100 px-2 py-0.5 rounded text-[11px] font-semibold text-slate-700">
+            {{ code }}: <b>{{ freq }}L/wk</b>
+          </span>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Interactive Client-side Script for Simulator -->
+<script>
+  // Pre-load subject base numbers from Jinja
+  const subjectsData = {
+    "OVERALL": {
+      attended: {{ ov.total_attended }},
+      conducted: {{ ov.total_conducted }},
+      remaining: {{ ov.remaining_classes }}
+    },
+    {% for code, s in forecast.subjects.items() %}
+    "{{ code }}": {
+      attended: {{ s.total_attended }},
+      conducted: {{ s.total_conducted }},
+      remaining: {{ s.remaining_classes }}
+    },
+    {% endfor %}
+    {% if forecast.honors %}
+    "{{ forecast.honors.subject }}": {
+      attended: {{ forecast.honors.total_attended }},
+      conducted: {{ forecast.honors.total_conducted }},
+      remaining: {{ forecast.honors.remaining_classes }}
+    }
+    {% endif %}
+  };
+
+  let currentScope = "OVERALL";
+
+  function updateSimulatorBase() {
+    currentScope = document.getElementById('sim-subject').value;
+    document.getElementById('attend-slider').value = 0;
+    document.getElementById('miss-slider').value = 0;
+    document.getElementById('attend-val').innerText = '0';
+    document.getElementById('miss-val').innerText = '0';
+    runLiveSimulation();
+  }
+
+  function setSimValues(attend, miss) {
+    document.getElementById('attend-slider').value = Math.max(0, attend);
+    document.getElementById('miss-slider').value = Math.max(0, miss);
+    runLiveSimulation();
+  }
+
+  function runLiveSimulation() {
+    const attend = parseInt(document.getElementById('attend-slider').value) || 0;
+    const miss = parseInt(document.getElementById('miss-slider').value) || 0;
+
+    document.getElementById('attend-val').innerText = attend;
+    document.getElementById('miss-val').innerText = miss;
+
+    const base = subjectsData[currentScope] || subjectsData["OVERALL"];
+    const newAttended = base.attended + attend;
+    const newConducted = base.conducted + attend + miss;
+
+    let projPct = 0.0;
+    if (newConducted > 0) {
+      projPct = ((newAttended / newConducted) * 100).toFixed(1);
+    }
+    const currentBasePct = base.conducted > 0 ? ((base.attended / base.conducted) * 100).toFixed(1) : 0.0;
+    const delta = (projPct - currentBasePct).toFixed(1);
+
+    const isSafe = parseFloat(projPct) >= 75.0;
+    const pctElem = document.getElementById('sim-pct');
+    const badgeElem = document.getElementById('sim-badge');
+    const statusElem = document.getElementById('sim-status');
+
+    pctElem.innerText = projPct + '%';
+    document.getElementById('sim-base').innerText = currentBasePct + '%';
+    document.getElementById('sim-delta').innerText = (delta >= 0 ? '+' : '') + delta + '%';
+    document.getElementById('sim-ratio').innerText = newAttended + ' / ' + newConducted;
+
+    if (isSafe) {
+      pctElem.className = "text-5xl font-black text-emerald-400 tracking-tight";
+      badgeElem.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-900/60 text-emerald-300 border border-emerald-700";
+      statusElem.innerText = parseFloat(projPct) >= 85 ? "SAFE & SECURE" : "BORDERLINE SAFE";
+    } else {
+      pctElem.className = "text-5xl font-black text-red-400 tracking-tight";
+      badgeElem.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-900/60 text-red-300 border border-red-700";
+      statusElem.innerText = "DETAINED (< 75%)";
+    }
+  }
+
+  // Initialize on load
+  document.addEventListener("DOMContentLoaded", () => {
+    runLiveSimulation();
+  });
+</script>
+{% endblock %}

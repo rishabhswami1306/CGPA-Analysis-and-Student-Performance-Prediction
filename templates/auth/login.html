@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In | R.C. Patel Institute – Academic Portal{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto my-6 sm:my-12">
+  <div class="glass-card rounded-2xl p-8 shadow-xl border border-slate-200/80">
+    
+    <div class="text-center mb-6">
+      <div class="w-14 h-14 rounded-2xl bg-blue-600/10 text-blue-600 flex items-center justify-center mx-auto mb-3 text-2xl">
+        <i class="fa-solid fa-graduation-cap"></i>
+      </div>
+      <h2 class="text-2xl font-bold text-slate-900 brand-font">RCPIT Academic Portal</h2>
+      <p class="text-xs text-slate-500 mt-1">SES's R.C. Patel Institute of Technology, Shirpur</p>
+      <p class="text-xs text-slate-400 mt-0.5">TY BTech DS (A) – 2026-27 Sem I</p>
+    </div>
+
+    <!-- Login Form -->
+    <form action="/auth/login" method="POST" class="space-y-4">
+      <div>
+        <label for="email" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">
+          PRN / Roll No. or Email
+        </label>
+        <div class="relative">
+          <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+            <i class="fa-solid fa-id-badge"></i>
+          </span>
+          <input type="text" id="email" name="email" required
+                 placeholder="241106010  or  name@rcpit.ac.in"
+                 class="w-full pl-10 pr-3 py-2.5 bg-slate-50/50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+        </div>
+        <p class="text-[10px] text-slate-400 mt-1">Students: enter your 9-digit PRN number</p>
+      </div>
+
+      <div>
+        <div class="flex items-center justify-between mb-1">
+          <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-slate-600">Password</label>
+          <a href="javascript:void(0)" onclick="openModal('forgot-modal')" class="text-xs text-blue-600 hover:underline">Forgot?</a>
+        </div>
+        <div class="relative">
+          <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+            <i class="fa-solid fa-key"></i>
+          </span>
+          <input type="password" id="password" name="password" required placeholder="••••••••"
+                 class="w-full pl-10 pr-10 py-2.5 bg-slate-50/50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+          <button type="button" onclick="togglePasswordVisibility()" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600">
+            <i id="eye-icon" class="fa-regular fa-eye"></i>
+          </button>
+        </div>
+        <p class="text-[10px] text-slate-400 mt-1">Students: default password is your PRN number</p>
+      </div>
+
+      <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-xl shadow-lg shadow-blue-500/25 transition-all flex items-center justify-center gap-2">
+        <span>Sign In</span>
+        <i class="fa-solid fa-arrow-right text-xs"></i>
+      </button>
+    </form>
+
+    <!-- Quick Demo Credentials -->
+    <div class="mt-5 pt-5 border-t border-slate-200">
+      <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 text-center mb-3">Quick Demo Auto-Fill</p>
+      <div class="grid grid-cols-3 gap-2 mb-2">
+        <button type="button" onclick="fillDemo('admin@rcpit.ac.in','Admin@12345')"
+                class="px-2.5 py-1.5 rounded-lg border border-purple-200 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-semibold text-center transition-all">
+          👑 Admin
+        </button>
+        <button type="button" onclick="fillDemo('sanjekar@rcpit.ac.in','Faculty@12345')"
+                class="px-2.5 py-1.5 rounded-lg border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold text-center transition-all">
+          👨‍🏫 Faculty
+        </button>
+        <button type="button" onclick="fillDemo('241106010','241106010')"
+                class="px-2.5 py-1.5 rounded-lg border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold text-center transition-all">
+          🎓 Student
+        </button>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <button type="button" onclick="fillDemo('241106067','241106067')"
+                class="px-2.5 py-1.5 rounded-lg border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-semibold text-center transition-all">
+          ⚠️ Detained Student
+        </button>
+        <button type="button" onclick="fillDemo('241106049','241106049')"
+                class="px-2.5 py-1.5 rounded-lg border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold text-center transition-all">
+          ✅ Safe Student
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Forgot Password Modal -->
+<div id="forgot-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl border border-slate-100">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="font-bold text-slate-900">Reset Password</h3>
+      <button onclick="closeModal('forgot-modal')" class="text-slate-400 hover:text-slate-600">&times;</button>
+    </div>
+    <p class="text-xs text-slate-600 mb-4">Enter your institutional email to generate a secure reset token.</p>
+    <div class="space-y-3">
+      <input type="email" id="reset-email" placeholder="name@rcpit.ac.in" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500">
+      <button type="button" onclick="handleResetRequest()" class="w-full bg-blue-600 text-white font-medium py-2 rounded-xl text-sm">Send Reset Request</button>
+      <div id="reset-msg" class="text-xs text-emerald-600 hidden"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function fillDemo(id, pass) {
+    document.getElementById('email').value = id;
+    document.getElementById('password').value = pass;
+  }
+  function togglePasswordVisibility() {
+    const input = document.getElementById('password');
+    const icon = document.getElementById('eye-icon');
+    if (input.type === 'password') { input.type = 'text'; icon.classList.replace('fa-eye','fa-eye-slash'); }
+    else { input.type = 'password'; icon.classList.replace('fa-eye-slash','fa-eye'); }
+  }
+  async function handleResetRequest() {
+    const email = document.getElementById('reset-email').value;
+    const msg = document.getElementById('reset-msg');
+    if (!email) return alert('Please enter email.');
+    try {
+      const res = await fetch('/auth/reset-password-request', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email}) });
+      const data = await res.json();
+      msg.innerText = data.demo_reset_token ? `Demo Token: ${data.demo_reset_token}` : data.message;
+      msg.classList.remove('hidden');
+    } catch(e) { alert('Error requesting reset.'); }
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+
+{% block title %}Placement Eligibility & Dream Company Simulator — EduForecast{% endblock %}
+
+{% block nav_links %}
+  <a href="/student/dashboard" class="text-xs text-slate-300 hover:text-white px-3 py-1.5 rounded-lg hover:bg-slate-800 transition-colors">
+    <i class="fa-solid fa-chart-line mr-1"></i> Dashboard
+  </a>
+  <a href="/student/what-if" class="text-xs text-slate-300 hover:text-white px-3 py-1.5 rounded-lg hover:bg-slate-800 transition-colors">
+    <i class="fa-solid fa-calculator mr-1"></i> Goal Planner
+  </a>
+  <a href="/student/placement-eligibility" class="text-xs text-blue-400 bg-slate-800/80 font-semibold px-3 py-1.5 rounded-lg border border-blue-500/30 transition-colors">
+    <i class="fa-solid fa-building mr-1"></i> Placement Matrix
+  </a>
+  <a href="/student/resume-analyzer" class="text-xs text-slate-300 hover:text-white px-3 py-1.5 rounded-lg hover:bg-slate-800 transition-colors">
+    <i class="fa-solid fa-file-lines mr-1"></i> Resume ATS
+  </a>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+  <!-- Header Banner -->
+  <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-2xl p-6 text-white shadow-xl border border-slate-800 relative overflow-hidden">
+    <div class="absolute -right-10 -bottom-10 w-48 h-48 rounded-full bg-blue-500/10 blur-3xl pointer-events-none"></div>
+    <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-semibold mb-2 border border-blue-400/30">
+          <i class="fa-solid fa-briefcase"></i> Campus Recruitment Readiness & Goal Simulator
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-bold brand-font tracking-tight">Company Eligibility & Dream Target Engine</h1>
+        <p class="text-xs sm:text-sm text-slate-400 mt-1 max-w-2xl">
+          Real-time institutional recruitment audit evaluating your academic standing (<strong class="text-white">{{ "%.2f"|format(analysis.student_cgpa) }} CGPA</strong>, <strong class="text-white">{{ analysis.student_backlogs }} backlogs</strong>, <strong class="text-white">{{ analysis.student_branch }}</strong>) against official hiring criteria.
+        </p>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="flex items-center gap-3">
+        <a href="/student/what-if" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-lg shadow-blue-500/20 transition-all flex items-center gap-2">
+          <i class="fa-solid fa-sliders"></i> Open ESE Solver
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Key Metrics Strip -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- Total Evaluated -->
+    <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
+      <div>
+        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 block">Catalog Recruiters</span>
+        <span class="text-2xl font-bold text-slate-900 mt-1 block">{{ analysis.total_companies }} Companies</span>
+        <span class="text-[11px] text-slate-400">All registered institutional drives</span>
+      </div>
+      <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600 text-xl">
+        <i class="fa-solid fa-building-columns"></i>
+      </div>
+    </div>
+
+    <!-- Eligible Now -->
+    <div class="bg-white rounded-xl p-5 border border-emerald-200 shadow-sm flex items-center justify-between">
+      <div>
+        <span class="text-xs font-semibold uppercase tracking-wider text-emerald-600 block">Eligible Right Now</span>
+        <span class="text-2xl font-bold text-emerald-700 mt-1 block">{{ analysis.eligible_count }} Companies</span>
+        <span class="text-[11px] text-emerald-600 font-medium">Ready for immediate shortlisting</span>
+      </div>
+      <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 text-xl">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+    </div>
+
+    <!-- Highest Eligible Package -->
+    <div class="bg-white rounded-xl p-5 border border-blue-200 shadow-sm flex items-center justify-between">
+      <div>
+        <span class="text-xs font-semibold uppercase tracking-wider text-blue-600 block">Top Eligible CTC</span>
+        <span class="text-2xl font-bold text-blue-700 mt-1 block">{{ analysis.highest_eligible_package }} LPA</span>
+        <span class="text-[11px] text-slate-400">Highest package you qualify for</span>
+      </div>
+      <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 text-xl">
+        <i class="fa-solid fa-trophy"></i>
+      </div>
+    </div>
+
+    <!-- Avg Package -->
+    <div class="bg-white rounded-xl p-5 border border-indigo-200 shadow-sm flex items-center justify-between">
+      <div>
+        <span class="text-xs font-semibold uppercase tracking-wider text-indigo-600 block">Mean Eligible CTC</span>
+        <span class="text-2xl font-bold text-indigo-700 mt-1 block">{{ analysis.avg_eligible_package }} LPA</span>
+        <span class="text-[11px] text-slate-400">Across all qualifying companies</span>
+      </div>
+      <div class="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 text-xl">
+        <i class="fa-solid fa-chart-pie"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters and Search Controls -->
+  <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+    <!-- Filter Pills -->
+    <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+      <button onclick="filterCompanies('all')" class="filter-btn active px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 text-white transition-all">
+        All ({{ analysis.total_companies }})
+      </button>
+      <button onclick="filterCompanies('eligible')" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all">
+        <i class="fa-solid fa-check text-emerald-600 mr-1"></i> Eligible Only ({{ analysis.eligible_count }})
+      </button>
+      <button onclick="filterCompanies('tier1')" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all">
+        Tier 1 (12+ LPA)
+      </button>
+      <button onclick="filterCompanies('tier2')" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all">
+        Tier 2 (6–12 LPA)
+      </button>
+      <button onclick="filterCompanies('tier3')" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all">
+        Tier 3 (3.5–6 LPA)
+      </button>
+    </div>
+
+    <!-- Search Input -->
+    <div class="relative w-full md:w-72">
+      <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+      <input type="text" id="companySearchInput" onkeyup="searchCompanies()" placeholder="Search company or skill..." class="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+    </div>
+  </div>
+
+  <!-- Company Cards Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="companyCardsGrid">
+    {% for comp in analysis.companies %}
+    <div class="company-card bg-white rounded-2xl p-5 border {% if comp.is_eligible %}border-emerald-200 hover:border-emerald-400 shadow-sm{% else %}border-slate-200 hover:border-blue-300 shadow-sm{% endif %} transition-all hover:shadow-md flex flex-col justify-between"
+         data-eligible="{{ 'true' if comp.is_eligible else 'false' }}"
+         data-tier="tier{{ comp.tier_level }}"
+         data-name="{{ comp.name|lower }}"
+         data-skills="{{ comp.required_skills|join(' ')|lower }}">
+      
+      <div>
+        <!-- Card Top Bar -->
+        <div class="flex items-start justify-between gap-3 mb-3">
+          <div class="flex items-center space-x-3">
+            <div class="w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-2xl shadow-sm">
+              <i class="{{ comp.icon_class }}"></i>
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-slate-900 leading-snug">{{ comp.name }}</h3>
+              <p class="text-xs text-slate-500">{{ comp.role_title }}</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="text-lg font-extrabold text-blue-600 block leading-tight">{{ comp.package_lpa }} <span class="text-xs font-semibold">LPA</span></span>
+            <span class="text-[10px] text-slate-400">Annual CTC</span>
+          </div>
+        </div>
+
+        <!-- Tier & Criteria Badges -->
+        <div class="flex flex-wrap items-center gap-1.5 mb-3 text-[11px]">
+          <span class="px-2 py-0.5 rounded-full font-medium {% if comp.tier_level == 1 %}bg-amber-50 text-amber-800 border border-amber-200{% elif comp.tier_level == 2 %}bg-indigo-50 text-indigo-800 border border-indigo-200{% else %}bg-slate-100 text-slate-700{% endif %}">
+            Tier {{ comp.tier_level }}
+          </span>
+          <span class="px-2 py-0.5 rounded-full bg-slate-50 text-slate-600 border border-slate-200">
+            Min CGPA: <strong>{{ comp.min_cgpa }}</strong>
+          </span>
+          <span class="px-2 py-0.5 rounded-full bg-slate-50 text-slate-600 border border-slate-200">
+            Max Backlogs: <strong>{{ comp.max_backlogs }}</strong>
+          </span>
+        </div>
+
+        <!-- Description -->
+        <p class="text-xs text-slate-600 mb-3 line-clamp-2 leading-relaxed">
+          {{ comp.description }}
+        </p>
+
+        <!-- Required Skills -->
+        <div class="mb-4">
+          <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Required Competencies:</div>
+          <div class="flex flex-wrap gap-1">
+            {% for skill in comp.required_skills %}
+              <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px] font-medium">{{ skill }}</span>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Eligibility Footer Status / Dream Unlocker -->
+      <div class="pt-3 border-t border-slate-100 mt-2">
+        {% if comp.is_eligible %}
+          <div class="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-between">
+            <span class="text-xs font-bold text-emerald-800 flex items-center gap-1.5">
+              <i class="fa-solid fa-circle-check text-emerald-600"></i> Full Eligibility Confirmed
+            </span>
+            <span class="text-[10px] uppercase tracking-wider font-semibold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">Ready</span>
+          </div>
+        {% else %}
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+            <div class="flex items-center justify-between text-xs">
+              <span class="font-semibold text-slate-700 flex items-center gap-1.5">
+                <i class="fa-solid fa-lock text-slate-400"></i> {{ comp.status_label }}
+              </span>
+            </div>
+
+            {% if comp.unlock_target and not comp.is_eligible and comp.status_tag in ['CGPA_SHORTFALL', 'CGPA_AND_BACKLOG'] %}
+              <div class="p-2 rounded-lg bg-blue-50 border border-blue-200 text-[11px]">
+                <div class="flex items-center justify-between font-semibold text-blue-900 mb-1">
+                  <span><i class="fa-solid fa-bullseye text-blue-600"></i> Dream Unlock Target:</span>
+                  <span class="font-mono text-xs text-blue-700">Next SGPA: <strong>{{ comp.unlock_target.required_sgpa }}</strong></span>
+                </div>
+                <div class="text-slate-600 flex items-center justify-between text-[10px]">
+                  <span>CGPA Gap: +{{ comp.unlock_target.cgpa_gap }}</span>
+                  <span class="px-1.5 py-0.2 rounded font-semibold {% if comp.unlock_target.feasibility == 'EASY' %}bg-emerald-100 text-emerald-800{% elif comp.unlock_target.feasibility == 'ACHIEVABLE' %}bg-blue-100 text-blue-800{% elif comp.unlock_target.feasibility == 'STRETCH_GOAL' %}bg-amber-100 text-amber-800{% else %}bg-purple-100 text-purple-800{% endif %}">
+                    {{ comp.unlock_target.feasibility|replace('_', ' ') }}
+                  </span>
+                </div>
+              </div>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  function filterCompanies(filterType) {
+    const buttons = document.querySelectorAll('.filter-btn');
+    buttons.forEach(btn => {
+      btn.classList.remove('bg-blue-600', 'text-white', 'active');
+      btn.classList.add('bg-slate-100', 'text-slate-700');
+    });
+    event.currentTarget.classList.remove('bg-slate-100', 'text-slate-700');
+    event.currentTarget.classList.add('bg-blue-600', 'text-white', 'active');
+
+    const cards = document.querySelectorAll('.company-card');
+    cards.forEach(card => {
+      const isEligible = card.getAttribute('data-eligible') === 'true';
+      const tier = card.getAttribute('data-tier');
+
+      if (filterType === 'all') {
+        card.style.display = 'flex';
+      } else if (filterType === 'eligible') {
+        card.style.display = isEligible ? 'flex' : 'none';
+      } else {
+        card.style.display = (tier === filterType) ? 'flex' : 'none';
+      }
+    });
+  }
+
+  function searchCompanies() {
+    const query = document.getElementById('companySearchInput').value.toLowerCase();
+    const cards = document.querySelectorAll('.company-card');
+
+    cards.forEach(card => {
+      const name = card.getAttribute('data-name');
+      const skills = card.getAttribute('data-skills');
+      if (name.includes(query) || skills.includes(query)) {
+        card.style.display = 'flex';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  }
+</script>
+{% endblock %}

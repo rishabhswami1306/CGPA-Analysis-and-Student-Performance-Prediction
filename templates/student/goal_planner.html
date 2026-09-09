@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}What-If Goal Engine | Prescriptive Exam Planner{% endblock %}
+
+{% block nav_links %}
+<a href="/student/dashboard" class="text-xs font-medium px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">My Dashboard</a>
+<a href="/student/what-if" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 text-white border border-slate-700">What-If Goal Solver</a>
+<a href="/student/placement-eligibility" class="text-xs font-medium px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">Placement Matrix</a>
+<a href="/student/resume-analyzer" class="text-xs font-medium px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">Resume ATS</a>
+<a href="/student/transcript/pdf" target="_blank" class="text-xs font-medium px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-1">
+  <i class="fa-solid fa-file-pdf text-red-400"></i>
+  <span>Download Transcript</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-5xl mx-auto">
+
+  <!-- Header -->
+  <div>
+    <div class="flex items-center gap-2 text-xs text-indigo-600 font-bold uppercase tracking-wider mb-1">
+      <i class="fa-solid fa-compass-drafting"></i>
+      <span>Prescriptive Analytics Engine</span>
+    </div>
+    <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">"What-If" Academic Goal Simulator</h1>
+    <p class="text-xs sm:text-sm text-slate-500 mt-1">
+      Algebraic solver: Calculate exact minimum End Semester Exam (ESE) scores required to achieve your target CGPA.
+    </p>
+  </div>
+
+  <!-- Target Configuration Card -->
+  <div class="glass-card rounded-2xl p-6 border border-slate-200 shadow-md">
+    <form method="GET" action="/student/what-if" class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+      
+      <div>
+        <label for="target_cgpa" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Target CGPA Goal</label>
+        <div class="flex items-center gap-3">
+          <input type="number" id="target_cgpa" name="target_cgpa" min="4.0" max="10.0" step="0.05" value="{{ target_cgpa }}"
+                 class="w-32 px-3 py-2 bg-slate-50 border-2 border-indigo-500 rounded-xl text-lg font-bold text-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs px-4 py-2.5 rounded-xl shadow-md transition-all">
+            Recalculate
+          </button>
+        </div>
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
+        <span class="text-[11px] font-bold text-slate-500 uppercase">Current Baseline</span>
+        <p class="text-lg font-extrabold text-slate-900">{{ current_cgpa }} CGPA</p>
+        <p class="text-[10px] text-slate-400">Based on {{ total_credits }} completed credits</p>
+      </div>
+
+      <div class="p-3.5 rounded-xl {% if analysis.is_achievable %}bg-emerald-50 border border-emerald-200 text-emerald-900{% else %}bg-red-50 border border-red-200 text-red-900{% endif %}">
+        <span class="text-[11px] font-bold uppercase">Required Semester SGPA</span>
+        <p class="text-2xl font-black {% if analysis.is_achievable %}text-emerald-700{% else %}text-red-700{% endif %}">
+          {{ analysis.required_sgpa }}
+        </p>
+        <span class="text-[10px] font-semibold {% if analysis.is_achievable %}text-emerald-600{% else %}text-red-600{% endif %}">
+          {% if analysis.is_achievable %}✓ Mathematically Achievable{% else %}⚠ Requires multiple semesters (Max this sem: {{ analysis.max_possible_cgpa }}){% endif %}
+        </span>
+      </div>
+
+    </form>
+
+    <!-- Advice Banner -->
+    <div class="mt-4 pt-4 border-t border-slate-100 flex items-start gap-2 text-xs text-slate-700">
+      <i class="fa-solid fa-circle-info text-indigo-600 mt-0.5"></i>
+      <p><b>Solver Assessment:</b> {{ analysis.advice_message }}</p>
+    </div>
+  </div>
+
+  <!-- Required Scores Breakdown Table -->
+  <div class="glass-card rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+    <div class="p-4 bg-slate-100/90 border-b border-slate-200 flex items-center justify-between">
+      <span class="text-xs font-bold text-slate-800">Subject-by-Subject Required Exam Marks</span>
+      <span class="text-xs text-slate-500">Internal average fixed from Unit Tests 1 & 2</span>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs">
+        <thead class="bg-slate-50 text-slate-600 font-semibold uppercase tracking-wider">
+          <tr>
+            <th class="p-3.5">Course Code</th>
+            <th class="p-3.5">Course Name</th>
+            <th class="p-3.5">Credits</th>
+            <th class="p-3.5">Internal Avg (20)</th>
+            <th class="p-3.5">Target Grade</th>
+            <th class="p-3.5">Min ESE Needed</th>
+            <th class="p-3.5">Status</th>
+            <th class="p-3.5 text-right">Grade Matrix</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {% for sub in analysis.subject_breakdown %}
+          <tr class="hover:bg-slate-50 transition-colors">
+            <td class="p-3.5 font-mono font-bold text-slate-900">{{ sub.subject_code }}</td>
+            <td class="p-3.5 font-semibold text-slate-800">{{ sub.subject_name }}</td>
+            <td class="p-3.5 text-slate-600">{{ sub.credits }}</td>
+            <td class="p-3.5 font-mono">{{ sub.tt_avg_score }}</td>
+            <td class="p-3.5 font-bold text-indigo-600">{{ sub.target_grade_point }} Pt</td>
+            <td class="p-3.5 font-mono font-bold text-sm {% if sub.is_feasible %}text-emerald-600{% else %}text-red-600{% endif %}">
+              {{ sub.needed_ese_score }} / {{ sub.max_ese }}
+            </td>
+            <td class="p-3.5">
+              {% if sub.is_feasible %}
+              <span class="px-2 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-800 text-[10px]">Attainable</span>
+              {% else %}
+              <span class="px-2 py-0.5 rounded-full font-bold bg-red-100 text-red-800 text-[10px]">Exceeds Max</span>
+              {% endif %}
+            </td>
+            <td class="p-3.5 text-right">
+              <button onclick="toggleMatrix('matrix-{{ sub.subject_code }}')" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800">
+                View Thresholds &darr;
+              </button>
+            </td>
+          </tr>
+          
+          <!-- Nested Grade Threshold Matrix -->
+          <tr id="matrix-{{ sub.subject_code }}" class="hidden bg-slate-50/90">
+            <td colspan="8" class="p-4">
+              <div class="bg-white p-3 rounded-xl border border-slate-200">
+                <p class="text-[11px] font-bold text-slate-600 uppercase mb-2">Required ESE Score per Grade Target for {{ sub.subject_name }}</p>
+                <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+                  {% for tier in sub.grade_matrix %}
+                  <div class="p-2 rounded-lg border text-center {% if tier.is_attainable %}bg-slate-50 border-slate-200{% else %}bg-red-50/50 border-red-100 text-red-500{% endif %}">
+                    <span class="text-[10px] font-bold block">{{ tier.target_grade }}</span>
+                    <span class="text-xs font-mono font-bold {% if tier.is_attainable %}text-slate-900{% else %}text-red-500{% endif %}">{{ tier.required_ese_marks }}</span>
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function toggleMatrix(rowId) {
+    const row = document.getElementById(rowId);
+    if (row) row.classList.toggle('hidden');
+  }
+</script>
+{% endblock %}

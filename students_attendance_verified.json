@@ -1,0 +1,3576 @@
+[
+  {
+    "roll_no": 9,
+    "prn": "241106010",
+    "student_name": "PATIL KUNAL SANJAY",
+    "local_guardian": "Dr. P S Sanjekar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 5,
+        "lecture_conducted": 12,
+        "practical_attended": 1,
+        "practical_conducted": 4
+      },
+      "IS": {
+        "lecture_attended": 7,
+        "lecture_conducted": 8,
+        "tutorial_attended": 4,
+        "tutorial_conducted": 4
+      },
+      "DAA": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 5,
+        "lecture_conducted": 11,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 7,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CI": {
+        "lecture_attended": 3,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 6,
+        "practical_conducted": 7
+      }
+    },
+    "total_attended": 58,
+    "total_conducted": 87,
+    "percentage": 66.67,
+    "recorded_percentage": 67,
+    "is_detained": true
+  },
+  {
+    "roll_no": 62,
+    "prn": "241106067",
+    "student_name": "PATHARKAR AISHWARYA MOHAN",
+    "local_guardian": "U B Chimankar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": "EM",
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 7,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 7,
+        "lecture_conducted": 8,
+        "tutorial_attended": 2,
+        "tutorial_conducted": 3
+      },
+      "DAA": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 5,
+        "lecture_conducted": 11,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 12,
+        "practical_attended": 2,
+        "practical_conducted": 3
+      },
+      "EM": {
+        "lecture_attended": 4,
+        "lecture_conducted": 9
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 6,
+        "practical_conducted": 10
+      }
+    },
+    "total_attended": 66,
+    "total_conducted": 98,
+    "percentage": 67.35,
+    "recorded_percentage": 67,
+    "is_detained": true
+  },
+  {
+    "roll_no": 45,
+    "prn": "241106048",
+    "student_name": "MAHAJAN RAJ MANOHAR",
+    "local_guardian": "Dr. K D Chaudhari",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 7,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 2,
+        "tutorial_conducted": 3
+      },
+      "DAA": {
+        "lecture_attended": 10,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 6,
+        "lecture_conducted": 11,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 7,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 3
+      },
+      "CI": {
+        "lecture_attended": 4,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 5,
+        "practical_conducted": 10
+      }
+    },
+    "total_attended": 62,
+    "total_conducted": 89,
+    "percentage": 69.66,
+    "recorded_percentage": 70,
+    "is_detained": true
+  },
+  {
+    "roll_no": 26,
+    "prn": "241106027",
+    "student_name": "ZALTE TEJAS BHASKAR",
+    "local_guardian": "Dr. K D Chaudhari",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 7,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 6,
+        "lecture_conducted": 8,
+        "tutorial_attended": 3,
+        "tutorial_conducted": 5
+      },
+      "DAA": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 7,
+        "lecture_conducted": 11,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 0,
+        "practical_conducted": 4
+      }
+    },
+    "total_attended": 60,
+    "total_conducted": 86,
+    "percentage": 69.77,
+    "recorded_percentage": 70,
+    "is_detained": true
+  },
+  {
+    "roll_no": 42,
+    "prn": "241106044",
+    "student_name": "PATIL GAURAV ANIL",
+    "local_guardian": "Dr. K D Chaudhari",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 8,
+        "lecture_conducted": 12,
+        "practical_attended": 2,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 6,
+        "lecture_conducted": 8,
+        "tutorial_attended": 1,
+        "tutorial_conducted": 5
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 2,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 9,
+        "lecture_conducted": 11,
+        "practical_attended": 2,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 10,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 0,
+        "practical_conducted": 4
+      }
+    },
+    "total_attended": 60,
+    "total_conducted": 86,
+    "percentage": 69.77,
+    "recorded_percentage": 70,
+    "is_detained": true
+  },
+  {
+    "roll_no": 10,
+    "prn": "241106011",
+    "student_name": "LAJGE AMAR VINOD",
+    "local_guardian": "Dr. P S Sanjekar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 6,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "IS": {
+        "lecture_attended": 6,
+        "lecture_conducted": 8,
+        "tutorial_attended": 4,
+        "tutorial_conducted": 4
+      },
+      "DAA": {
+        "lecture_attended": 10,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 8,
+        "lecture_conducted": 11,
+        "practical_attended": 2,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 7,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 3
+      },
+      "CI": {
+        "lecture_attended": 4,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 5,
+        "practical_conducted": 8
+      }
+    },
+    "total_attended": 61,
+    "total_conducted": 87,
+    "percentage": 70.11,
+    "recorded_percentage": 70,
+    "is_detained": true
+  },
+  {
+    "roll_no": 49,
+    "prn": "241106052",
+    "student_name": "PATIL TUSHAR PRASHANT",
+    "local_guardian": "U B Chimankar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 7,
+        "lecture_conducted": 12,
+        "practical_attended": 1,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 7,
+        "lecture_conducted": 8,
+        "tutorial_attended": 2,
+        "tutorial_conducted": 3
+      },
+      "DAA": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 6,
+        "lecture_conducted": 11,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 3
+      },
+      "CI": {
+        "lecture_attended": 4,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 7,
+        "practical_conducted": 10
+      }
+    },
+    "total_attended": 63,
+    "total_conducted": 89,
+    "percentage": 70.79,
+    "recorded_percentage": 71,
+    "is_detained": true
+  },
+  {
+    "roll_no": 14,
+    "prn": "241106015",
+    "student_name": "PATIL UJJWAL SANJAY",
+    "local_guardian": "Dr. P S Sanjekar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 5,
+        "lecture_conducted": 12,
+        "practical_attended": 2,
+        "practical_conducted": 4
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 3,
+        "tutorial_conducted": 4
+      },
+      "DAA": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 4,
+        "lecture_conducted": 11,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 9,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 3
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 7,
+        "practical_conducted": 8
+      }
+    },
+    "total_attended": 63,
+    "total_conducted": 87,
+    "percentage": 72.41,
+    "recorded_percentage": 72,
+    "is_detained": true
+  },
+  {
+    "roll_no": 55,
+    "prn": "241106059",
+    "student_name": "AMRUTKAR ANJALI ATISH",
+    "local_guardian": "U B Chimankar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 5,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 2,
+        "tutorial_conducted": 3
+      },
+      "DAA": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 5,
+        "lecture_conducted": 11,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 9,
+        "lecture_conducted": 12,
+        "practical_attended": 2,
+        "practical_conducted": 3
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 8,
+        "practical_conducted": 10
+      }
+    },
+    "total_attended": 65,
+    "total_conducted": 89,
+    "percentage": 73.03,
+    "recorded_percentage": 73,
+    "is_detained": true
+  },
+  {
+    "roll_no": 52,
+    "prn": "241106056",
+    "student_name": "MUNDHE RUSHIKESH SUNIL",
+    "local_guardian": "U B Chimankar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 5,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 3,
+        "tutorial_conducted": 3
+      },
+      "DAA": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 7,
+        "lecture_conducted": 11,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 10,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 3
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 5,
+        "practical_conducted": 10
+      }
+    },
+    "total_attended": 66,
+    "total_conducted": 89,
+    "percentage": 74.16,
+    "recorded_percentage": 74,
+    "is_detained": true
+  },
+  {
+    "roll_no": 40,
+    "prn": "241106042",
+    "student_name": "CHAUDHARI OM LAXMIKANT",
+    "local_guardian": "Dr. K D Chaudhari",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 5,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 7,
+        "lecture_conducted": 8,
+        "tutorial_attended": 3,
+        "tutorial_conducted": 5
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 8,
+        "lecture_conducted": 11,
+        "practical_attended": 2,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 9,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CI": {
+        "lecture_attended": 4,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 4,
+        "practical_conducted": 4
+      }
+    },
+    "total_attended": 64,
+    "total_conducted": 86,
+    "percentage": 74.42,
+    "recorded_percentage": 74,
+    "is_detained": true
+  },
+  {
+    "roll_no": 21,
+    "prn": "241106022",
+    "student_name": "KOLI KARTIK SANJAY",
+    "local_guardian": "Dr. P S Sanjekar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 7,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "IS": {
+        "lecture_attended": 7,
+        "lecture_conducted": 8,
+        "tutorial_attended": 4,
+        "tutorial_conducted": 4
+      },
+      "DAA": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 6,
+        "lecture_conducted": 11,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 3
+      },
+      "CI": {
+        "lecture_attended": 4,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 5,
+        "practical_conducted": 8
+      }
+    },
+    "total_attended": 65,
+    "total_conducted": 87,
+    "percentage": 74.71,
+    "recorded_percentage": 75,
+    "is_detained": true
+  },
+  {
+    "roll_no": 48,
+    "prn": "241106051",
+    "student_name": "UTKARSH VISHNU NARKHEDE",
+    "local_guardian": "Dr. K D Chaudhari",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": "EM",
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 10,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 3,
+        "tutorial_conducted": 3
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 8,
+        "lecture_conducted": 11,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 7,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 3
+      },
+      "EM": {
+        "lecture_attended": 3,
+        "lecture_conducted": 9
+      },
+      "CI": {
+        "lecture_attended": 4,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 6,
+        "practical_conducted": 10
+      }
+    },
+    "total_attended": 75,
+    "total_conducted": 98,
+    "percentage": 76.53,
+    "recorded_percentage": 77,
+    "is_detained": false
+  },
+  {
+    "roll_no": 8,
+    "prn": "241106009",
+    "student_name": "GAVALI NEHA YASHPAL",
+    "local_guardian": "Dr. P S Sanjekar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 6,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 4,
+        "tutorial_conducted": 4
+      },
+      "DAA": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 6,
+        "lecture_conducted": 11,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 12,
+        "practical_attended": 2,
+        "practical_conducted": 3
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 6,
+        "practical_conducted": 8
+      }
+    },
+    "total_attended": 67,
+    "total_conducted": 87,
+    "percentage": 77.01,
+    "recorded_percentage": 77,
+    "is_detained": false
+  },
+  {
+    "roll_no": 5,
+    "prn": "241106005",
+    "student_name": "RISHABH SWAMI",
+    "local_guardian": "Dr. P S Sanjekar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": "EM",
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 7,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 4,
+        "tutorial_conducted": 4
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 6,
+        "lecture_conducted": 11,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 3
+      },
+      "EM": {
+        "lecture_attended": 5,
+        "lecture_conducted": 9
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 6,
+        "practical_conducted": 8
+      }
+    },
+    "total_attended": 74,
+    "total_conducted": 96,
+    "percentage": 77.08,
+    "recorded_percentage": 77,
+    "is_detained": false
+  },
+  {
+    "roll_no": 39,
+    "prn": "241106041",
+    "student_name": "GIRASE VEDIKA SACHIN",
+    "local_guardian": "Dr. K D Chaudhari",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": "EM",
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 8,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 4,
+        "tutorial_conducted": 5
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 6,
+        "lecture_conducted": 11,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "EM": {
+        "lecture_attended": 6,
+        "lecture_conducted": 9
+      },
+      "CI": {
+        "lecture_attended": 4,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 4,
+        "practical_conducted": 4
+      }
+    },
+    "total_attended": 74,
+    "total_conducted": 95,
+    "percentage": 77.89,
+    "recorded_percentage": 78,
+    "is_detained": false
+  },
+  {
+    "roll_no": 24,
+    "prn": "241106025",
+    "student_name": "PATIL MAYUR DIPAK",
+    "local_guardian": "Dr. P S Sanjekar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 6,
+        "lecture_conducted": 12,
+        "practical_attended": 5,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 6,
+        "lecture_conducted": 8,
+        "tutorial_attended": 3,
+        "tutorial_conducted": 5
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 8,
+        "lecture_conducted": 11,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 10,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CI": {
+        "lecture_attended": 4,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 3,
+        "practical_conducted": 4
+      }
+    },
+    "total_attended": 67,
+    "total_conducted": 86,
+    "percentage": 77.91,
+    "recorded_percentage": 78,
+    "is_detained": false
+  },
+  {
+    "roll_no": 25,
+    "prn": "241106026",
+    "student_name": "PATEL JAHANVI HEMANT",
+    "local_guardian": "Dr. K D Chaudhari",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 9,
+        "lecture_conducted": 12,
+        "practical_attended": 2,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 6,
+        "lecture_conducted": 8,
+        "tutorial_attended": 4,
+        "tutorial_conducted": 5
+      },
+      "DAA": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 9,
+        "lecture_conducted": 11,
+        "practical_attended": 2,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 10,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 3,
+        "practical_conducted": 4
+      }
+    },
+    "total_attended": 67,
+    "total_conducted": 86,
+    "percentage": 77.91,
+    "recorded_percentage": 78,
+    "is_detained": false
+  },
+  {
+    "roll_no": 29,
+    "prn": "241106031",
+    "student_name": "BORSE HARSHADA VIJAY",
+    "local_guardian": "Dr. K D Chaudhari",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 9,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 7,
+        "lecture_conducted": 8,
+        "tutorial_attended": 2,
+        "tutorial_conducted": 5
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 7,
+        "lecture_conducted": 11,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CI": {
+        "lecture_attended": 4,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 4,
+        "practical_conducted": 4
+      }
+    },
+    "total_attended": 67,
+    "total_conducted": 86,
+    "percentage": 77.91,
+    "recorded_percentage": 78,
+    "is_detained": false
+  },
+  {
+    "roll_no": 43,
+    "prn": "241106045",
+    "student_name": "PATIL ROSHANI BHALCHANDRA",
+    "local_guardian": "Dr. K D Chaudhari",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 10,
+        "lecture_conducted": 12,
+        "practical_attended": 2,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 7,
+        "lecture_conducted": 8,
+        "tutorial_attended": 2,
+        "tutorial_conducted": 5
+      },
+      "DAA": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 9,
+        "lecture_conducted": 11,
+        "practical_attended": 2,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 10,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CI": {
+        "lecture_attended": 4,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 2,
+        "practical_conducted": 4
+      }
+    },
+    "total_attended": 67,
+    "total_conducted": 86,
+    "percentage": 77.91,
+    "recorded_percentage": 78,
+    "is_detained": false
+  },
+  {
+    "roll_no": 57,
+    "prn": "241106061",
+    "student_name": "BOHRI MOHAMMAD SHABBIR HUS",
+    "local_guardian": "U B Chimankar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": "EM",
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 10,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 3,
+        "tutorial_conducted": 3
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 8,
+        "lecture_conducted": 11,
+        "practical_attended": 2,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 10,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 3
+      },
+      "EM": {
+        "lecture_attended": 2,
+        "lecture_conducted": 9
+      },
+      "CI": {
+        "lecture_attended": 4,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 7,
+        "practical_conducted": 10
+      }
+    },
+    "total_attended": 77,
+    "total_conducted": 98,
+    "percentage": 78.57,
+    "recorded_percentage": 79,
+    "is_detained": false
+  },
+  {
+    "roll_no": 63,
+    "prn": "241106068",
+    "student_name": "BHONDE JANAVI VIJAY",
+    "local_guardian": "U B Chimankar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 8,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 2,
+        "tutorial_conducted": 3
+      },
+      "DAA": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 6,
+        "lecture_conducted": 11,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 9,
+        "lecture_conducted": 12,
+        "practical_attended": 2,
+        "practical_conducted": 3
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 8,
+        "practical_conducted": 10
+      }
+    },
+    "total_attended": 70,
+    "total_conducted": 89,
+    "percentage": 78.65,
+    "recorded_percentage": 79,
+    "is_detained": false
+  },
+  {
+    "roll_no": 28,
+    "prn": "241106029",
+    "student_name": "DEVANSH YOGESH CHAUDHARI",
+    "local_guardian": "Dr. K D Chaudhari",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": "EM",
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 9,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 7,
+        "lecture_conducted": 8,
+        "tutorial_attended": 4,
+        "tutorial_conducted": 5
+      },
+      "DAA": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 9,
+        "lecture_conducted": 11,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "EM": {
+        "lecture_attended": 5,
+        "lecture_conducted": 9
+      },
+      "CI": {
+        "lecture_attended": 4,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 4,
+        "practical_conducted": 4
+      }
+    },
+    "total_attended": 77,
+    "total_conducted": 95,
+    "percentage": 81.05,
+    "recorded_percentage": 81,
+    "is_detained": false
+  },
+  {
+    "roll_no": 59,
+    "prn": "241106064",
+    "student_name": "WAGH YASHWI VIJAY",
+    "local_guardian": "U B Chimankar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 9,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 2,
+        "tutorial_conducted": 3
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 7,
+        "lecture_conducted": 11,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 10,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 3
+      },
+      "CI": {
+        "lecture_attended": 4,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 6,
+        "practical_conducted": 10
+      }
+    },
+    "total_attended": 73,
+    "total_conducted": 89,
+    "percentage": 82.02,
+    "recorded_percentage": 82,
+    "is_detained": false
+  },
+  {
+    "roll_no": 23,
+    "prn": "241106024",
+    "student_name": "GIRASE SHIVAM PRAVIN",
+    "local_guardian": "Dr. P S Sanjekar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 10,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 7,
+        "lecture_conducted": 8,
+        "tutorial_attended": 3,
+        "tutorial_conducted": 5
+      },
+      "DAA": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 8,
+        "lecture_conducted": 11,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CI": {
+        "lecture_attended": 4,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 2,
+        "practical_conducted": 4
+      }
+    },
+    "total_attended": 71,
+    "total_conducted": 86,
+    "percentage": 82.56,
+    "recorded_percentage": 83,
+    "is_detained": false
+  },
+  {
+    "roll_no": 53,
+    "prn": "241106057",
+    "student_name": "MAHAJAN KUBER BHIKAN",
+    "local_guardian": "U B Chimankar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": "EM",
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 9,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 3,
+        "tutorial_conducted": 3
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 8,
+        "lecture_conducted": 11,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 10,
+        "lecture_conducted": 12,
+        "practical_attended": 2,
+        "practical_conducted": 3
+      },
+      "EM": {
+        "lecture_attended": 5,
+        "lecture_conducted": 9
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 8,
+        "practical_conducted": 10
+      }
+    },
+    "total_attended": 81,
+    "total_conducted": 98,
+    "percentage": 82.65,
+    "recorded_percentage": 83,
+    "is_detained": false
+  },
+  {
+    "roll_no": 47,
+    "prn": "241106050",
+    "student_name": "KAPADNIS GAYATRI SUNIL",
+    "local_guardian": "Dr. K D Chaudhari",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 10,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 3,
+        "tutorial_conducted": 3
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 7,
+        "lecture_conducted": 11,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 9,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 3
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 6,
+        "practical_conducted": 10
+      }
+    },
+    "total_attended": 74,
+    "total_conducted": 89,
+    "percentage": 83.15,
+    "recorded_percentage": 83,
+    "is_detained": false
+  },
+  {
+    "roll_no": 16,
+    "prn": "241106017",
+    "student_name": "PATIL KIRTI BALASAHEB",
+    "local_guardian": "Dr. P S Sanjekar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": "EM",
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 10,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 4,
+        "tutorial_conducted": 4
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 8,
+        "lecture_conducted": 11,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 3
+      },
+      "EM": {
+        "lecture_attended": 0,
+        "lecture_conducted": 9
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 7,
+        "practical_conducted": 8
+      }
+    },
+    "total_attended": 80,
+    "total_conducted": 96,
+    "percentage": 83.33,
+    "recorded_percentage": 83,
+    "is_detained": false
+  },
+  {
+    "roll_no": 22,
+    "prn": "241106023",
+    "student_name": "PATIL MOHIT DATTU",
+    "local_guardian": "Dr. P S Sanjekar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 8,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 4,
+        "tutorial_conducted": 4
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 7,
+        "lecture_conducted": 11,
+        "practical_attended": 3,
+        "practical_conducted": 3
+      },
+      "CCS": {
+        "lecture_attended": 9,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 3
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 7,
+        "practical_conducted": 8
+      }
+    },
+    "total_attended": 72,
+    "total_conducted": 86,
+    "percentage": 83.72,
+    "recorded_percentage": 84,
+    "is_detained": false
+  },
+  {
+    "roll_no": 58,
+    "prn": "241106063",
+    "student_name": "BHOI PREM ASHOK",
+    "local_guardian": "U B Chimankar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 10,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 3,
+        "tutorial_conducted": 3
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 9,
+        "lecture_conducted": 11,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 12,
+        "practical_attended": 2,
+        "practical_conducted": 3
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 7,
+        "practical_conducted": 10
+      }
+    },
+    "total_attended": 75,
+    "total_conducted": 89,
+    "percentage": 84.27,
+    "recorded_percentage": 84,
+    "is_detained": false
+  },
+  {
+    "roll_no": 61,
+    "prn": "241106066",
+    "student_name": "RATHOD LALIT FATTESING",
+    "local_guardian": "U B Chimankar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 8,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 3,
+        "tutorial_conducted": 3
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 8,
+        "lecture_conducted": 11,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 10,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 3
+      },
+      "CI": {
+        "lecture_attended": 4,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 7,
+        "practical_conducted": 10
+      }
+    },
+    "total_attended": 75,
+    "total_conducted": 89,
+    "percentage": 84.27,
+    "recorded_percentage": 84,
+    "is_detained": false
+  },
+  {
+    "roll_no": 44,
+    "prn": "241106046",
+    "student_name": "CHAUDHARI 0M DNYANESHWAR",
+    "local_guardian": "Dr. K D Chaudhari",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 10,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 4,
+        "tutorial_conducted": 5
+      },
+      "DAA": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 7,
+        "lecture_conducted": 11,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 9,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CI": {
+        "lecture_attended": 4,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 4,
+        "practical_conducted": 4
+      }
+    },
+    "total_attended": 73,
+    "total_conducted": 86,
+    "percentage": 84.88,
+    "recorded_percentage": 85,
+    "is_detained": false
+  },
+  {
+    "roll_no": 36,
+    "prn": "241106038",
+    "student_name": "CHAUDHARI VISHAKHA KAILAS",
+    "local_guardian": "Dr. K D Chaudhari",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": "EM",
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 9,
+        "lecture_conducted": 12,
+        "practical_attended": 5,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 5,
+        "tutorial_conducted": 5
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 7,
+        "lecture_conducted": 11,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 10,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "EM": {
+        "lecture_attended": 5,
+        "lecture_conducted": 9
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 4,
+        "practical_conducted": 4
+      }
+    },
+    "total_attended": 82,
+    "total_conducted": 95,
+    "percentage": 86.32,
+    "recorded_percentage": 86,
+    "is_detained": false
+  },
+  {
+    "roll_no": 46,
+    "prn": "241106049",
+    "student_name": "SHINDE DARSHAN YOGESH",
+    "local_guardian": "Dr. K D Chaudhari",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 3,
+        "tutorial_conducted": 3
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 10,
+        "lecture_conducted": 11,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 9,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 3
+      },
+      "CI": {
+        "lecture_attended": 4,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 6,
+        "practical_conducted": 10
+      }
+    },
+    "total_attended": 77,
+    "total_conducted": 89,
+    "percentage": 86.52,
+    "recorded_percentage": 87,
+    "is_detained": false
+  },
+  {
+    "roll_no": 50,
+    "prn": "241106053",
+    "student_name": "GIRASE ANJALI PREMSING",
+    "local_guardian": "U B Chimankar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": "EM",
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 10,
+        "lecture_conducted": 12,
+        "practical_attended": 5,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 3,
+        "tutorial_conducted": 3
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 8,
+        "lecture_conducted": 11,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 9,
+        "lecture_conducted": 12,
+        "practical_attended": 2,
+        "practical_conducted": 3
+      },
+      "EM": {
+        "lecture_attended": 6,
+        "lecture_conducted": 9
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 9,
+        "practical_conducted": 10
+      }
+    },
+    "total_attended": 85,
+    "total_conducted": 98,
+    "percentage": 86.73,
+    "recorded_percentage": 87,
+    "is_detained": false
+  },
+  {
+    "roll_no": 31,
+    "prn": "241106033",
+    "student_name": "SONJE RUTUJA SACHIN",
+    "local_guardian": "Dr. K D Chaudhari",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 9,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 5,
+        "tutorial_conducted": 5
+      },
+      "DAA": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 8,
+        "lecture_conducted": 11,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 10,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 4,
+        "practical_conducted": 4
+      }
+    },
+    "total_attended": 75,
+    "total_conducted": 86,
+    "percentage": 87.21,
+    "recorded_percentage": 87,
+    "is_detained": false
+  },
+  {
+    "roll_no": 33,
+    "prn": "241106035",
+    "student_name": "BARI DIVYA VILAS",
+    "local_guardian": "Dr. K D Chaudhari",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 9,
+        "lecture_conducted": 12,
+        "practical_attended": 5,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 3,
+        "tutorial_conducted": 5
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 8,
+        "lecture_conducted": 11,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 10,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CI": {
+        "lecture_attended": 4,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 4,
+        "practical_conducted": 4
+      }
+    },
+    "total_attended": 75,
+    "total_conducted": 86,
+    "percentage": 87.21,
+    "recorded_percentage": 87,
+    "is_detained": false
+  },
+  {
+    "roll_no": 27,
+    "prn": "241106028",
+    "student_name": "BHAMARE ANUSHKA SHAMKANT",
+    "local_guardian": "Dr. K D Chaudhari",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 9,
+        "lecture_conducted": 12,
+        "practical_attended": 5,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 5,
+        "tutorial_conducted": 5
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 7,
+        "lecture_conducted": 11,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CI": {
+        "lecture_attended": 4,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 3,
+        "practical_conducted": 4
+      }
+    },
+    "total_attended": 76,
+    "total_conducted": 86,
+    "percentage": 88.37,
+    "recorded_percentage": 88,
+    "is_detained": false
+  },
+  {
+    "roll_no": 35,
+    "prn": "241106037",
+    "student_name": "GIRASE YASHPAL PRAKASH",
+    "local_guardian": "Dr. K D Chaudhari",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 6,
+        "lecture_conducted": 8,
+        "tutorial_attended": 4,
+        "tutorial_conducted": 5
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 10,
+        "lecture_conducted": 11,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 10,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 4,
+        "practical_conducted": 4
+      }
+    },
+    "total_attended": 76,
+    "total_conducted": 86,
+    "percentage": 88.37,
+    "recorded_percentage": 88,
+    "is_detained": false
+  },
+  {
+    "roll_no": 38,
+    "prn": "241106040",
+    "student_name": "TEWAR VARSHA SHASHIKUMAR",
+    "local_guardian": "Dr. K D Chaudhari",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 4,
+        "tutorial_conducted": 5
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 8,
+        "lecture_conducted": 11,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 10,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 4,
+        "practical_conducted": 4
+      }
+    },
+    "total_attended": 76,
+    "total_conducted": 86,
+    "percentage": 88.37,
+    "recorded_percentage": 88,
+    "is_detained": false
+  },
+  {
+    "roll_no": 4,
+    "prn": "241106004",
+    "student_name": "BHAMARE GUNJAN PRAVIN",
+    "local_guardian": "Dr. P S Sanjekar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": "EM",
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 4,
+        "tutorial_conducted": 4
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 9,
+        "lecture_conducted": 11,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 3
+      },
+      "EM": {
+        "lecture_attended": 3,
+        "lecture_conducted": 9
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 8,
+        "practical_conducted": 8
+      }
+    },
+    "total_attended": 85,
+    "total_conducted": 96,
+    "percentage": 88.54,
+    "recorded_percentage": 89,
+    "is_detained": false
+  },
+  {
+    "roll_no": 20,
+    "prn": "241106021",
+    "student_name": "PATIL MAYURESH SUDAM",
+    "local_guardian": "Dr. P S Sanjekar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": "EM",
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 9,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 4,
+        "tutorial_conducted": 4
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 9,
+        "lecture_conducted": 11,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 3
+      },
+      "EM": {
+        "lecture_attended": 5,
+        "lecture_conducted": 9
+      },
+      "CI": {
+        "lecture_attended": 4,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 8,
+        "practical_conducted": 8
+      }
+    },
+    "total_attended": 85,
+    "total_conducted": 96,
+    "percentage": 88.54,
+    "recorded_percentage": 89,
+    "is_detained": false
+  },
+  {
+    "roll_no": 34,
+    "prn": "241106036",
+    "student_name": "NIKWADE PRATIK KISHOR",
+    "local_guardian": "Dr. K D Chaudhari",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 9,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 7,
+        "lecture_conducted": 8,
+        "tutorial_attended": 5,
+        "tutorial_conducted": 5
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 10,
+        "lecture_conducted": 11,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 10,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 4,
+        "practical_conducted": 4
+      }
+    },
+    "total_attended": 77,
+    "total_conducted": 86,
+    "percentage": 89.53,
+    "recorded_percentage": 90,
+    "is_detained": false
+  },
+  {
+    "roll_no": 17,
+    "prn": "241106018",
+    "student_name": "PATIL KUNAL SUDHAKAR",
+    "local_guardian": "Dr. P S Sanjekar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": "EM",
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 10,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 4,
+        "tutorial_conducted": 4
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 9,
+        "lecture_conducted": 11,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 3
+      },
+      "EM": {
+        "lecture_attended": 3,
+        "lecture_conducted": 9
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 8,
+        "practical_conducted": 8
+      }
+    },
+    "total_attended": 86,
+    "total_conducted": 96,
+    "percentage": 89.58,
+    "recorded_percentage": 90,
+    "is_detained": false
+  },
+  {
+    "roll_no": 19,
+    "prn": "241106020",
+    "student_name": "PATIL PRIYANKA SAMADHAN",
+    "local_guardian": "Dr. P S Sanjekar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": "EM",
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 10,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 4,
+        "tutorial_conducted": 4
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 9,
+        "lecture_conducted": 11,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 3
+      },
+      "EM": {
+        "lecture_attended": 5,
+        "lecture_conducted": 9
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 8,
+        "practical_conducted": 8
+      }
+    },
+    "total_attended": 86,
+    "total_conducted": 96,
+    "percentage": 89.58,
+    "recorded_percentage": 90,
+    "is_detained": false
+  },
+  {
+    "roll_no": 64,
+    "prn": "241106069",
+    "student_name": "SHIMPI YOGITA PRAVIN",
+    "local_guardian": "U B Chimankar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": "EM",
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 5,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 3,
+        "tutorial_conducted": 3
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 8,
+        "lecture_conducted": 11,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 3
+      },
+      "EM": {
+        "lecture_attended": 5,
+        "lecture_conducted": 9
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 9,
+        "practical_conducted": 10
+      }
+    },
+    "total_attended": 88,
+    "total_conducted": 98,
+    "percentage": 89.8,
+    "recorded_percentage": 90,
+    "is_detained": false
+  },
+  {
+    "roll_no": 60,
+    "prn": "241106065",
+    "student_name": "CHAUDHARI CHETNA SHAM",
+    "local_guardian": "U B Chimankar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 10,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 3,
+        "tutorial_conducted": 3
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 8,
+        "lecture_conducted": 11,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 10,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 3
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 9,
+        "practical_conducted": 10
+      }
+    },
+    "total_attended": 80,
+    "total_conducted": 89,
+    "percentage": 89.89,
+    "recorded_percentage": 90,
+    "is_detained": false
+  },
+  {
+    "roll_no": 65,
+    "prn": "241106070",
+    "student_name": "RAJPUT NIKITA SANGRAMSING",
+    "local_guardian": "U B Chimankar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 5,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 3,
+        "tutorial_conducted": 3
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 7,
+        "lecture_conducted": 11,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 9,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 3
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 9,
+        "practical_conducted": 10
+      }
+    },
+    "total_attended": 80,
+    "total_conducted": 89,
+    "percentage": 89.89,
+    "recorded_percentage": 90,
+    "is_detained": false
+  },
+  {
+    "roll_no": 66,
+    "prn": "241106071",
+    "student_name": "PATIL YADNYESH RAJENDRA",
+    "local_guardian": "U B Chimankar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 10,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 3,
+        "tutorial_conducted": 3
+      },
+      "DAA": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 8,
+        "lecture_conducted": 11,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 3
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 8,
+        "practical_conducted": 10
+      }
+    },
+    "total_attended": 80,
+    "total_conducted": 89,
+    "percentage": 89.89,
+    "recorded_percentage": 90,
+    "is_detained": false
+  },
+  {
+    "roll_no": 41,
+    "prn": "241106043",
+    "student_name": "PATIL NEHA RAVINDRA",
+    "local_guardian": "Dr. K D Chaudhari",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": "EM",
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 10,
+        "lecture_conducted": 12,
+        "practical_attended": 5,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 4,
+        "tutorial_conducted": 5
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 9,
+        "lecture_conducted": 11,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "EM": {
+        "lecture_attended": 5,
+        "lecture_conducted": 9
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 4,
+        "practical_conducted": 4
+      }
+    },
+    "total_attended": 86,
+    "total_conducted": 95,
+    "percentage": 90.53,
+    "recorded_percentage": 91,
+    "is_detained": false
+  },
+  {
+    "roll_no": 30,
+    "prn": "241106032",
+    "student_name": "CHAUDHARI PRANAV KISHOR",
+    "local_guardian": "Dr. K D Chaudhari",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 9,
+        "lecture_conducted": 12,
+        "practical_attended": 5,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 5,
+        "tutorial_conducted": 5
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 10,
+        "lecture_conducted": 11,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 10,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 4,
+        "practical_conducted": 4
+      }
+    },
+    "total_attended": 78,
+    "total_conducted": 86,
+    "percentage": 90.7,
+    "recorded_percentage": 91,
+    "is_detained": false
+  },
+  {
+    "roll_no": 3,
+    "prn": "241106003",
+    "student_name": "PATIL NIDHI GOPAL",
+    "local_guardian": "Dr. P S Sanjekar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 9,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 4,
+        "tutorial_conducted": 4
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 7,
+        "lecture_conducted": 11,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 3
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 8,
+        "practical_conducted": 8
+      }
+    },
+    "total_attended": 79,
+    "total_conducted": 87,
+    "percentage": 90.8,
+    "recorded_percentage": 91,
+    "is_detained": false
+  },
+  {
+    "roll_no": 7,
+    "prn": "241106007",
+    "student_name": "BHALKAR VIVEK RAMCHANDRA",
+    "local_guardian": "Dr. P S Sanjekar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 9,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 4,
+        "tutorial_conducted": 4
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 9,
+        "lecture_conducted": 11,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 2,
+        "practical_conducted": 3
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 8,
+        "practical_conducted": 8
+      }
+    },
+    "total_attended": 79,
+    "total_conducted": 87,
+    "percentage": 90.8,
+    "recorded_percentage": 91,
+    "is_detained": false
+  },
+  {
+    "roll_no": 11,
+    "prn": "241106012",
+    "student_name": "KHAIRNAR SHAILESH YOGESH",
+    "local_guardian": "Dr. P S Sanjekar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 10,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 4,
+        "tutorial_conducted": 4
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 9,
+        "lecture_conducted": 11,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 10,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 3
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 7,
+        "practical_conducted": 8
+      }
+    },
+    "total_attended": 79,
+    "total_conducted": 87,
+    "percentage": 90.8,
+    "recorded_percentage": 91,
+    "is_detained": false
+  },
+  {
+    "roll_no": 54,
+    "prn": "241106058",
+    "student_name": "PRAJAPAT DIYA MANOJ",
+    "local_guardian": "U B Chimankar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": "EM",
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 5,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 3,
+        "tutorial_conducted": 3
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 10,
+        "lecture_conducted": 11,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 2,
+        "practical_conducted": 3
+      },
+      "EM": {
+        "lecture_attended": 5,
+        "lecture_conducted": 9
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 9,
+        "practical_conducted": 10
+      }
+    },
+    "total_attended": 89,
+    "total_conducted": 98,
+    "percentage": 90.82,
+    "recorded_percentage": 91,
+    "is_detained": false
+  },
+  {
+    "roll_no": 51,
+    "prn": "241106055",
+    "student_name": "PADMOR SUMIT KIRAN",
+    "local_guardian": "U B Chimankar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 10,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 3,
+        "tutorial_conducted": 3
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 9,
+        "lecture_conducted": 11,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 3
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 7,
+        "practical_conducted": 10
+      }
+    },
+    "total_attended": 81,
+    "total_conducted": 89,
+    "percentage": 91.01,
+    "recorded_percentage": 91,
+    "is_detained": false
+  },
+  {
+    "roll_no": 2,
+    "prn": "241106002",
+    "student_name": "KHALANE ROHAN NANDKISHOR",
+    "local_guardian": "Dr. P S Sanjekar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 10,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 4,
+        "tutorial_conducted": 4
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 9,
+        "lecture_conducted": 11,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 3
+      },
+      "CI": {
+        "lecture_attended": 4,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 8,
+        "practical_conducted": 8
+      }
+    },
+    "total_attended": 80,
+    "total_conducted": 87,
+    "percentage": 91.95,
+    "recorded_percentage": 92,
+    "is_detained": false
+  },
+  {
+    "roll_no": 37,
+    "prn": "241106039",
+    "student_name": "VRUSHALI MACHHINDRA WADILE",
+    "local_guardian": "Dr. K D Chaudhari",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": "EM",
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 5,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 4,
+        "tutorial_conducted": 5
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 10,
+        "lecture_conducted": 11,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "EM": {
+        "lecture_attended": 5,
+        "lecture_conducted": 9
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 4,
+        "practical_conducted": 4
+      }
+    },
+    "total_attended": 88,
+    "total_conducted": 95,
+    "percentage": 92.63,
+    "recorded_percentage": 93,
+    "is_detained": false
+  },
+  {
+    "roll_no": 15,
+    "prn": "241106016",
+    "student_name": "KUMAWAT NANDINI PAWAN",
+    "local_guardian": "Dr. P S Sanjekar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": "EM",
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 4,
+        "tutorial_conducted": 4
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 10,
+        "lecture_conducted": 11,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 3
+      },
+      "EM": {
+        "lecture_attended": 4,
+        "lecture_conducted": 9
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 8,
+        "practical_conducted": 8
+      }
+    },
+    "total_attended": 89,
+    "total_conducted": 96,
+    "percentage": 92.71,
+    "recorded_percentage": 93,
+    "is_detained": false
+  },
+  {
+    "roll_no": 13,
+    "prn": "241106014",
+    "student_name": "TUSHAR ASHOK BORSE",
+    "local_guardian": "Dr. P S Sanjekar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 10,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 4,
+        "tutorial_conducted": 4
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 9,
+        "lecture_conducted": 11,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 3
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 7,
+        "practical_conducted": 8
+      }
+    },
+    "total_attended": 82,
+    "total_conducted": 87,
+    "percentage": 94.25,
+    "recorded_percentage": 94,
+    "is_detained": false
+  },
+  {
+    "roll_no": 18,
+    "prn": "241106019",
+    "student_name": "CHAUDHARI DIPAK GOPAL",
+    "local_guardian": "Dr. P S Sanjekar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 10,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 4,
+        "tutorial_conducted": 4
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 9,
+        "lecture_conducted": 11,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 3
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 8,
+        "practical_conducted": 8
+      }
+    },
+    "total_attended": 82,
+    "total_conducted": 87,
+    "percentage": 94.25,
+    "recorded_percentage": 94,
+    "is_detained": false
+  },
+  {
+    "roll_no": 1,
+    "prn": "241106001",
+    "student_name": "SANGPAL AMEY MUKESH",
+    "local_guardian": "Dr. P S Sanjekar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 4,
+        "tutorial_conducted": 4
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 10,
+        "lecture_conducted": 11,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 3
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 8,
+        "practical_conducted": 8
+      }
+    },
+    "total_attended": 83,
+    "total_conducted": 87,
+    "percentage": 95.4,
+    "recorded_percentage": 95,
+    "is_detained": false
+  },
+  {
+    "roll_no": 6,
+    "prn": "241106006",
+    "student_name": "KHAIRNAR HARSHADA JAYPRAKAS",
+    "local_guardian": "Dr. P S Sanjekar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 4,
+        "tutorial_conducted": 4
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 10,
+        "lecture_conducted": 11,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 3
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 8,
+        "practical_conducted": 8
+      }
+    },
+    "total_attended": 83,
+    "total_conducted": 87,
+    "percentage": 95.4,
+    "recorded_percentage": 95,
+    "is_detained": false
+  },
+  {
+    "roll_no": 12,
+    "prn": "241106013",
+    "student_name": "NHAYADE MOHIT DIPAK",
+    "local_guardian": "Dr. P S Sanjekar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 4
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 4,
+        "tutorial_conducted": 4
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 10,
+        "lecture_conducted": 11,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 3
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 8,
+        "practical_conducted": 8
+      }
+    },
+    "total_attended": 83,
+    "total_conducted": 87,
+    "percentage": 95.4,
+    "recorded_percentage": 95,
+    "is_detained": false
+  },
+  {
+    "roll_no": 56,
+    "prn": "241106060",
+    "student_name": "GANGURDEJAYESH RAVINDRA",
+    "local_guardian": "U B Chimankar",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 5,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 3,
+        "tutorial_conducted": 3
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 9,
+        "lecture_conducted": 11,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 3,
+        "practical_conducted": 3
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 10,
+        "practical_conducted": 10
+      }
+    },
+    "total_attended": 85,
+    "total_conducted": 89,
+    "percentage": 95.51,
+    "recorded_percentage": 96,
+    "is_detained": false
+  },
+  {
+    "roll_no": 32,
+    "prn": "241106034",
+    "student_name": "PATIL CHANCHAL YOGESH",
+    "local_guardian": "Dr. K D Chaudhari",
+    "class_name": "TY DS (A) (2026-27)(SEM-1)",
+    "honors_course": null,
+    "subjects": {
+      "ML-II": {
+        "lecture_attended": 11,
+        "lecture_conducted": 12,
+        "practical_attended": 5,
+        "practical_conducted": 5
+      },
+      "IS": {
+        "lecture_attended": 8,
+        "lecture_conducted": 8,
+        "tutorial_attended": 5,
+        "tutorial_conducted": 5
+      },
+      "DAA": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCN": {
+        "lecture_attended": 10,
+        "lecture_conducted": 11,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CCS": {
+        "lecture_attended": 12,
+        "lecture_conducted": 12,
+        "practical_attended": 4,
+        "practical_conducted": 4
+      },
+      "CI": {
+        "lecture_attended": 5,
+        "lecture_conducted": 5
+      },
+      "AJL": {
+        "practical_attended": 4,
+        "practical_conducted": 4
+      }
+    },
+    "total_attended": 84,
+    "total_conducted": 86,
+    "percentage": 97.67,
+    "recorded_percentage": 98,
+    "is_detained": false
+  }
+]

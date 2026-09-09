@@ -1,0 +1,63 @@
+{
+  "version": "1.0.0",
+  "last_trained_at": "2026-08-21T07:10:53.344283+00:00",
+  "models": {
+    "sgpa_regressor": {
+      "version": "1.1.0",
+      "metrics": {
+        "model_type": "Random Forest Regressor",
+        "baseline_linear_rmse": 0.607,
+        "selected_model_rmse": 0.692,
+        "mae": 0.516,
+        "r2_score": 0.685,
+        "samples_trained": 437
+      },
+      "features": [
+        "sgpa_prev1",
+        "sgpa_prev2",
+        "sgpa_prev3",
+        "sgpa_mean",
+        "sgpa_trend_slope",
+        "current_tt_avg",
+        "attendance_percentage",
+        "active_backlogs",
+        "semester"
+      ],
+      "artifact_path": "C:\\Users\\risha\\Desktop\\Sem project\\ml_engine\\saved_models\\sgpa_regressor.joblib"
+    },
+    "detention_classifier": {
+      "version": "1.1.0",
+      "metrics": {
+        "accuracy": 1.0,
+        "f1_score": 1.0,
+        "roc_auc": 1.0,
+        "samples_trained": 437
+      },
+      "features": [
+        "attendance_percentage",
+        "current_tt_avg",
+        "sgpa_mean",
+        "sgpa_trend_slope",
+        "active_backlogs",
+        "semester"
+      ],
+      "artifact_path": "C:\\Users\\risha\\Desktop\\Sem project\\ml_engine\\saved_models\\detention_classifier.joblib"
+    },
+    "placement_predictor": {
+      "version": "1.1.0",
+      "metrics": {
+        "accuracy": 1.0,
+        "f1_score": 1.0,
+        "roc_auc": 1.0,
+        "samples_trained": 56
+      },
+      "features": [
+        "cgpa",
+        "total_backlogs",
+        "avg_attendance",
+        "core_tech_avg"
+      ],
+      "artifact_path": "C:\\Users\\risha\\Desktop\\Sem project\\ml_engine\\saved_models\\placement_predictor.joblib"
+    }
+  }
+}

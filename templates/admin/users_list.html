@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block title %}User Management | Admin Control{% endblock %}
+
+{% block nav_links %}
+<a href="/admin/dashboard" class="text-xs font-medium px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">Dashboard</a>
+<a href="/admin/users" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 text-white border border-slate-700">Users & Accounts</a>
+<a href="/admin/bulk-upload" class="text-xs font-medium px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">Bulk Upload</a>
+<a href="/admin/audit-logs" class="text-xs font-medium px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">Audit Trail</a>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Institutional User Accounts</h1>
+      <p class="text-xs text-slate-500 mt-1">Manage Students, Faculty, and Admin accounts with granular subject assignments.</p>
+    </div>
+    <button onclick="openModal('create-user-modal')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg shadow-blue-500/20 transition-all flex items-center gap-2">
+      <i class="fa-solid fa-user-plus"></i>
+      <span>Create New User</span>
+    </button>
+  </div>
+
+  <!-- Filters & Search Bar -->
+  <div class="glass-card rounded-2xl p-4 border border-slate-200">
+    <form method="GET" action="/admin/users" class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+      <div class="sm:col-span-2 relative">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-magnifying-glass"></i></span>
+        <input type="text" name="search" value="{{ search }}" placeholder="Search by name, PRN, or email..."
+               class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-500">
+      </div>
+      <div>
+        <select name="role" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-500">
+          <option value="">All Roles</option>
+          <option value="student" {% if role_filter == 'student' %}selected{% endif %}>Student</option>
+          <option value="faculty" {% if role_filter == 'faculty' %}selected{% endif %}>Faculty</option>
+          <option value="admin" {% if role_filter == 'admin' %}selected{% endif %}>Admin</option>
+        </select>
+      </div>
+      <div class="flex gap-2">
+        <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold py-2 rounded-xl">Filter</button>
+        <a href="/admin/users" class="px-3 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold rounded-xl flex items-center justify-center">Reset</a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Users Table -->
+  <div class="glass-card rounded-2xl border border-slate-200 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs">
+        <thead class="bg-slate-100/90 text-slate-600 font-semibold uppercase tracking-wider">
+          <tr>
+            <th class="p-3.5">PRN / Roll</th>
+            <th class="p-3.5">Name</th>
+            <th class="p-3.5">Email</th>
+            <th class="p-3.5">Role</th>
+            <th class="p-3.5">Branch / Scope</th>
+            <th class="p-3.5">Status</th>
+            <th class="p-3.5 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {% for u in users %}
+          <tr class="hover:bg-slate-50 transition-colors">
+            <td class="p-3.5 font-mono font-bold text-slate-900">{{ u.prn_roll }}</td>
+            <td class="p-3.5 font-semibold text-slate-800">{{ u.name }}</td>
+            <td class="p-3.5 text-slate-500">{{ u.email }}</td>
+            <td class="p-3.5">
+              <span class="px-2.5 py-0.5 rounded-full font-bold text-[10px] {% if u.role == 'admin' %}bg-purple-100 text-purple-700{% elif u.role == 'faculty' %}bg-blue-100 text-blue-700{% else %}bg-emerald-100 text-emerald-700{% endif %}">
+                {{ u.role | upper }}
+              </span>
+            </td>
+            <td class="p-3.5 text-slate-600">
+              {% if u.role == 'faculty' %}
+                <span class="text-[11px] bg-slate-100 px-2 py-0.5 rounded text-slate-700">Subjects: {{ u.assigned_subjects | join(', ') or 'None' }}</span>
+              {% else %}
+                {{ u.branch or 'N/A' }} (Adm: {{ u.admission_year }})
+              {% endif %}
+            </td>
+            <td class="p-3.5">
+              {% if u.is_active %}
+                <span class="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-semibold text-[11px]">Active</span>
+              {% else %}
+                <span class="text-red-700 bg-red-50 px-2 py-0.5 rounded-full font-semibold text-[11px]">Deactivated</span>
+              {% endif %}
+            </td>
+            <td class="p-3.5 text-right space-x-2">
+              {% if u.role == 'student' %}
+              <a href="/student/dashboard?student_prn={{ u.prn_roll }}" class="text-blue-600 hover:text-blue-800 font-semibold" title="View Student Analytics">
+                <i class="fa-solid fa-chart-line"></i> Analytics
+              </a>
+              {% endif %}
+              <button onclick="toggleUserStatus('{{ u.prn_roll }}')" class="text-slate-500 hover:text-red-600" title="Toggle Status">
+                <i class="fa-solid fa-power-off"></i>
+              </button>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="7" class="p-6 text-center text-slate-400">No matching user accounts found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination Footer -->
+    <div class="p-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+      <span>Showing page <b>{{ page }}</b> of <b>{{ total_pages }}</b> ({{ total_count }} total accounts)</span>
+      <div class="flex gap-2">
+        {% if page > 1 %}
+        <a href="/admin/users?page={{ page - 1 }}&search={{ search }}&role={{ role_filter }}" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg">&larr; Prev</a>
+        {% endif %}
+        {% if page < total_pages %}
+        <a href="/admin/users?page={{ page + 1 }}&search={{ search }}&role={{ role_filter }}" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg">Next &rarr;</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Create User Modal -->
+<div id="create-user-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl border border-slate-100">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="font-bold text-slate-900 text-lg">Create New Account</h3>
+      <button onclick="closeModal('create-user-modal')" class="text-slate-400 hover:text-slate-600 text-lg">&times;</button>
+    </div>
+
+    <form method="POST" action="/admin/users" class="space-y-3 text-xs">
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">PRN / Roll Number</label>
+        <input type="text" name="prn_roll" required placeholder="e.g. 2022CS099" class="w-full px-3 py-2 border border-slate-300 rounded-xl">
+      </div>
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">Full Name</label>
+        <input type="text" name="name" required placeholder="e.g. Rahul Sharma" class="w-full px-3 py-2 border border-slate-300 rounded-xl">
+      </div>
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">Email</label>
+        <input type="email" name="email" required placeholder="r.sharma@institute.edu" class="w-full px-3 py-2 border border-slate-300 rounded-xl">
+      </div>
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">Temporary Password</label>
+        <input type="password" name="password" required placeholder="Min 8 chars, 1 uppercase, 1 number" class="w-full px-3 py-2 border border-slate-300 rounded-xl">
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Role</label>
+          <select name="role" id="new-user-role" onchange="toggleAssignedSubjectsInput()" class="w-full px-3 py-2 border border-slate-300 rounded-xl">
+            <option value="student">Student</option>
+            <option value="faculty">Faculty</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Branch</label>
+          <select name="branch" class="w-full px-3 py-2 border border-slate-300 rounded-xl">
+            <option value="CSE-DS">CSE-DS</option>
+            <option value="CSE">CSE</option>
+            <option value="IT">IT</option>
+            <option value="EXTC">EXTC</option>
+            <option value="AIDS">AIDS</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">Admission Year</label>
+        <input type="number" name="admission_year" value="2023" class="w-full px-3 py-2 border border-slate-300 rounded-xl">
+      </div>
+      <div id="assigned-subjects-group" class="hidden">
+        <label class="block font-semibold text-slate-700 mb-1">Assigned Subject Codes (Comma-separated)</label>
+        <input type="text" name="assigned_subjects" placeholder="e.g. CS101, CS102" class="w-full px-3 py-2 border border-slate-300 rounded-xl">
+      </div>
+
+      <button type="submit" class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl text-sm transition-all">
+        Create Account
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+  function toggleAssignedSubjectsInput() {
+    const role = document.getElementById('new-user-role').value;
+    const group = document.getElementById('assigned-subjects-group');
+    if (role === 'faculty') {
+      group.classList.remove('hidden');
+    } else {
+      group.classList.add('hidden');
+    }
+  }
+
+  async function toggleUserStatus(prn) {
+    if (!confirm(`Toggle active status for user ${prn}?`)) return;
+    try {
+      const res = await fetch(`/admin/users/${prn}`, { method: 'DELETE' });
+      if (res.ok) {
+        location.reload();
+      } else {
+        alert('Error updating status');
+      }
+    } catch(e) {
+      alert('Network error');
+    }
+  }
+</script>
+{% endblock %}

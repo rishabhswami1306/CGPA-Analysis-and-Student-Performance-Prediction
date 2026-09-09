@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}Cryptographic Transcript Verification — EduForecast{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto py-8 px-4 sm:px-6">
+  <!-- Header Title -->
+  <div class="text-center mb-8">
+    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold mb-3 border border-blue-200">
+      <i class="fa-solid fa-shield-halved"></i> Tamper-Evident Institutional Credential Registry
+    </div>
+    <h1 class="text-3xl font-extrabold text-slate-900 brand-font tracking-tight">Official Academic Credential Verification</h1>
+    <p class="text-sm text-slate-500 mt-1 max-w-xl mx-auto">
+      Cryptographically authenticated against the university's permanent academic ledger with HMAC-SHA256 integrity verification.
+    </p>
+  </div>
+
+  {% if result %}
+    {% if result.is_valid %}
+      <!-- Authenticated Verified Card -->
+      <div class="bg-white rounded-2xl shadow-xl border border-emerald-200 overflow-hidden mb-8 transition-all hover:shadow-2xl">
+        <!-- Banner Header -->
+        <div class="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 p-6 text-white">
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center space-x-4">
+              <div class="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center border border-white/30 text-white text-3xl shadow-inner">
+                <i class="fa-solid fa-certificate animate-pulse"></i>
+              </div>
+              <div>
+                <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/30 text-emerald-100 text-xs font-semibold border border-white/20 mb-1">
+                  <i class="fa-solid fa-circle-check text-emerald-300"></i> AUTHENTIC & VALIDATED
+                </div>
+                <h2 class="text-2xl font-bold tracking-tight">Official Grade Record Verified</h2>
+                <p class="text-xs text-emerald-100">Document integrity matches permanent institute database.</p>
+              </div>
+            </div>
+            <div class="text-center sm:text-right bg-white/10 backdrop-blur rounded-xl px-4 py-2 border border-white/20">
+              <div class="text-[11px] text-emerald-100 uppercase tracking-wider font-semibold">Ledger Status</div>
+              <div class="text-sm font-bold text-white flex items-center gap-1.5 justify-center sm:justify-end">
+                <span class="w-2 h-2 rounded-full bg-emerald-300 animate-ping"></span> Live Authenticated
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Student & Academic Body -->
+        <div class="p-6 sm:p-8 space-y-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+              <span class="text-xs font-medium text-slate-500 block uppercase tracking-wider">Student Name</span>
+              <span class="text-base font-bold text-slate-900 mt-1 block">{{ result.student.name }}</span>
+            </div>
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+              <span class="text-xs font-medium text-slate-500 block uppercase tracking-wider">PRN / Roll No</span>
+              <span class="text-base font-bold text-blue-600 font-mono mt-1 block">{{ result.student.prn_roll }}</span>
+            </div>
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+              <span class="text-xs font-medium text-slate-500 block uppercase tracking-wider">Department</span>
+              <span class="text-base font-bold text-slate-900 mt-1 block">{{ result.student.branch }}</span>
+            </div>
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+              <span class="text-xs font-medium text-slate-500 block uppercase tracking-wider">Admission Year</span>
+              <span class="text-base font-bold text-slate-900 mt-1 block">{{ result.student.admission_year or 'N/A' }}</span>
+            </div>
+          </div>
+
+          <!-- Academic Metrics Highlight -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-5 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200">
+            <div class="text-center">
+              <div class="text-xs font-semibold text-blue-600 uppercase tracking-wider">Verified Cumulative CGPA</div>
+              <div class="text-3xl font-extrabold text-blue-900 mt-1">{{ "%.2f"|format(result.verified_cgpa) }} <span class="text-sm font-normal text-blue-600">/ 10.0</span></div>
+            </div>
+            <div class="text-center border-t sm:border-t-0 sm:border-l sm:border-r border-blue-200 pt-3 sm:pt-0">
+              <div class="text-xs font-semibold text-blue-600 uppercase tracking-wider">Earned Academic Credits</div>
+              <div class="text-3xl font-extrabold text-blue-900 mt-1">{{ result.total_credits }}</div>
+            </div>
+            <div class="text-center border-t sm:border-t-0 border-blue-200 pt-3 sm:pt-0">
+              <div class="text-xs font-semibold text-blue-600 uppercase tracking-wider">Active Backlogs</div>
+              <div class="text-3xl font-extrabold {% if result.total_backlogs == 0 %}text-emerald-700{% else %}text-red-600{% endif %} mt-1">
+                {{ result.total_backlogs }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Cryptographic Metadata Card -->
+          <div class="p-4 rounded-xl bg-slate-900 text-slate-200 text-xs font-mono space-y-2 border border-slate-800">
+            <div class="flex items-center justify-between text-slate-400 pb-2 border-b border-slate-800">
+              <span class="flex items-center gap-1.5"><i class="fa-solid fa-lock text-emerald-400"></i> Cryptographic Audit Trail</span>
+              <span>SHA-256 HMAC</span>
+            </div>
+            <div class="break-all">
+              <span class="text-slate-500">Digital Signature: </span>
+              <span class="text-emerald-400 select-all">{{ result.signature }}</span>
+            </div>
+            <div class="flex flex-wrap items-center justify-between text-slate-400 pt-1">
+              <span>Issue Date: <strong class="text-slate-200">{{ result.issue_date }}</strong></span>
+              <span>Institution: <strong class="text-slate-200">Institute of Higher Technology & Advanced Studies</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <!-- Failed / Tampered Card -->
+      <div class="bg-white rounded-2xl shadow-xl border border-red-200 overflow-hidden mb-8">
+        <div class="bg-gradient-to-r from-red-600 to-rose-700 p-6 text-white">
+          <div class="flex items-center space-x-4">
+            <div class="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center border border-white/30 text-white text-3xl">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div>
+              <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-red-500/30 text-red-100 text-xs font-semibold border border-white/20 mb-1">
+                <i class="fa-solid fa-xmark text-red-300"></i> VERIFICATION FAILED
+              </div>
+              <h2 class="text-2xl font-bold tracking-tight">Record Cannot Be Authenticated</h2>
+              <p class="text-xs text-red-100">The provided cryptographic signature does not match university records.</p>
+            </div>
+          </div>
+        </div>
+        <div class="p-6 sm:p-8">
+          <div class="p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm mb-4">
+            <p class="font-semibold flex items-center gap-2 mb-1">
+              <i class="fa-solid fa-shield-virus text-red-600"></i> Security Notice: Potential Document Alteration
+            </p>
+            <p>{{ result.message }}</p>
+          </div>
+          <p class="text-xs text-slate-500">
+            If you believe this is an error, please contact the Office of the Controller of Examinations with the physical copy and document serial number.
+          </p>
+        </div>
+      </div>
+    {% endif %}
+  {% endif %}
+
+  <!-- Manual Verification Search Form -->
+  <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+    <h3 class="text-base font-bold text-slate-900 mb-2 flex items-center gap-2">
+      <i class="fa-solid fa-magnifying-glass text-blue-600"></i> Verify Another Transcript
+    </h3>
+    <p class="text-xs text-slate-500 mb-4">Enter the Student PRN and Digital Signature / Security Hash printed on the transcript QR code.</p>
+    <form action="{{ url_for('auth.verify_transcript_view') }}" method="GET" class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+      <div class="sm:col-span-4">
+        <label class="block text-xs font-semibold text-slate-700 mb-1">Student PRN / Roll Number</label>
+        <input type="text" name="prn" required placeholder="e.g. 2022CSE001" value="{{ request.args.get('prn', '') }}" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none uppercase font-mono">
+      </div>
+      <div class="sm:col-span-6">
+        <label class="block text-xs font-semibold text-slate-700 mb-1">Digital Signature or Security Hash</label>
+        <input type="text" name="sig" required placeholder="64-character hex signature or 24-char hash" value="{{ request.args.get('sig', '') }}" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none font-mono">
+      </div>
+      <div class="sm:col-span-2 flex items-end">
+        <button type="submit" class="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-all flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-check"></i> Verify
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
