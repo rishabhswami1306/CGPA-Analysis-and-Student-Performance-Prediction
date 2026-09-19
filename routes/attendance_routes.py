@@ -36,21 +36,24 @@ def forecast_view():
     user_role = claims.get("role")
 
     target_prn = request.args.get("student_prn")
-    if target_prn:
-        student_prn = target_prn
-    elif user_role == "student":
+    if user_role == "student":
         student_prn = current_prn
+    elif target_prn:
+        student_prn = target_prn
     else:
         # Default for admin/faculty when no PRN is passed: first student
         db = get_db()
         first_student = db.users.find_one({"role": "student"}, sort=[("roll_no", 1)])
-        student_prn = first_student["prn_roll"] if first_student else current_prn
+        student_prn = first_student.get("prn_roll") if first_student else current_prn
 
     db = get_db()
     user = db.users.find_one({"prn_roll": student_prn})
     if not user:
-        flash(f"Student record for PRN {student_prn} not found.", "warning")
-        return redirect(url_for("attendance.detention_list_view"))
+        if user_role == "student" and student_prn == current_prn:
+            user = {"prn_roll": student_prn, "name": f"Student {student_prn}", "role": "student", "roll_no": "1"}
+        else:
+            flash(f"Student record for PRN {student_prn} not found.", "warning")
+            return redirect(url_for("attendance.detention_list_view"))
 
     att_record = db.attendance_records.find_one({"student_prn": student_prn})
     if not att_record:
@@ -68,18 +71,65 @@ def forecast_view():
     forecast = compute_attendance_predictions(student_prn, att_record)
     milestones = get_semester_milestones()
 
-    # Populate student list for quick dropdown selector for all users
+    # Populate student list for quick dropdown selector for admin/faculty
     students_dropdown = []
-    all_students = list(db.users.find({"role": "student"}).sort("roll_no", 1))
-    for s in all_students:
-        s_att = db.attendance_records.find_one({"student_prn": s["prn_roll"]}) or {}
-        students_dropdown.append({
-            "prn": s["prn_roll"],
-            "name": s["name"],
-            "roll_no": s.get("roll_no", ""),
-            "pct": s_att.get("percentage", 0.0),
-            "is_detained": s_att.get("is_detained", False),
-        })
+    if user_role in ["admin", "faculty"]:
+        all_students = list(db.users.find({"role": "student"}).sort("roll_no", 1))
+        for s in all_students:
+            s_prn = s.get("prn_roll")
+            if not s_prn:
+                continue
+            s_att = db.attendance_records.find_one({"student_prn": s_prn}) or {}
+            s_name = s.get("name") or s.get("email") or s_prn
+            students_dropdown.append({
+                "prn": s_prn,
+                "name": s_name,
+                "roll_no": s.get("roll_no", ""),
+                "pct": s_att.get("percentage", 0.0),
+                "is_detained": s_att.get("is_detained", False),
+            })
+
+    # Prepare safe JSON dictionary for the interactive simulator
+    forecast_subjects_map = {
+        "OVERALL": {
+            "name": "Combined Overall Attendance",
+            "attended": forecast["overall"].get("total_attended", 0),
+            "conducted": forecast["overall"].get("total_conducted", 0),
+            "remaining": forecast["overall"].get("remaining_classes", 0),
+            "current_pct": forecast["overall"].get("current_pct", 0.0),
+            "must_attend_now": forecast["overall"].get("must_attend_now", 0),
+            "can_miss_now": forecast["overall"].get("can_miss_now", 0),
+            "is_detained": bool(forecast["overall"].get("is_detained", False)),
+            "status": forecast["overall"].get("status", "Safe"),
+        }
+    }
+    for code, s in forecast.get("subjects", {}).items():
+        forecast_subjects_map[code] = {
+            "name": f"{code} ({s.get('teacher') or 'Faculty'})",
+            "attended": s.get("total_attended", 0),
+            "conducted": s.get("total_conducted", 0),
+            "remaining": s.get("remaining_classes", 0),
+            "current_pct": s.get("current_pct", 0.0),
+            "must_attend_now": s.get("must_attend_now", 0),
+            "can_miss_now": s.get("can_miss_now", 0),
+            "is_detained": bool(s.get("is_detained", False)),
+            "status": s.get("status", "Safe"),
+        }
+    if forecast.get("honors"):
+        h = forecast["honors"]
+        h_subj = h.get("subject", "Honors")
+        forecast_subjects_map[h_subj] = {
+            "name": f"Honors: {h_subj}",
+            "attended": h.get("total_attended", 0),
+            "conducted": h.get("total_conducted", 0),
+            "remaining": h.get("remaining_classes", 0),
+            "current_pct": h.get("current_pct", 0.0),
+            "must_attend_now": h.get("must_attend_now", 0),
+            "can_miss_now": h.get("can_miss_now", 0),
+            "is_detained": bool(h.get("is_detained", False)),
+            "status": h.get("status", "Safe"),
+        }
+    forecast_subjects_json = json.dumps(forecast_subjects_map)
 
     timetable_days = [
         {"name": "Monday", "day_idx": 0, "slots": TIMETABLE.get(0, [])},
@@ -99,6 +149,7 @@ def forecast_view():
         forecast=forecast,
         milestones=milestones,
         students_dropdown=students_dropdown,
+        forecast_subjects_json=forecast_subjects_json,
         timetable_days=timetable_days,
         weekly_theory=WEEKLY_THEORY_LECTURES,
         teaching_staff=TEACHING_STAFF,
@@ -162,10 +213,10 @@ def detention_list_view():
 
         matches_search = True
         if search_query:
-            q_in_name = search_query in item["name"].lower()
-            q_in_prn = search_query in item["prn"].lower()
-            q_in_roll = search_query in str(item["roll_no"]).lower()
-            q_in_lg = search_query in item["local_guardian"].lower()
+            q_in_name = search_query in str(item.get("name") or "").lower()
+            q_in_prn = search_query in str(item.get("prn") or "").lower()
+            q_in_roll = search_query in str(item.get("roll_no") or "").lower()
+            q_in_lg = search_query in str(item.get("local_guardian") or "").lower()
             matches_search = q_in_name or q_in_prn or q_in_roll or q_in_lg
 
         if matches_status and matches_search:
@@ -218,6 +269,13 @@ def api_simulate():
 @role_required(["student", "admin", "faculty"])
 def api_student_forecast(prn):
     """JSON API returning full attendance forecast for a given PRN."""
+    claims = get_jwt()
+    current_prn = get_jwt_identity()
+    user_role = claims.get("role")
+
+    if user_role == "student" and current_prn != prn:
+        return jsonify({"message": "Not authorized to access another student's attendance records"}), 403
+
     db = get_db()
     att_record = db.attendance_records.find_one({"student_prn": prn})
     if not att_record:

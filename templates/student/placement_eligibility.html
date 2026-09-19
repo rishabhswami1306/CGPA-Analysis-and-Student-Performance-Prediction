@@ -22,22 +22,44 @@
 
   <!-- Header Banner -->
   <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-2xl p-6 text-white shadow-xl border border-slate-800 relative overflow-hidden">
-    <div class="absolute -right-10 -bottom-10 w-48 h-48 rounded-full bg-blue-500/10 blur-3xl pointer-events-none"></div>
+    <div class="absolute -right-10 -bottom-10 w-56 h-56 rounded-full bg-blue-500/10 blur-3xl pointer-events-none"></div>
     <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div>
         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-semibold mb-2 border border-blue-400/30">
-          <i class="fa-solid fa-briefcase"></i> Campus Recruitment Readiness & Goal Simulator
+          <i class="fa-solid fa-briefcase"></i> Campus Recruitment Readiness & Multi-Criteria Simulator
         </div>
-        <h1 class="text-2xl sm:text-3xl font-bold brand-font tracking-tight">Company Eligibility & Dream Target Engine</h1>
-        <p class="text-xs sm:text-sm text-slate-400 mt-1 max-w-2xl">
-          Real-time institutional recruitment audit evaluating your academic standing (<strong class="text-white">{{ "%.2f"|format(analysis.student_cgpa) }} CGPA</strong>, <strong class="text-white">{{ analysis.student_backlogs }} backlogs</strong>, <strong class="text-white">{{ analysis.student_branch }}</strong>) against official hiring criteria.
+        <h1 class="text-2xl sm:text-3xl font-bold brand-font tracking-tight">Recruitment Matrix & Dream Target Engine</h1>
+        <p class="text-xs sm:text-sm text-slate-400 mt-1 max-w-3xl leading-relaxed">
+          Real-time institutional recruitment audit evaluating your academic standing against official recruiter criteria.
         </p>
+
+        <!-- Current Student Audit Strip -->
+        <div class="flex flex-wrap items-center gap-2 mt-3 text-xs">
+          <span class="px-2.5 py-1 rounded-lg bg-slate-800/80 text-slate-200 border border-slate-700">
+            CGPA: <strong class="text-emerald-400">{{ "%.2f"|format(analysis.student_cgpa) }}</strong>
+          </span>
+          <span class="px-2.5 py-1 rounded-lg bg-slate-800/80 text-slate-200 border border-slate-700">
+            Active Backlogs: <strong class="{% if analysis.student_backlogs == 0 %}text-emerald-400{% else %}text-rose-400{% endif %}">{{ analysis.student_backlogs }}</strong>
+          </span>
+          <span class="px-2.5 py-1 rounded-lg bg-slate-800/80 text-slate-200 border border-slate-700">
+            Attendance: <strong class="{% if analysis.student_attendance >= 75.0 %}text-emerald-400{% else %}text-amber-400{% endif %}">{{ "%.1f"|format(analysis.student_attendance) }}%</strong>
+          </span>
+          <span class="px-2.5 py-1 rounded-lg bg-slate-800/80 text-slate-200 border border-slate-700">
+            Readiness Score: <strong class="text-blue-400">{{ "%.0f"|format(analysis.student_placement_score) }}%</strong>
+          </span>
+          <span class="px-2.5 py-1 rounded-lg bg-slate-800/80 text-slate-200 border border-slate-700">
+            Department: <strong class="text-purple-300">{{ analysis.student_branch }}</strong>
+          </span>
+        </div>
       </div>
 
       <!-- Quick Actions -->
-      <div class="flex items-center gap-3">
-        <a href="/student/what-if" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-lg shadow-blue-500/20 transition-all flex items-center gap-2">
-          <i class="fa-solid fa-sliders"></i> Open ESE Solver
+      <div class="flex flex-wrap md:flex-col items-center gap-2.5 shrink-0">
+        <a href="/student/resume-analyzer" class="w-full px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-lg shadow-indigo-500/20 transition-all flex items-center justify-center gap-2">
+          <i class="fa-solid fa-file-shield"></i> Resume ATS Matcher
+        </a>
+        <a href="/student/what-if" class="w-full px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition-all flex items-center justify-center gap-2">
+          <i class="fa-solid fa-sliders"></i> Goal SGPA Solver
         </a>
       </div>
     </div>
@@ -102,7 +124,10 @@
         All ({{ analysis.total_companies }})
       </button>
       <button onclick="filterCompanies('eligible')" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all">
-        <i class="fa-solid fa-check text-emerald-600 mr-1"></i> Eligible Only ({{ analysis.eligible_count }})
+        <i class="fa-solid fa-check text-emerald-600 mr-1"></i> Eligible ({{ analysis.eligible_count }})
+      </button>
+      <button onclick="filterCompanies('super_dream')" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all">
+        <i class="fa-solid fa-crown text-amber-500 mr-1"></i> Super Dream (15+ LPA)
       </button>
       <button onclick="filterCompanies('tier1')" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all">
         Tier 1 (12+ LPA)
@@ -118,7 +143,7 @@
     <!-- Search Input -->
     <div class="relative w-full md:w-72">
       <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-      <input type="text" id="companySearchInput" onkeyup="searchCompanies()" placeholder="Search company or skill..." class="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+      <input type="text" id="companySearchInput" onkeyup="searchCompanies()" placeholder="Search company, role, or skill..." class="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
     </div>
   </div>
 
@@ -128,38 +153,56 @@
     <div class="company-card bg-white rounded-2xl p-5 border {% if comp.is_eligible %}border-emerald-200 hover:border-emerald-400 shadow-sm{% else %}border-slate-200 hover:border-blue-300 shadow-sm{% endif %} transition-all hover:shadow-md flex flex-col justify-between"
          data-eligible="{{ 'true' if comp.is_eligible else 'false' }}"
          data-tier="tier{{ comp.tier_level }}"
+         data-category="{{ comp.hiring_category|lower|replace(' ', '_') }}"
          data-name="{{ comp.name|lower }}"
-         data-skills="{{ comp.required_skills|join(' ')|lower }}">
+         data-skills="{{ comp.required_skills|join(' ')|lower }} {{ comp.role_title|lower }} {{ comp.location|lower }}">
       
       <div>
         <!-- Card Top Bar -->
         <div class="flex items-start justify-between gap-3 mb-3">
           <div class="flex items-center space-x-3">
-            <div class="w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-2xl shadow-sm">
+            <div class="w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-2xl shadow-sm shrink-0">
               <i class="{{ comp.icon_class }}"></i>
             </div>
             <div>
-              <h3 class="text-base font-bold text-slate-900 leading-snug">{{ comp.name }}</h3>
+              <div class="flex items-center gap-1.5">
+                <h3 class="text-base font-bold text-slate-900 leading-snug">{{ comp.name }}</h3>
+                {% if comp.hiring_category == 'Super Dream' %}
+                  <span class="px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 text-[9px] font-extrabold uppercase tracking-wider">Super Dream</span>
+                {% endif %}
+              </div>
               <p class="text-xs text-slate-500">{{ comp.role_title }}</p>
             </div>
           </div>
-          <div class="text-right">
+          <div class="text-right shrink-0">
             <span class="text-lg font-extrabold text-blue-600 block leading-tight">{{ comp.package_lpa }} <span class="text-xs font-semibold">LPA</span></span>
-            <span class="text-[10px] text-slate-400">Annual CTC</span>
+            <span class="text-[10px] text-slate-400 font-medium">{{ comp.work_mode or 'Hybrid' }}</span>
           </div>
         </div>
 
         <!-- Tier & Criteria Badges -->
         <div class="flex flex-wrap items-center gap-1.5 mb-3 text-[11px]">
-          <span class="px-2 py-0.5 rounded-full font-medium {% if comp.tier_level == 1 %}bg-amber-50 text-amber-800 border border-amber-200{% elif comp.tier_level == 2 %}bg-indigo-50 text-indigo-800 border border-indigo-200{% else %}bg-slate-100 text-slate-700{% endif %}">
+          <span class="px-2 py-0.5 rounded-md font-medium {% if comp.tier_level == 1 %}bg-amber-50 text-amber-800 border border-amber-200{% elif comp.tier_level == 2 %}bg-indigo-50 text-indigo-800 border border-indigo-200{% else %}bg-slate-100 text-slate-700{% endif %}">
             Tier {{ comp.tier_level }}
           </span>
-          <span class="px-2 py-0.5 rounded-full bg-slate-50 text-slate-600 border border-slate-200">
+          <span class="px-2 py-0.5 rounded-md bg-slate-50 text-slate-600 border border-slate-200">
             Min CGPA: <strong>{{ comp.min_cgpa }}</strong>
           </span>
-          <span class="px-2 py-0.5 rounded-full bg-slate-50 text-slate-600 border border-slate-200">
+          <span class="px-2 py-0.5 rounded-md bg-slate-50 text-slate-600 border border-slate-200">
             Max Backlogs: <strong>{{ comp.max_backlogs }}</strong>
           </span>
+          <span class="px-2 py-0.5 rounded-md {% if analysis.student_attendance >= (comp.min_attendance or 75.0) %}bg-emerald-50 text-emerald-700 border border-emerald-200{% else %}bg-purple-50 text-purple-700 border border-purple-200{% endif %}">
+            Min Att: <strong>{{ comp.min_attendance or 75.0 }}%</strong>
+          </span>
+          {% if comp.service_bond_months and comp.service_bond_months > 0 %}
+          <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 border border-slate-200 text-[10px]">
+            Bond: {{ comp.service_bond_months }}m
+          </span>
+          {% else %}
+          <span class="px-2 py-0.5 rounded-md bg-slate-50 text-slate-500 border border-slate-200 text-[10px]">
+            No Bond
+          </span>
+          {% endif %}
         </div>
 
         <!-- Description -->
@@ -168,14 +211,31 @@
         </p>
 
         <!-- Required Skills -->
-        <div class="mb-4">
-          <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Required Competencies:</div>
+        <div class="mb-3">
+          <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+            <span>Required Competencies:</span>
+            <span class="text-[10px] text-slate-400 lowercase font-normal">{{ comp.location }}</span>
+          </div>
           <div class="flex flex-wrap gap-1">
             {% for skill in comp.required_skills %}
               <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px] font-medium">{{ skill }}</span>
             {% endfor %}
           </div>
         </div>
+
+        <!-- Interview Pipeline Stages -->
+        {% if comp.interview_rounds %}
+        <div class="mb-2 p-2 rounded-lg bg-slate-50 border border-slate-100 text-[10px] text-slate-600">
+          <span class="font-bold text-slate-700 block mb-1">
+            <i class="fa-solid fa-list-check text-blue-500 mr-1"></i> Selection Pipeline ({{ comp.interview_rounds|length }} Rounds):
+          </span>
+          <div class="flex flex-wrap gap-1">
+            {% for rnd in comp.interview_rounds %}
+              <span class="px-1.5 py-0.5 rounded bg-white border border-slate-200 text-[10px] text-slate-600">{{ rnd }}</span>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
       </div>
 
       <!-- Eligibility Footer Status / Dream Unlocker -->
@@ -185,12 +245,12 @@
             <span class="text-xs font-bold text-emerald-800 flex items-center gap-1.5">
               <i class="fa-solid fa-circle-check text-emerald-600"></i> Full Eligibility Confirmed
             </span>
-            <span class="text-[10px] uppercase tracking-wider font-semibold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">Ready</span>
+            <span class="text-[10px] uppercase tracking-wider font-semibold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">Drive Ready</span>
           </div>
         {% else %}
           <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
             <div class="flex items-center justify-between text-xs">
-              <span class="font-semibold text-slate-700 flex items-center gap-1.5">
+              <span class="font-semibold {% if comp.status_color == 'purple' %}text-purple-700{% elif comp.status_color == 'red' %}text-red-700{% elif comp.status_color == 'amber' %}text-amber-700{% else %}text-slate-700{% endif %} flex items-center gap-1.5">
                 <i class="fa-solid fa-lock text-slate-400"></i> {{ comp.status_label }}
               </span>
             </div>
@@ -235,11 +295,14 @@
     cards.forEach(card => {
       const isEligible = card.getAttribute('data-eligible') === 'true';
       const tier = card.getAttribute('data-tier');
+      const category = card.getAttribute('data-category');
 
       if (filterType === 'all') {
         card.style.display = 'flex';
       } else if (filterType === 'eligible') {
         card.style.display = isEligible ? 'flex' : 'none';
+      } else if (filterType === 'super_dream') {
+        card.style.display = (category === 'super_dream') ? 'flex' : 'none';
       } else {
         card.style.display = (tier === filterType) ? 'flex' : 'none';
       }

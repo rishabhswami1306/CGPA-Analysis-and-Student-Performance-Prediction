@@ -96,7 +96,7 @@ def login_view():
             update_fields["locked_until"] = datetime.now(timezone.utc) + timedelta(minutes=LOCKOUT_DURATION_MINUTES)
             update_fields["failed_login_attempts"] = 0
             log_audit_event(
-                actor_prn=user.get("prn_roll", email),
+                actor_prn=user.get("prn_roll") or user.get("email") or raw_identifier,
                 actor_role=user.get("role", "student"),
                 action="ACCOUNT_LOCKED",
                 details=f"Locked for {LOCKOUT_DURATION_MINUTES}m after {MAX_FAILED_ATTEMPTS} failed attempts."

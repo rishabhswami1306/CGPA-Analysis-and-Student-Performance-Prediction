@@ -33,17 +33,83 @@ def calculate_grade_point(total_marks: float) -> Tuple[float, str]:
         return 0.0, "F"
 
 
-def compute_subject_total(tt1: float, tt2: float, ese: float, max_ese: float = 80.0) -> float:
+def compute_subject_internal(
+    tt1: float = 0.0,
+    tt2: float = 0.0,
+    aptitude: float = 0.0,
+    skat: float = 0.0,
+    teacher_assessment: float = 0.0,
+    mock_interview: float = 0.0,
+    presentation: float = 0.0
+) -> float:
     """
-    Calculates total marks out of 100:
-    Internal Unit Test avg (out of 20) + Scaled ESE (scaled to 80 if max_ese is not 80, or direct sum).
+    Computes continuous internal assessment marks out of 40:
+    - Term Tests: Two tests of 30 marks each (TT1 & TT2), converted to 15 marks:
+      TT Converted = ((TT1 + TT2) / 60.0) * 15.0 = (TT1 + TT2) / 4.0 (Max: 15.0)
+    - Aptitude: Max 5.0
+    - SKAT (Skill Knowledge Assessment Test): Max 5.0
+    - Teacher Assessment: Max 5.0
+    - Mock Interview: Max 5.0
+    - Presentation: Max 5.0
+    Total Internal = 15 + 5 + 5 + 5 + 5 + 5 = 40.0
     """
-    internal_avg = (tt1 + tt2) / 2.0  # Out of 20
-    if max_ese != 80.0 and max_ese > 0:
-        scaled_ese = (ese / max_ese) * 80.0
+    t1 = min(30.0, max(0.0, float(tt1 or 0.0)))
+    t2 = min(30.0, max(0.0, float(tt2 or 0.0)))
+    tt_conv = (t1 + t2) / 4.0
+
+    apt = min(5.0, max(0.0, float(aptitude or 0.0)))
+    sk = min(5.0, max(0.0, float(skat or 0.0)))
+    ta = min(5.0, max(0.0, float(teacher_assessment or 0.0)))
+    mock = min(5.0, max(0.0, float(mock_interview or 0.0)))
+    pres = min(5.0, max(0.0, float(presentation or 0.0)))
+
+    total_internal = tt_conv + apt + sk + ta + mock + pres
+    return min(40.0, max(0.0, round(total_internal, 2)))
+
+
+def compute_subject_total(
+    tt1: float = 0.0,
+    tt2: float = 0.0,
+    ese: float = 0.0,
+    max_ese: float = 60.0,
+    aptitude: float = 0.0,
+    skat: float = 0.0,
+    teacher_assessment: float = 0.0,
+    mock_interview: float = 0.0,
+    presentation: float = 0.0,
+    internal_score: float = None
+) -> float:
+    """
+    Calculates total subject marks out of 100:
+    Continuous Internal (out of 40) + End Semester Exam (out of 60).
+    """
+    # Legacy compatibility check: If max_ese in (80.0, 100.0) or ese > 60.0, and no discrete 40-pt sub-components
+    if (max_ese in (80.0, 100.0) or ese > 60.0) and aptitude == 0.0 and skat == 0.0 and teacher_assessment == 0.0 and mock_interview == 0.0 and presentation == 0.0 and tt1 <= 20.0 and tt2 <= 20.0:
+        internal_legacy = (float(tt1 or 0.0) + float(tt2 or 0.0)) / 2.0
+        scaled_ese = (float(ese or 0.0) / max_ese) * 80.0 if max_ese not in (80.0, 0.0) else float(ese or 0.0)
+        return min(100.0, max(0.0, round(internal_legacy + scaled_ese, 2)))
+
+    if internal_score is not None:
+        internal = float(internal_score)
     else:
-        scaled_ese = ese
-    total = internal_avg + scaled_ese
+        internal = compute_subject_internal(
+            tt1=tt1,
+            tt2=tt2,
+            aptitude=aptitude,
+            skat=skat,
+            teacher_assessment=teacher_assessment,
+            mock_interview=mock_interview,
+            presentation=presentation
+        )
+
+    raw_ese = max(0.0, float(ese or 0.0))
+    if max_ese != 60.0 and max_ese > 0:
+        scaled_ese = (raw_ese / max_ese) * 60.0
+    else:
+        scaled_ese = raw_ese
+
+    scaled_ese = min(60.0, scaled_ese)
+    total = internal + scaled_ese
     return min(100.0, max(0.0, round(total, 2)))
 
 
@@ -66,9 +132,22 @@ def compute_semester_sgpa(subjects: List[Dict[str, Any]]) -> Tuple[float, int, i
         else:
             tt1 = float(sub.get("tt1_score", 0.0))
             tt2 = float(sub.get("tt2_score", 0.0))
+            apt = float(sub.get("aptitude_score", 0.0))
+            sk = float(sub.get("skat_score", 0.0))
+            ta = float(sub.get("teacher_assessment_score", 0.0))
+            mock = float(sub.get("mock_interview_score", 0.0))
+            pres = float(sub.get("presentation_score", 0.0))
             ese = float(sub.get("ese_score", 0.0))
-            max_ese = float(sub.get("max_ese", 80.0))
-            total = compute_subject_total(tt1, tt2, ese, max_ese)
+            max_ese = float(sub.get("max_ese", 60.0))
+
+            internal = compute_subject_internal(tt1, tt2, apt, sk, ta, mock, pres)
+            sub["internal_score"] = internal
+            total = compute_subject_total(
+                tt1=tt1, tt2=tt2, ese=ese, max_ese=max_ese,
+                aptitude=apt, skat=sk, teacher_assessment=ta,
+                mock_interview=mock, presentation=pres,
+                internal_score=internal
+            )
             sub["total_marks"] = total
             gp, grade = calculate_grade_point(total)
             sub["grade_point"] = gp
@@ -100,6 +179,8 @@ def compute_cumulative_cgpa(semester_records: List[Dict[str, Any]]) -> Tuple[flo
     total_backlogs = 0
 
     for sem in semester_records:
+        if sem.get("is_completed") is False or sem.get("sgpa") is None:
+            continue
         sgpa = float(sem.get("sgpa", 0.0))
         subjects = sem.get("subjects", [])
         sem_credits = sum(int(s.get("credits", 4)) for s in subjects) or 20

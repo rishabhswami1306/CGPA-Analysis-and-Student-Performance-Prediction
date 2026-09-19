@@ -192,9 +192,9 @@ def compute_remaining_lectures(as_of: date, subject: str, session_type: str = "t
 def get_semester_milestones():
     """Return key academic calendar milestones for 2026-27 Sem I."""
     today = date.today()
-    total_days = (SEM_END - SEM_START).days
+    total_days = max(1, (SEM_END - SEM_START).days)
     elapsed_days = max(0, (today - SEM_START).days)
-    progress_pct = round(min(100, (elapsed_days / total_days) * 100), 1)
+    progress_pct = round(min(100.0, (elapsed_days / total_days) * 100.0), 1)
 
     milestones = [
         {"label": "Semester Begins", "date": "20 Jul 2026", "icon": "🎓", "done": True},
@@ -230,16 +230,17 @@ def compute_subject_prediction(attended: int, conducted: int, remaining: int,
     Returns a rich prediction dict with must_attend, can_miss, achievability.
     """
     if conducted == 0:
+        total_req = math.ceil(target_pct / 100 * remaining)
         return {
             "current_pct": 0.0,
-            "is_detained": True,
-            "status": "No Data",
+            "is_detained": False,
+            "status": "Not Started",
             "must_attend_now": 0,
             "can_miss_now": 0,
-            "min_to_attend_remaining": remaining,
-            "safe_bunks_remaining": 0,
-            "max_achievable_pct": 0.0,
-            "is_achievable": remaining > 0,
+            "min_to_attend_remaining": total_req,
+            "safe_bunks_remaining": max(0, remaining - total_req),
+            "max_achievable_pct": 100.0 if remaining > 0 else 0.0,
+            "is_achievable": True,
             "remaining_classes": remaining,
         }
 
@@ -324,8 +325,11 @@ def compute_attendance_predictions(student_prn: str, attendance_record: dict,
     total_conducted = 0
     total_remaining = 0
 
-    all_subjects = list(SUBJECTS) + (["AJL"] if "AJL" in subjects_data else [])
-    if honors_subject and honors_subject in HONORS_SUBJECTS:
+    all_subjects = list(SUBJECTS)
+    for k in subjects_data.keys():
+        if k not in all_subjects and k != honors_subject:
+            all_subjects.append(k)
+    if honors_subject:
         all_subjects.append(honors_subject)
 
     for subj in all_subjects:

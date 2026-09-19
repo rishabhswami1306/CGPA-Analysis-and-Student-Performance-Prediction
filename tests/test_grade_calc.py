@@ -26,15 +26,46 @@ def test_grade_point_thresholds():
 
 
 def test_subject_total_calculation():
-    """Verify (TT1 + TT2)/2 + ESE formula."""
+    """Verify (TT1 + TT2)/2 + ESE formula for legacy records and new 60 ESE + 40 Internal."""
     # TT1 = 18/20, TT2 = 16/20 -> avg = 17. ESE = 70/80 -> total = 87
-    total = compute_subject_total(18.0, 16.0, 70.0)
+    total = compute_subject_total(18.0, 16.0, 70.0, max_ese=80.0)
     assert total == 87.0
 
     # Scaled ESE from 100 max_ese to 80
     total_scaled = compute_subject_total(20.0, 20.0, 80.0, max_ese=100.0)
     # avg = 20, scaled ESE = (80/100)*80 = 64 -> total = 84.0
     assert total_scaled == 84.0
+
+
+def test_subject_internal_assessment_breakdown():
+    """Verify 40 Internal (15 TT, 5 Apt, 5 SKAT, 5 TA, 5 Mock, 5 Pres) + 60 ESE marking scheme."""
+    from utils.grade_calculator import compute_subject_internal
+    # Perfect score: TT1=30, TT2=30 -> TT Conv=15; All other heads=5 -> Internal=40.0
+    internal = compute_subject_internal(
+        tt1=30.0, tt2=30.0,
+        aptitude=5.0, skat=5.0,
+        teacher_assessment=5.0, mock_interview=5.0, presentation=5.0
+    )
+    assert internal == 40.0
+
+    # Average score: TT1=20, TT2=20 -> (20+20)/4 = 10.0 TT; Others=4 -> Internal = 10 + 20 = 30.0
+    internal_avg = compute_subject_internal(
+        tt1=20.0, tt2=20.0,
+        aptitude=4.0, skat=4.0,
+        teacher_assessment=4.0, mock_interview=4.0, presentation=4.0
+    )
+    assert internal_avg == 30.0
+
+    # Total with 50/60 ESE -> 30.0 + 50.0 = 80.0 (Grade O / 10)
+    total = compute_subject_total(
+        tt1=20.0, tt2=20.0, ese=50.0, max_ese=60.0,
+        aptitude=4.0, skat=4.0, teacher_assessment=4.0,
+        mock_interview=4.0, presentation=4.0
+    )
+    assert total == 80.0
+    gp, letter = calculate_grade_point(total)
+    assert gp == 10.0
+    assert letter == "O"
 
 
 def test_semester_sgpa_calculation():

@@ -22,7 +22,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 from utils.db import get_db, reset_db_connections
 from routes.auth_routes import bcrypt
 from utils.grade_calculator import (
-    compute_subject_total, calculate_grade_point, compute_semester_sgpa
+    compute_subject_internal, compute_subject_total, calculate_grade_point, compute_semester_sgpa
 )
 
 STUDENT_JSON = os.path.join(os.path.dirname(__file__), "..", "students_attendance_verified.json")
@@ -142,8 +142,8 @@ ADMIN_USER = {
 }
 
 
-def make_subjects_from_attendance(att_record: dict) -> list:
-    """Convert attendance subject dict to academic_records subjects list."""
+def make_ongoing_sem5_subjects(att_record: dict) -> list:
+    """Convert attendance subject dict to ongoing semester 5 subjects with 40-mark internal components and pending ESE."""
     subjects_out = []
     honors = att_record.get("honors_course")
 
@@ -163,20 +163,136 @@ def make_subjects_from_attendance(att_record: dict) -> list:
         prac_att = sub_att.get("practical_attended", 0) or sub_att.get("tutorial_attended", 0)
         prac_con = sub_att.get("practical_conducted", 0) or sub_att.get("tutorial_conducted", 0)
 
-        base_tt1 = round(max(8.0, min(20.0, 14.0 * score_factor * random.uniform(0.85, 1.15))), 1)
-        base_tt2 = round(max(8.0, min(20.0, 15.0 * score_factor * random.uniform(0.85, 1.15))), 1)
-        base_ese = round(max(20.0, min(80.0, 52.0 * score_factor * random.uniform(0.80, 1.20))), 1)
+        # 40 Marks Internal Assessment:
+        # 15 Marks TT (two 30-mark TTs converted to 15: (tt1+tt2)/4)
+        base_tt1 = round(max(12.0, min(30.0, 22.0 * score_factor * random.uniform(0.88, 1.12))), 1)
+        base_tt2 = round(max(11.0, min(30.0, 21.5 * score_factor * random.uniform(0.88, 1.12))), 1)
+        tt_conv = round((base_tt1 + base_tt2) / 4.0, 2)
 
-        total = compute_subject_total(base_tt1, base_tt2, base_ese)
-        gp, letter = calculate_grade_point(total)
+        # 5 Marks Aptitude, 5 Marks SKAT, 5 Marks TA, 5 Marks Mock Interview, 5 Marks Presentation
+        apt = round(max(2.0, min(5.0, 4.0 * score_factor * random.uniform(0.90, 1.10))), 1)
+        skat = round(max(2.0, min(5.0, 3.9 * score_factor * random.uniform(0.90, 1.10))), 1)
+        ta = round(max(2.5, min(5.0, 4.2 * score_factor * random.uniform(0.92, 1.08))), 1)
+        mock = round(max(2.0, min(5.0, 4.0 * score_factor * random.uniform(0.90, 1.10))), 1)
+        pres = round(max(2.5, min(5.0, 4.1 * score_factor * random.uniform(0.90, 1.10))), 1)
 
+        internal_tot = compute_subject_internal(base_tt1, base_tt2, apt, skat, ta, mock, pres)
+
+        # ESE has NOT occurred yet: Semester 5 is ongoing and results are pending
         subjects_out.append({
             "subject_code": code,
             "subject_name": meta["name"],
             "credits": meta["credits"],
             "tt1_score": base_tt1,
             "tt2_score": base_tt2,
-            "ese_score": base_ese,
+            "tt_converted": tt_conv,
+            "aptitude_score": apt,
+            "skat_score": skat,
+            "teacher_assessment_score": ta,
+            "mock_interview_score": mock,
+            "presentation_score": pres,
+            "internal_score": internal_tot,
+            "ese_score": 0.0,
+            "total_marks": internal_tot,
+            "grade_point": None,
+            "grade_letter": "Pending",
+            "is_evaluated": False,
+            "lecture_attended": lect_att,
+            "lecture_conducted": lect_con,
+            "practical_attended": prac_att,
+            "practical_conducted": prac_con,
+        })
+
+    return subjects_out
+
+
+HISTORICAL_CURRICULUM = {
+    1: [
+        {"code": "FE101", "name": "Engineering Mathematics I", "credits": 4},
+        {"code": "FE102", "name": "Engineering Physics", "credits": 4},
+        {"code": "FE103", "name": "Basic Electrical Engineering", "credits": 3},
+        {"code": "FE104", "name": "Programming for Problem Solving (C)", "credits": 4},
+        {"code": "FE105", "name": "Engineering Graphics & Design", "credits": 3},
+        {"code": "FE106", "name": "Basic Electrical & Physics Lab", "credits": 2},
+    ],
+    2: [
+        {"code": "FE201", "name": "Engineering Mathematics II", "credits": 4},
+        {"code": "FE202", "name": "Engineering Chemistry", "credits": 4},
+        {"code": "FE203", "name": "Basic Electronics Engineering", "credits": 3},
+        {"code": "FE204", "name": "Object-Oriented Programming (C++)", "credits": 4},
+        {"code": "FE205", "name": "Engineering Mechanics", "credits": 3},
+        {"code": "FE206", "name": "Workshop & Programming Practice", "credits": 2},
+    ],
+    3: [
+        {"code": "DS301", "name": "Data Structures & Algorithms", "credits": 4},
+        {"code": "DS302", "name": "Discrete Mathematics", "credits": 4},
+        {"code": "DS303", "name": "Digital Electronics & Logic Design", "credits": 3},
+        {"code": "DS304", "name": "Database Management Systems", "credits": 4},
+        {"code": "DS305", "name": "Computer Organization & Architecture", "credits": 3},
+        {"code": "DS306", "name": "DSA & DBMS Laboratory", "credits": 2},
+    ],
+    4: [
+        {"code": "DS401", "name": "Operating Systems", "credits": 4},
+        {"code": "DS402", "name": "Design & Analysis of Algorithms", "credits": 4},
+        {"code": "DS403", "name": "Computer Networks", "credits": 4},
+        {"code": "DS404", "name": "Python for Data Science", "credits": 3},
+        {"code": "DS405", "name": "Statistics & Probability for DS", "credits": 3},
+        {"code": "DS406", "name": "OS & Python Lab", "credits": 2},
+    ],
+}
+
+
+def make_historical_subjects(sem_num: int, score_factor: float) -> list:
+    """Generate consistent subject marks for historical semesters 1 to 4 using 60 ESE + 40 Internal."""
+    courses = HISTORICAL_CURRICULUM.get(sem_num, [])
+    subjects_out = []
+    for c in courses:
+        sem_var = random.uniform(0.92, 1.08)
+        eff_factor = min(1.0, max(0.42, score_factor * sem_var))
+
+        # Two 30-mark TTs converted to 15
+        tt1 = round(max(10.0, min(30.0, 22.0 * eff_factor * random.uniform(0.92, 1.08))), 1)
+        tt2 = round(max(10.0, min(30.0, 22.5 * eff_factor * random.uniform(0.92, 1.08))), 1)
+        tt_conv = round((tt1 + tt2) / 4.0, 2)
+
+        # 5 Marks Each
+        apt = round(max(2.0, min(5.0, 4.0 * eff_factor * random.uniform(0.90, 1.10))), 1)
+        skat = round(max(2.0, min(5.0, 4.0 * eff_factor * random.uniform(0.90, 1.10))), 1)
+        ta = round(max(2.5, min(5.0, 4.2 * eff_factor * random.uniform(0.92, 1.08))), 1)
+        mock = round(max(2.0, min(5.0, 4.0 * eff_factor * random.uniform(0.90, 1.10))), 1)
+        pres = round(max(2.5, min(5.0, 4.2 * eff_factor * random.uniform(0.90, 1.10))), 1)
+
+        internal_tot = compute_subject_internal(tt1, tt2, apt, skat, ta, mock, pres)
+
+        # ESE out of 60
+        ese = round(max(18.0, min(60.0, 42.0 * eff_factor * random.uniform(0.88, 1.12))), 1)
+        total = compute_subject_total(
+            tt1=tt1, tt2=tt2, ese=ese, max_ese=60.0,
+            aptitude=apt, skat=skat, teacher_assessment=ta,
+            mock_interview=mock, presentation=pres,
+            internal_score=internal_tot
+        )
+        gp, letter = calculate_grade_point(total)
+
+        lect_con = random.choice([12, 14, 16])
+        prac_con = random.choice([4, 6])
+        lect_att = int(round(lect_con * eff_factor))
+        prac_att = int(round(prac_con * eff_factor))
+
+        subjects_out.append({
+            "subject_code": c["code"],
+            "subject_name": c["name"],
+            "credits": c["credits"],
+            "tt1_score": tt1,
+            "tt2_score": tt2,
+            "tt_converted": tt_conv,
+            "aptitude_score": apt,
+            "skat_score": skat,
+            "teacher_assessment_score": ta,
+            "mock_interview_score": mock,
+            "presentation_score": pres,
+            "internal_score": internal_tot,
+            "ese_score": ese,
             "total_marks": total,
             "grade_point": gp,
             "grade_letter": letter,
@@ -185,8 +301,8 @@ def make_subjects_from_attendance(att_record: dict) -> list:
             "practical_attended": prac_att,
             "practical_conducted": prac_con,
         })
-
     return subjects_out
+
 
 
 def seed_database():
@@ -260,6 +376,8 @@ def seed_database():
             "branch": "CSE-DS",
             "admission_year": 2024,
             "class_name": "TY BTech DS (A)",
+            "current_year": "Third Year",
+            "current_semester": 5,
             "roll_no": att["roll_no"],
             "local_guardian_prn": lg_roll,
             "honors_course": att.get("honors_course"),
@@ -291,17 +409,46 @@ def seed_database():
         }
         attendance_docs.append(att_doc)
 
-        subjects = make_subjects_from_attendance(att)
-        sgpa, backlogs, credits = compute_semester_sgpa(subjects)
+        score_factor = min(1.0, att.get("percentage", 80.0) / 100.0)
+        overall_pct = att.get("percentage", 80.0)
+        sem_acad_years = {
+            1: "2024-25",
+            2: "2024-25",
+            3: "2025-26",
+            4: "2025-26",
+        }
 
+        # Seed completed historical Semesters 1 to 4
+        for s_num in range(1, 5):
+            h_subjects = make_historical_subjects(s_num, score_factor)
+            h_sgpa, h_backlogs, _ = compute_semester_sgpa(h_subjects)
+            h_att = round(max(65.0, min(96.0, overall_pct * random.uniform(0.95, 1.05))), 1)
+            academic_docs.append({
+                "student_prn": prn,
+                "semester": s_num,
+                "academic_year": sem_acad_years[s_num],
+                "subjects": h_subjects,
+                "sgpa": h_sgpa,
+                "attendance_percentage": h_att,
+                "active_backlogs": h_backlogs,
+                "is_completed": True,
+                "status": "completed",
+                "created_at": datetime.now(timezone.utc),
+                "updated_at": datetime.now(timezone.utc),
+            })
+
+        # Seed active ongoing Semester 5 (Results not yet available; in progress)
+        ongoing_subjects = make_ongoing_sem5_subjects(att)
         academic_doc = {
             "student_prn": prn,
             "semester": 5,
             "academic_year": "2026-27",
-            "subjects": subjects,
-            "sgpa": sgpa,
+            "subjects": ongoing_subjects,
+            "sgpa": None,  # Results not finalized; in-progress semester to be predicted
             "attendance_percentage": att.get("percentage", 0.0),
-            "active_backlogs": backlogs,
+            "active_backlogs": 0,
+            "is_completed": False,
+            "status": "ongoing",
             "created_at": datetime.now(timezone.utc),
             "updated_at": datetime.now(timezone.utc),
         }

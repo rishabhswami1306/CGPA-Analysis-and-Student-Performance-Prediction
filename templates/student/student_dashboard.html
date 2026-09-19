@@ -26,7 +26,7 @@
         </span>
       </div>
       <p class="text-xs sm:text-sm text-slate-500 mt-1">
-        Department of <b>{{ user.branch }}</b> | Admission: {{ user.admission_year }} | Enrolled Semesters: {{ records | length }}
+        Department of <b>{{ user.branch }}</b> | Class: <b>{{ user.class_name or 'TY BTech DS (A)' }}</b> | <b>4 Semesters Audited</b> (Semester 5 Ongoing)
       </p>
     </div>
 
@@ -42,49 +42,108 @@
     </div>
   </div>
 
+  <!-- Active Semester 5 Announcement Banner -->
+  <div class="p-4 rounded-2xl bg-gradient-to-r from-purple-900/90 via-indigo-900/90 to-slate-900 text-white border border-purple-500/30 shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-purple-500/30 border border-purple-400/40 flex items-center justify-center text-lg text-purple-300">
+        <i class="fa-solid fa-sparkles"></i>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h2 class="text-sm font-bold text-white tracking-wide">Semester 5 Ongoing Evaluation & Prediction Active</h2>
+          <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Live AI Forecast</span>
+        </div>
+        <p class="text-xs text-purple-200/80 mt-0.5">Semesters 1 to 4 results are finalized. ML models are continuously forecasting your Semester 5 SGPA and placement readiness based on internal unit tests and attendance.</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 text-xs self-end sm:self-center">
+      <div class="bg-white/10 backdrop-blur px-3 py-1.5 rounded-xl border border-white/10 text-right">
+        <span class="text-[10px] text-purple-200 block">Projected CGPA:</span>
+        <b class="text-white text-sm font-mono">{{ predictions.projected_cgpa }} / 10.00</b>
+      </div>
+    </div>
+  </div>
+
   <!-- Primary Metric Hero Cards -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
     
     <!-- CGPA Card -->
     <div class="glass-card rounded-2xl p-5 border border-slate-200 hover-lift">
       <div class="flex items-center justify-between mb-2">
-        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Cumulative CGPA</span>
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Cumulative CGPA (Sem 1–4)</span>
         <span class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-sm"><i class="fa-solid fa-award"></i></span>
       </div>
       <div class="flex items-baseline gap-2">
         <p class="text-3xl font-extrabold text-blue-600">{{ cgpa | round(2) }}</p>
         <span class="text-xs font-semibold text-slate-400">/ 10.00</span>
       </div>
-      <p class="text-[11px] text-slate-500 mt-1">Total Credits: <b>{{ total_credits }}</b> ({{ total_backlogs }} active backlogs)</p>
+      <p class="text-[11px] text-slate-500 mt-1">Total: <b>{{ total_credits }} Credits</b> across 4 Semesters ({{ total_backlogs }} backlogs)</p>
     </div>
 
     <!-- Anonymized Department Rank & Percentile -->
     <div class="glass-card rounded-2xl p-5 border border-slate-200 hover-lift">
       <div class="flex items-center justify-between mb-2">
-        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Department Standing</span>
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">TY CSE-DS Standing</span>
         <span class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-sm"><i class="fa-solid fa-ranking-star"></i></span>
       </div>
       <div class="flex items-baseline gap-2">
         <p class="text-3xl font-extrabold text-slate-900">Rank #{{ rank }}</p>
-        <span class="text-xs text-slate-400">of {{ total_peers }}</span>
+        <span class="text-xs text-slate-400">of {{ total_peers }} peers</span>
       </div>
-      <p class="text-[11px] text-amber-600 font-semibold mt-1">Top {{ 100 - percentile | round(1) }}% ({{ percentile }}th Percentile)</p>
+      {% if rank_history and rank_history|length > 1 %}
+        {% set start_rank = rank_history[0].rank %}
+        {% set curr_rank = rank_history[-1].rank %}
+        {% set rank_diff = start_rank - curr_rank %}
+        <div class="mt-1 flex items-center gap-1.5 text-[11px]">
+          {% if rank_diff > 0 %}
+            <span class="font-bold text-emerald-600 flex items-center gap-0.5"><i class="fa-solid fa-arrow-up"></i> +{{ rank_diff }} ranks</span>
+            <span class="text-slate-400">since Sem 1 (Top {{ (100 - percentile) | round(1) }}%)</span>
+          {% elif rank_diff < 0 %}
+            <span class="font-bold text-amber-600 flex items-center gap-0.5"><i class="fa-solid fa-arrow-down"></i> {{ rank_diff|abs }} ranks</span>
+            <span class="text-slate-400">since Sem 1 (Top {{ (100 - percentile) | round(1) }}%)</span>
+          {% else %}
+            <span class="font-semibold text-slate-500">• Stable rank</span>
+            <span class="text-slate-400">(Top {{ (100 - percentile) | round(1) }}%)</span>
+          {% endif %}
+        </div>
+      {% else %}
+        <p class="text-[11px] text-amber-600 font-semibold mt-1">Top {{ (100 - percentile) | round(1) }}% ({{ percentile }}th Percentile)</p>
+      {% endif %}
     </div>
 
-    <!-- Real-time Next SGPA Forecast -->
-    <div class="glass-card rounded-2xl p-5 border border-slate-200 hover-lift relative overflow-hidden">
+    <!-- Real-time Next SGPA Forecast (Point 2: Uncertainty Quantification) -->
+    <div class="glass-card rounded-2xl p-5 border border-purple-200 bg-purple-50/10 hover-lift relative overflow-hidden">
       <div class="flex items-center justify-between mb-2">
-        <span class="text-xs font-bold uppercase tracking-wider text-purple-600 flex items-center gap-1">
+        <span class="text-xs font-bold uppercase tracking-wider text-purple-700 flex items-center gap-1">
           <i class="fa-solid fa-wand-magic-sparkles"></i>
-          <span>ML Forecast Next SGPA</span>
+          <span>ML Forecast: Sem 5 SGPA</span>
         </span>
         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
       </div>
       <div class="flex items-baseline gap-2">
         <p id="metric-pred-sgpa" class="text-3xl font-extrabold text-purple-600">{{ predictions.predicted_next_sgpa }}</p>
-        <span class="text-xs text-slate-400">estimated</span>
+        {% if predictions.margin_of_error is defined and predictions.margin_of_error is not none %}
+        <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800">
+          ±{{ predictions.margin_of_error }} (90% CI)
+        </span>
+        {% endif %}
       </div>
-      <p class="text-[10px] text-slate-500 mt-1 truncate" title="{{ predictions.confidence_label }}">{{ predictions.confidence_label }}</p>
+      <!-- Confidence Range Bar -->
+      {% if predictions.predicted_sgpa_min is defined and predictions.predicted_sgpa_min is not none %}
+      <div class="mt-2 pt-2 border-t border-purple-100 flex items-center justify-between text-[11px]">
+        <span class="text-slate-500">Prediction Interval:</span>
+        <span class="font-mono font-bold text-purple-900">
+          [{{ predictions.predicted_sgpa_min }} — {{ predictions.predicted_sgpa_max }}]
+        </span>
+      </div>
+      {% endif %}
+      {% if predictions.scenario_projections %}
+      <div class="mt-1.5 flex items-center justify-between text-[10px] text-slate-500">
+        <span>Worst: <b class="text-red-600">{{ predictions.scenario_projections.pessimistic.sgpa if predictions.scenario_projections.pessimistic else 'N/A' }}</b></span>
+        <span>Expected: <b class="text-purple-700">{{ predictions.scenario_projections.expected.sgpa if predictions.scenario_projections.expected else 'N/A' }}</b></span>
+        <span>Best: <b class="text-emerald-700">{{ predictions.scenario_projections.optimistic.sgpa if predictions.scenario_projections.optimistic else 'N/A' }}</b></span>
+      </div>
+      {% endif %}
     </div>
 
     <!-- Attendance & Detention Status Card -->
@@ -115,13 +174,62 @@
       <div class="mt-2.5 pt-2 border-t border-slate-100 flex justify-between items-center text-[10px]">
         <span class="text-slate-400">Threshold: 75.0%</span>
         <a href="/attendance/forecast" class="text-blue-600 hover:text-blue-800 font-bold flex items-center gap-1">
-          <span>Full Analysis</span>
+          <span>What-If Engine</span>
           <i class="fa-solid fa-arrow-right text-[9px]"></i>
         </a>
       </div>
     </div>
 
   </div>
+
+  <!-- Dynamic Early Warning System (EWS) & Rescue Window Banner (Point 4) -->
+  {% if predictions.early_warning_system %}
+  {% set ews = predictions.early_warning_system %}
+  <div class="rounded-2xl p-5 border {% if ews.trajectory_status == 'CRITICAL_DEFICIT' %}border-red-200 bg-red-50/40{% elif ews.trajectory_status == 'DIVERGING_DOWNWARD' %}border-amber-200 bg-amber-50/40{% elif ews.trajectory_status == 'ACCELERATING' %}border-emerald-200 bg-emerald-50/30{% else %}border-blue-200 bg-blue-50/30{% endif %} shadow-xs space-y-3">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl {% if ews.trajectory_status == 'CRITICAL_DEFICIT' %}bg-red-100 text-red-600{% elif ews.trajectory_status == 'DIVERGING_DOWNWARD' %}bg-amber-100 text-amber-600{% elif ews.trajectory_status == 'ACCELERATING' %}bg-emerald-100 text-emerald-600{% else %}bg-blue-100 text-blue-600{% endif %} flex items-center justify-center text-lg shrink-0">
+          <i class="fa-solid fa-satellite-dish"></i>
+        </div>
+        <div>
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Dynamic Early Warning System (EWS)</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold {% if ews.trajectory_status == 'CRITICAL_DEFICIT' %}bg-red-100 text-red-700 border border-red-200{% elif ews.trajectory_status == 'DIVERGING_DOWNWARD' %}bg-amber-100 text-amber-700 border border-amber-200{% elif ews.trajectory_status == 'ACCELERATING' %}bg-emerald-100 text-emerald-700 border border-emerald-200{% else %}bg-blue-100 text-blue-700 border border-blue-200{% endif %}">
+              {{ ews.status_label }}
+            </span>
+          </div>
+          <p class="text-xs text-slate-700 mt-0.5 font-medium">{{ ews.current_phase }} • {{ ews.salvage_label }}</p>
+        </div>
+      </div>
+      <!-- Rescue Window Countdown -->
+      <div class="flex items-center gap-2 sm:gap-3 text-right">
+        <div class="px-3 py-1.5 rounded-xl bg-white/80 border border-slate-200 text-center shadow-xs">
+          <span class="text-[10px] uppercase font-bold text-slate-400 block">Rescue Window</span>
+          <span class="text-sm font-extrabold text-slate-900 font-mono">{{ ews.days_to_ese }} Days</span>
+          <span class="text-[9px] text-slate-500 block">({{ ews.weeks_remaining }} wks to ESE)</span>
+        </div>
+        <div class="px-3 py-1.5 rounded-xl bg-white/80 border border-slate-200 text-center shadow-xs">
+          <span class="text-[10px] uppercase font-bold text-slate-400 block">Ceiling SGPA</span>
+          <span class="text-sm font-extrabold text-emerald-600 font-mono">{{ ews.max_possible_sgpa }}</span>
+          <span class="text-[9px] text-slate-500 block">(Max Attainable)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Intervention Action Checklist -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 pt-2 border-t border-slate-200/60 text-xs">
+      {% for item in ews.intervention_checklist %}
+      <div class="p-2.5 rounded-xl bg-white/90 border border-slate-200/80 flex items-start gap-2 shadow-xs">
+        <i class="fa-solid fa-circle-exclamation {% if item.urgency == 'CRITICAL' %}text-red-500{% elif item.urgency == 'HIGH' %}text-amber-500{% else %}text-blue-500{% endif %} mt-0.5 text-xs"></i>
+        <div>
+          <span class="font-bold text-slate-800">{{ item.task }}</span>
+          <p class="text-[10px] text-slate-500 mt-0.5">{{ item.desc }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
 
   <!-- Dedicated Attendance Intelligence Section -->
   {% if attendance_forecast %}
@@ -147,7 +255,7 @@
       <div class="flex items-center gap-2">
         <a href="/attendance/forecast" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs px-3.5 py-2 rounded-xl shadow-sm transition-all flex items-center gap-1.5">
           <i class="fa-solid fa-sliders"></i>
-          <span>What-If Simulator</span>
+          <span>What-If Simulator Engine</span>
         </a>
         <a href="/attendance/detention-list" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs px-3 py-2 rounded-xl border border-slate-300 transition-all flex items-center gap-1.5">
           <i class="fa-solid fa-users-line"></i>
@@ -233,24 +341,46 @@
   </div>
   {% endif %}
 
-  <!-- Charts Row: SGPA Semester Trend & Subject Competency Radar -->
+  <!-- Charts Row: SGPA Semester Trend & Subject Competency -->
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     
     <!-- SGPA Trend Line Chart -->
     <div class="glass-card rounded-2xl p-6 border border-slate-200 lg:col-span-2">
-      <div class="flex items-center justify-between mb-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <div>
-          <h2 class="text-base font-bold text-slate-900">Semester-over-Semester SGPA Trajectory</h2>
-          <p class="text-xs text-slate-500">Audited semester grades with ML projected future milestone</p>
+          <div class="flex items-center gap-2">
+            <h2 class="text-base font-bold text-slate-900">Semester-over-Semester SGPA Trajectory</h2>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">
+              {{ records | length }} Semesters Audited
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 mt-0.5">Audited academic progression with ML projected future milestone</p>
         </div>
-        <span class="text-xs bg-blue-50 text-blue-700 px-2.5 py-1 rounded-lg font-semibold border border-blue-200">
-          Target CGPA: 8.5
-        </span>
+
+        <div class="flex items-center gap-2 text-xs">
+          {% if records %}
+          {% set peak_sgpa = records | map(attribute='sgpa') | list | max %}
+          <div class="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 text-slate-600">
+            <span class="text-slate-400 font-medium">Peak:</span> <b class="text-slate-900">{{ peak_sgpa | round(2) }}</b>
+          </div>
+          {% endif %}
+          <span class="bg-blue-50 text-blue-700 px-2.5 py-1 rounded-lg font-semibold border border-blue-200">
+            Target Goal: 8.50 CGPA
+          </span>
+        </div>
       </div>
 
       {% if records %}
       <div class="chart-container-large">
         <canvas id="studentSgpaChart"></canvas>
+      </div>
+      <div class="mt-3 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between text-xs text-slate-500">
+        <div class="flex items-center gap-4">
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-600 inline-block"></span> Verified Semester SGPA</span>
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> Sem {{ records[-1].semester + 1 }} ML Forecast</span>
+          <span class="flex items-center gap-1.5"><span class="w-3 h-0.5 border-t-2 border-dashed border-slate-400 inline-block"></span> 8.5 Target Line</span>
+        </div>
+        <span class="text-[11px] text-slate-400">Trained on historical branch distributions</span>
       </div>
       {% else %}
       <div class="empty-state-box h-72">
@@ -261,19 +391,83 @@
       {% endif %}
     </div>
 
-    <!-- Subject Competency Radar Chart -->
+    <!-- Subject Competency: Dual View (Radar + Matrix Table) -->
     <div class="glass-card rounded-2xl p-6 border border-slate-200 flex flex-col justify-between">
       <div>
         <div class="flex items-center justify-between mb-2">
-          <h2 class="text-base font-bold text-slate-900">Subject Competency</h2>
-          <span class="text-[10px] text-slate-500 uppercase font-semibold">Normalized (%)</span>
+          <div>
+            <h2 class="text-base font-bold text-slate-900">Subject Competency</h2>
+            <p class="text-xs text-slate-500">Active semester strength vs class peer average</p>
+          </div>
+
+          <!-- View Switcher -->
+          <div class="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs">
+            <button type="button" id="tab-btn-radar" onclick="toggleCompetencyView('radar')" class="px-2.5 py-1 rounded-md font-semibold text-xs transition-all bg-white text-indigo-700 shadow-sm">
+              <i class="fa-solid fa-chart-pie mr-1"></i>Radar
+            </button>
+            <button type="button" id="tab-btn-matrix" onclick="toggleCompetencyView('matrix')" class="px-2.5 py-1 rounded-md font-semibold text-xs transition-all text-slate-600 hover:text-slate-900">
+              <i class="fa-solid fa-table-list mr-1"></i>Matrix
+            </button>
+          </div>
         </div>
-        <p class="text-xs text-slate-500 mb-4">Relative strength across active semester courses</p>
 
         {% if radar_subjects %}
-        <div class="chart-container">
+        <!-- Radar View -->
+        <div id="subjectRadarContainer" class="chart-container mt-3">
           <canvas id="subjectRadarChart"></canvas>
         </div>
+
+        <!-- Competency Matrix Table View -->
+        <div id="subjectMatrixContainer" class="hidden mt-3 max-h-72 overflow-y-auto pr-1">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 text-slate-500 font-semibold sticky top-0 uppercase text-[10px]">
+              <tr>
+                <th class="py-2 px-2.5">Course</th>
+                <th class="py-2 px-2 text-center">Cr</th>
+                <th class="py-2 px-2 text-center">Score / Avg</th>
+                <th class="py-2 px-2 text-center">Proj Grade</th>
+                <th class="py-2 px-2 text-right">Backlog Risk</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              {% for s in radar_subjects %}
+              {% set s_risk = (predictions.subject_risk_analysis.profiles | selectattr('subject_code', 'equalto', s.subject_code) | first) if predictions.subject_risk_analysis and predictions.subject_risk_analysis.profiles else None %}
+              <tr class="hover:bg-slate-50/80 transition-colors">
+                <td class="py-2.5 px-2.5">
+                  <span class="font-mono font-bold text-slate-800">{{ s.subject_code }}</span>
+                  <span class="block text-[11px] text-slate-500 truncate max-w-[120px]" title="{{ s.subject_name }}">{{ s.subject_name }}</span>
+                </td>
+                <td class="py-2.5 px-2 text-center font-semibold text-slate-600">{{ s.credits }}</td>
+                <td class="py-2.5 px-2 text-center">
+                  <span class="font-bold text-slate-800 font-mono">{{ s.score_pct | round(1) }}%</span>
+                  <span class="block text-[10px] text-slate-400 font-mono">avg {{ s.class_avg | round(1) }}%</span>
+                </td>
+                <td class="py-2.5 px-2 text-center">
+                  <span class="font-bold text-slate-900 font-mono text-xs">Grade {{ s_risk.projected_grade if s_risk else s.grade_letter }}</span>
+                  <span class="block text-[10px] text-slate-400">Pass ESE: {{ s_risk.min_ese_to_pass if s_risk else 24 }}/60</span>
+                </td>
+                <td class="py-2.5 px-2 text-right">
+                  {% if s_risk and s_risk.risk_level == 'CRITICAL_KT_RISK' %}
+                  <span class="inline-block font-bold text-[10px] px-2 py-0.5 rounded-md bg-red-100 text-red-800 border border-red-200">
+                    KT Risk ({{ s_risk.backlog_risk_pct }}%)
+                  </span>
+                  {% elif s_risk and s_risk.risk_level == 'MODERATE_RISK' %}
+                  <span class="inline-block font-bold text-[10px] px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 border border-amber-200">
+                    Watchlist ({{ s_risk.backlog_risk_pct }}%)
+                  </span>
+                  {% else %}
+                  <span class="inline-block font-bold text-[10px] px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 border border-emerald-200">
+                    Safe On Track
+                  </span>
+                  {% endif %}
+                  <span class="block text-[10px] text-slate-400 mt-0.5">Grade A: {{ s_risk.min_ese_for_grade_a if s_risk else 35 }}/60</span>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
         {% else %}
         <div class="empty-state-box h-60">
           <i class="fa-solid fa-compass-drafting text-3xl text-slate-400 mb-2"></i>
@@ -283,8 +477,9 @@
       </div>
 
       <div class="pt-3 border-t border-slate-100 text-center">
-        <a href="/student/what-if" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800">
-          Plan upcoming exam target scores &rarr;
+        <a href="/student/what-if" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center justify-center gap-1">
+          <span>Simulate upcoming exam target scores</span>
+          <i class="fa-solid fa-arrow-right text-[10px]"></i>
         </a>
       </div>
     </div>
@@ -349,14 +544,25 @@
       <div class="flex items-center justify-between mb-4">
         <div>
           <h2 class="text-base font-bold text-slate-900">Anonymized Rank Trajectory</h2>
-          <p class="text-xs text-slate-500">Relative movement across completed terms</p>
+          <p class="text-xs text-slate-500">Historical department standing across Semesters 1 to {{ records[-1].semester if records else 1 }}</p>
         </div>
+        {% if rank_history %}
+        {% set best_rank = rank_history | map(attribute='rank') | list | min %}
+        <span class="text-xs bg-amber-50 text-amber-800 px-2.5 py-1 rounded-lg font-bold border border-amber-200">
+          Career Best: #{{ best_rank }}
+        </span>
+        {% else %}
         <span class="text-xs text-slate-400 font-mono">Department Rank</span>
+        {% endif %}
       </div>
 
       {% if rank_history %}
       <div class="chart-container">
         <canvas id="rankMovementChart"></canvas>
+      </div>
+      <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+        <span>Inverted scale: Top position (#1) at upper bound</span>
+        <span class="font-mono text-slate-600 font-bold">Class Size: {{ total_peers }}</span>
       </div>
       {% else %}
       <div class="empty-state-box h-52">
@@ -366,6 +572,246 @@
     </div>
 
   </div>
+
+  <!-- 2-Column Section: Learner Persona Archetype & Prerequisite Knowledge-Graph Analysis -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    
+    <!-- Learner Persona Archetype Card (Point 6) -->
+    {% if predictions.persona_archetype %}
+    {% set persona = predictions.persona_archetype %}
+    <div class="glass-card rounded-2xl p-6 border border-slate-200 flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl {% if persona.archetype_color == 'emerald' %}bg-emerald-100 text-emerald-700{% elif persona.archetype_color == 'red' %}bg-red-100 text-red-700{% elif persona.archetype_color == 'blue' %}bg-blue-100 text-blue-700{% else %}bg-indigo-100 text-indigo-700{% endif %} flex items-center justify-center text-lg">
+              <i class="fa-solid {{ persona.archetype_icon }}"></i>
+            </div>
+            <div>
+              <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Learning Archetype</span>
+              <h3 class="text-base font-bold text-slate-900">{{ persona.archetype_name }}</h3>
+            </div>
+          </div>
+          <span class="text-xs font-bold px-2.5 py-1 rounded-full {% if persona.archetype_color == 'emerald' %}bg-emerald-100 text-emerald-800 border border-emerald-200{% elif persona.archetype_color == 'red' %}bg-red-100 text-red-800 border border-red-200{% elif persona.archetype_color == 'blue' %}bg-blue-100 text-blue-800 border border-blue-200{% else %}bg-indigo-100 text-indigo-800 border border-indigo-200{% endif %}">
+            {{ persona.archetype_title }}
+          </span>
+        </div>
+
+        <p class="text-xs text-slate-600 mb-4">{{ persona.summary }}</p>
+
+        <!-- 5-Dimensional Trait Bars -->
+        <div class="space-y-2 mb-4 bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+          <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-2">Pedagogical Trait Profile</p>
+          {% for trait_key, trait_val in persona.radar_traits.items() %}
+          <div>
+            <div class="flex justify-between text-[11px] mb-0.5">
+              <span class="text-slate-600 font-medium">{{ trait_key | replace('_', ' ') | title }}</span>
+              <span class="font-bold text-slate-800 font-mono">{{ trait_val }}%</span>
+            </div>
+            <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+              <div class="bg-gradient-to-r {% if persona.archetype_color == 'emerald' %}from-emerald-500 to-teal-600{% elif persona.archetype_color == 'red' %}from-red-500 to-rose-600{% elif persona.archetype_color == 'blue' %}from-blue-500 to-indigo-600{% else %}from-indigo-500 to-purple-600{% endif %} h-1.5 rounded-full" style="width: {{ trait_val }}%"></div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="p-3 rounded-xl bg-slate-100 border border-slate-200/80 text-xs text-slate-700">
+        <span class="font-bold text-slate-900 block mb-0.5"><i class="fa-solid fa-lightbulb text-amber-500 mr-1"></i> Tailored Strategy:</span>
+        <p class="text-[11px] text-slate-600">{{ persona.tailored_strategy }}</p>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Prerequisite Knowledge-Graph Analysis (Point 5) -->
+    {% if predictions.knowledge_graph_analysis %}
+    {% set kg = predictions.knowledge_graph_analysis %}
+    <div class="glass-card rounded-2xl p-6 border border-slate-200 flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-cyan-100 text-cyan-700 flex items-center justify-center text-lg">
+              <i class="fa-solid fa-diagram-project"></i>
+            </div>
+            <div>
+              <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Curriculum Dependency DAG</span>
+              <h3 class="text-base font-bold text-slate-900">Prerequisite Vulnerability Index</h3>
+            </div>
+          </div>
+          <span class="text-xs font-bold px-2.5 py-1 rounded-full {% if kg.has_vulnerabilities %}bg-amber-100 text-amber-800 border border-amber-200{% else %}bg-emerald-100 text-emerald-800 border border-emerald-200{% endif %}">
+            {% if kg.has_vulnerabilities %}{{ kg.vulnerable_count }} Course(s) Flagged{% else %}Prerequisites Solid{% endif %}
+          </span>
+        </div>
+
+        {% if kg.has_vulnerabilities %}
+        <p class="text-xs text-slate-600 mb-3">Downstream vulnerability detected: Gaps in foundational courses may impair performance in active Semester 5 subjects.</p>
+        
+        <div class="space-y-2.5 max-h-48 overflow-y-auto pr-1">
+          {% for vc in kg.vulnerable_active_courses %}
+          <div class="p-3 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-xs text-slate-800 font-mono">{{ vc.subject_code }} — {{ vc.subject_name }}</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">
+                PVI: {{ vc.pvi_score }}% ({{ vc.severity }})
+              </span>
+            </div>
+            {% for def in vc.prerequisite_deficits %}
+            <div class="text-[11px] text-slate-500 flex items-start gap-1.5">
+              <i class="fa-solid fa-arrow-turn-down-right text-slate-400 mt-0.5"></i>
+              <span>Root Prerequisite: <b>{{ def.prerequisite_name }}</b> ({{ def.historical_grade_label }}) • Focus: <i>{{ def.critical_concepts }}</i></span>
+            </div>
+            {% endfor %}
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="p-5 rounded-xl bg-emerald-50/50 border border-emerald-100 text-center my-4">
+          <i class="fa-solid fa-circle-check text-2xl text-emerald-600 mb-2"></i>
+          <p class="text-xs font-bold text-emerald-900">Zero Prerequisite Deficits Detected</p>
+          <p class="text-[11px] text-emerald-700 mt-1">Strong historical grades across Mathematics, Data Structures, and Operating Systems provide solid conceptual foundation.</p>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Recommended Remedial Bridge Modules -->
+      {% if kg.recommended_bridge_modules %}
+      <div class="mt-4 pt-3 border-t border-slate-100">
+        <span class="text-[11px] font-bold text-slate-700 block mb-2"><i class="fa-solid fa-bridge text-blue-600 mr-1"></i> Recommended Bridge Remedial Modules:</span>
+        <div class="space-y-1.5">
+          {% for bm in kg.recommended_bridge_modules %}
+          <div class="p-2 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between text-xs">
+            <div>
+              <span class="font-bold text-slate-800 text-[11px]">{{ bm.bridge_name }}</span>
+              <span class="text-[10px] text-slate-500 block">Est: {{ bm.estimated_hours }} hrs • Targets: {{ bm.remedies_course }}</span>
+            </div>
+            <span class="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">Study Guide</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+
+  </div>
+
+  <!-- Prescriptive Minimal-Effort Counterfactual Pathways (Point 3) -->
+  {% if predictions.counterfactual_pathways %}
+  {% set cp = predictions.counterfactual_pathways %}
+  <div class="glass-card rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+      <div>
+        <div class="flex items-center gap-2 mb-0.5">
+          <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+          <h2 class="text-base font-bold text-slate-900">Prescriptive Counterfactual Pathways (Minimum Effort Engine)</h2>
+        </div>
+        <p class="text-xs text-slate-500">Algorithmic solutions for reaching Target SGPA {{ cp.target_sgpa }} / CGPA {{ cp.target_cgpa or 'Target' }}</p>
+      </div>
+      <span class="px-3 py-1 rounded-xl bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-bold">
+        Target Marks: ~{{ cp.target_marks_percentage }}%
+      </span>
+    </div>
+
+    <!-- 3 Pathways Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {% for path in cp.pathways %}
+      <div class="p-4 rounded-xl bg-white border border-slate-200 hover-lift flex flex-col justify-between shadow-xs">
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-extrabold text-slate-900">{{ path.title }}</span>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full {% if path.color == 'emerald' %}bg-emerald-100 text-emerald-800{% elif path.color == 'blue' %}bg-blue-100 text-blue-800{% else %}bg-purple-100 text-purple-800{% endif %}">
+              {{ path.feasibility_score }}% Feasibility
+            </span>
+          </div>
+          <p class="text-[11px] text-slate-500 mb-3">{{ path.description }}</p>
+
+          <!-- Action Parameters Table -->
+          <div class="space-y-1.5 mb-3">
+            {% for act in path.actions %}
+            <div class="p-2 rounded-lg bg-slate-50 border border-slate-100 text-xs flex items-center justify-between">
+              <div>
+                <span class="font-bold text-slate-700 block text-[11px]">{{ act.parameter }}</span>
+                <span class="text-[10px] text-slate-400">Current: {{ act.current }}</span>
+              </div>
+              <div class="text-right">
+                <span class="font-bold text-indigo-700 font-mono text-[11px]">{{ act.target }}</span>
+                <span class="block text-[9px] font-semibold text-emerald-600 font-mono">{{ act.delta }}</span>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <p class="text-[10px] text-slate-600 italic bg-slate-50 p-2 rounded-lg border border-slate-200/60">
+          "{{ path.key_takeaway }}"
+        </p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Multi-Pathway Career Forecast (Beyond Campus Placements) (Point 7) -->
+  {% if predictions.multi_pathway_careers %}
+  {% set mpc = predictions.multi_pathway_careers %}
+  <div class="glass-card rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+      <div>
+        <div class="flex items-center gap-2 mb-0.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <h2 class="text-base font-bold text-slate-900">Multi-Pathway Career Readiness Forecaster</h2>
+        </div>
+        <p class="text-xs text-slate-500">Comparative suitability scoring across Corporate, Research, Public Sector & Management tracks</p>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <span class="text-xs text-slate-500">Top Recommended Track:</span>
+        <span class="px-2.5 py-1 rounded-lg bg-blue-100 text-blue-800 text-xs font-bold">
+          {{ mpc.primary_track }} ({{ mpc.primary_fit_pct }}% Fit)
+        </span>
+      </div>
+    </div>
+
+    <!-- 4 Career Tracks Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {% for track in mpc.tracks %}
+      <div class="p-4 rounded-xl bg-white border border-slate-200 hover-lift flex flex-col justify-between shadow-xs">
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <div class="w-8 h-8 rounded-lg {% if track.color == 'blue' %}bg-blue-100 text-blue-700{% elif track.color == 'purple' %}bg-purple-100 text-purple-700{% elif track.color == 'emerald' %}bg-emerald-100 text-emerald-700{% else %}bg-amber-100 text-amber-700{% endif %} flex items-center justify-center text-sm">
+              <i class="fa-solid {{ track.icon }}"></i>
+            </div>
+            <span class="text-xs font-extrabold font-mono {% if track.color == 'blue' %}text-blue-700{% elif track.color == 'purple' %}text-purple-700{% elif track.color == 'emerald' %}text-emerald-700{% else %}text-amber-700{% endif %}">
+              {{ track.fit_percentage }}% Fit
+            </span>
+          </div>
+
+          <h3 class="text-xs font-bold text-slate-900 mb-0.5">{{ track.title }}</h3>
+          <span class="text-[10px] text-slate-400 block mb-3 uppercase tracking-wider">{{ track.category }}</span>
+
+          <div class="w-full bg-slate-100 rounded-full h-2 mb-3 overflow-hidden">
+            <div class="h-2 rounded-full {% if track.color == 'blue' %}bg-blue-600{% elif track.color == 'purple' %}bg-purple-600{% elif track.color == 'emerald' %}bg-emerald-600{% else %}bg-amber-500{% endif %}" style="width: {{ track.fit_percentage }}%"></div>
+          </div>
+
+          <div class="space-y-2 text-[11px] mb-3">
+            <div>
+              <span class="text-slate-400 block text-[9px] uppercase font-bold">Key Strength:</span>
+              <span class="text-slate-700 font-medium">{{ track.strengths[0] }}</span>
+            </div>
+            <div>
+              <span class="text-slate-400 block text-[9px] uppercase font-bold">Priority Gap:</span>
+              <span class="text-amber-800 font-medium">{{ track.gap_areas[0] }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-2 border-t border-slate-100">
+          <span class="text-[9px] uppercase font-bold text-slate-400 block mb-1">Target Action Milestone:</span>
+          <p class="text-[10px] text-slate-600 italic">"{{ track.roadmap_milestones[0] }}"</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
 
   <!-- Detailed Semester-Wise Records Table -->
   <div class="glass-card rounded-2xl border border-slate-200 overflow-hidden">
@@ -409,13 +855,39 @@
               </a>
             </td>
           </tr>
-          {% else %}
-          <tr>
-            <td colspan="6" class="p-8 text-center text-slate-400">
-              No historical semester records found. Initial semester is in progress.
+          {% endfor %}
+
+          {% if ongoing_record %}
+          <tr class="bg-purple-50/60 hover:bg-purple-50 border-l-4 border-purple-500 transition-colors">
+            <td class="p-3.5 font-bold text-purple-900">
+              <div class="flex items-center gap-1.5">
+                <span>Semester 5</span>
+                <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded-full bg-purple-200 text-purple-800 border border-purple-300">ONGOING</span>
+              </div>
+            </td>
+            <td class="p-3.5">
+              <span class="text-purple-900 font-semibold">{{ ongoing_record.subjects | length }} Subjects</span>
+              <span class="text-[11px] text-purple-600/80 block truncate max-w-xs">
+                {{ ongoing_record.subjects | map(attribute='subject_name') | join(', ') }}
+              </span>
+            </td>
+            <td class="p-3.5">
+              <span class="px-2 py-0.5 rounded-full font-bold {% if latest_attendance < 75 %}bg-red-100 text-red-700{% else %}bg-emerald-100 text-emerald-700{% endif %}">
+                {{ latest_attendance }}%
+              </span>
+            </td>
+            <td class="p-3.5 text-slate-400 italic text-[11px]">0 (Pending ESE)</td>
+            <td class="p-3.5 font-mono text-sm font-extrabold text-purple-600">
+              <span>{{ predictions.predicted_next_sgpa }}</span>
+              <span class="text-[9px] text-purple-500 block font-sans font-semibold">AI Forecast</span>
+            </td>
+            <td class="p-3.5 text-right">
+              <a href="/student/what-if" class="text-xs font-semibold text-purple-700 bg-purple-100/80 hover:bg-purple-200 px-2.5 py-1 rounded-lg inline-flex items-center gap-1 transition-colors">
+                <i class="fa-solid fa-wand-magic-sparkles text-[10px]"></i> Simulate
+              </a>
             </td>
           </tr>
-          {% endfor %}
+          {% endif %}
         </tbody>
       </table>
     </div>
@@ -425,6 +897,27 @@
 
 <!-- Realtime Channel Setup & Chart Initialization -->
 <script>
+  function toggleCompetencyView(view) {
+    const radarContainer = document.getElementById('subjectRadarContainer');
+    const matrixContainer = document.getElementById('subjectMatrixContainer');
+    const btnRadar = document.getElementById('tab-btn-radar');
+    const btnMatrix = document.getElementById('tab-btn-matrix');
+
+    if (!radarContainer || !matrixContainer) return;
+
+    if (view === 'radar') {
+      radarContainer.classList.remove('hidden');
+      matrixContainer.classList.add('hidden');
+      btnRadar.className = 'px-2.5 py-1 rounded-md font-semibold text-xs transition-all bg-white text-indigo-700 shadow-sm';
+      btnMatrix.className = 'px-2.5 py-1 rounded-md font-semibold text-xs transition-all text-slate-600 hover:text-slate-900';
+    } else {
+      radarContainer.classList.add('hidden');
+      matrixContainer.classList.remove('hidden');
+      btnMatrix.className = 'px-2.5 py-1 rounded-md font-semibold text-xs transition-all bg-white text-indigo-700 shadow-sm';
+      btnRadar.className = 'px-2.5 py-1 rounded-md font-semibold text-xs transition-all text-slate-600 hover:text-slate-900';
+    }
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     const studentPrn = "{{ user.prn_roll }}";
     

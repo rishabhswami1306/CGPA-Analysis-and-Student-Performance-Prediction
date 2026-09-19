@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Attendance Forecasting & Intelligence | {{ user.name }}{% endblock %}
+{% block title %}Attendance Forecasting & Intelligence | {{ user.name or user.prn_roll or 'Student' }}{% endblock %}
 
 {% block content %}
 <div class="space-y-6">
@@ -9,7 +9,7 @@
   <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
     <div>
       <div class="flex items-center gap-3">
-        <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">{{ user.name }}</h1>
+        <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">{{ user.name or user.prn_roll or 'Student' }}</h1>
         <span class="font-mono text-xs font-bold px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 border border-blue-200">
           PRN: {{ student_prn }}
         </span>
@@ -200,27 +200,30 @@
   </div>
 
   <!-- Interactive What-If Simulator -->
-  <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-6 shadow-xl border border-slate-700">
+  <div class="bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 text-white rounded-2xl p-6 shadow-xl border border-slate-700">
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
       <div>
-        <div class="flex items-center gap-2">
-          <span class="w-8 h-8 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center">
+        <div class="flex items-center gap-2.5">
+          <span class="w-9 h-9 rounded-xl bg-blue-500/20 text-blue-400 border border-blue-500/30 flex items-center justify-center text-sm shadow-md">
             <i class="fa-solid fa-sliders"></i>
           </span>
-          <h2 class="text-lg font-bold brand-font text-white">Interactive Attendance Simulator (What-If Engine)</h2>
+          <div>
+            <h2 class="text-lg font-extrabold brand-font text-white tracking-tight">Interactive Attendance Simulator (What-If Engine)</h2>
+            <p class="text-xs text-slate-400">Live predictive engine: calculate how future attendances or bunks impact your 75% compliance.</p>
+          </div>
         </div>
-        <p class="text-xs text-slate-400 mt-1">
-          Simulate how attending or missing future lectures affects your overall or subject-wise attendance percentage.
-        </p>
       </div>
 
       <!-- Scope Selector -->
-      <div class="flex items-center gap-2 bg-slate-800/80 p-1.5 rounded-xl border border-slate-700">
-        <label for="sim-subject" class="text-xs font-medium text-slate-400 px-2">Scope:</label>
-        <select id="sim-subject" onchange="updateSimulatorBase()" class="bg-slate-900 text-white text-xs font-semibold rounded-lg px-3 py-1.5 border border-slate-600 focus:outline-none focus:ring-1 focus:ring-blue-400">
-          <option value="OVERALL">Combined Overall Attendance</option>
+      <div class="flex items-center gap-2 bg-slate-800/90 p-1.5 rounded-xl border border-slate-700">
+        <label for="sim-subject" class="text-xs font-semibold text-slate-300 px-2 flex items-center gap-1">
+          <i class="fa-solid fa-layer-group text-blue-400"></i>
+          <span>Scope:</span>
+        </label>
+        <select id="sim-subject" onchange="updateSimulatorBase()" class="bg-slate-950 text-white text-xs font-bold rounded-lg px-3 py-1.5 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <option value="OVERALL">Combined Overall Attendance ({{ ov.current_pct }}%)</option>
           {% for code, s in forecast.subjects.items() %}
-          <option value="{{ code }}">{{ code }} ({{ s.current_pct }}%)</option>
+          <option value="{{ code }}">{{ code }} — {{ s.current_pct }}% ({{ s.status }})</option>
           {% endfor %}
           {% if forecast.honors %}
           <option value="{{ forecast.honors.subject }}">Honors: {{ forecast.honors.subject }} ({{ forecast.honors.current_pct }}%)</option>
@@ -229,97 +232,173 @@
       </div>
     </div>
 
-    <!-- Simulator Controls & Real-time Live Result -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
+    <!-- Simulator Mode Switcher -->
+    <div class="flex items-center gap-2 mb-5 pb-3 border-b border-slate-800 text-xs">
+      <button type="button" onclick="switchSimMode('sliders')" id="btn-sim-manual" class="px-3 py-1.5 rounded-lg font-bold bg-blue-600 text-white transition-all shadow-sm">
+        <i class="fa-solid fa-sliders mr-1"></i> Manual Simulation (Sliders & Inputs)
+      </button>
+      <button type="button" onclick="switchSimMode('goalseek')" id="btn-sim-goalseek" class="px-3 py-1.5 rounded-lg font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-all">
+        <i class="fa-solid fa-bullseye mr-1"></i> Target Goal-Seek Solver
+      </button>
+    </div>
+
+    <!-- Simulator Controls & Live Outcome -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
       
-      <!-- Sliders Column -->
-      <div class="lg:col-span-2 space-y-5 bg-slate-950/40 p-5 rounded-xl border border-slate-800">
+      <!-- Controls Column -->
+      <div class="lg:col-span-2 space-y-5 bg-slate-950/60 p-5 rounded-2xl border border-slate-800 flex flex-col justify-between">
         
-        <!-- Classes to Attend Slider -->
-        <div>
-          <div class="flex justify-between items-center mb-1.5">
-            <label class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
-              <i class="fa-solid fa-user-plus"></i>
-              <span>Additional Classes You Will ATTEND:</span>
-            </label>
-            <span id="attend-val" class="font-mono text-base font-extrabold text-emerald-400 bg-emerald-950/80 px-2.5 py-0.5 rounded border border-emerald-800">0</span>
+        <!-- Tab 1: Manual Sliders & Inputs Mode -->
+        <div id="simManualContainer" class="space-y-4">
+          <!-- Classes to Attend Control -->
+          <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800">
+            <div class="flex justify-between items-center mb-2">
+              <label class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                <i class="fa-solid fa-user-plus"></i>
+                <span>Additional Classes You Will ATTEND:</span>
+              </label>
+              <div class="flex items-center gap-2">
+                <input type="number" id="attend-input" min="0" max="60" value="0" oninput="syncAttendFromInput(this.value)"
+                       class="w-16 px-2 py-1 text-center font-mono text-sm font-extrabold text-emerald-400 bg-emerald-950/90 border border-emerald-700 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500">
+                <span class="text-xs text-slate-400">classes</span>
+              </div>
+            </div>
+            <input type="range" id="attend-slider" min="0" max="60" value="0" oninput="syncAttendFromSlider(this.value)"
+                   class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+            <div class="flex justify-between text-[10px] text-slate-400 mt-1.5 font-mono">
+              <span>0</span>
+              <span>15</span>
+              <span>30</span>
+              <span>45</span>
+              <span id="attend-slider-max">60</span>
+            </div>
           </div>
-          <input type="range" id="attend-slider" min="0" max="40" value="0" oninput="runLiveSimulation()"
-                 class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-500">
-          <div class="flex justify-between text-[10px] text-slate-500 mt-1">
-            <span>0</span>
-            <span>10</span>
-            <span>20</span>
-            <span>30</span>
-            <span>40 classes</span>
+
+          <!-- Classes to Miss Control -->
+          <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800">
+            <div class="flex justify-between items-center mb-2">
+              <label class="text-xs font-bold text-rose-400 flex items-center gap-1.5">
+                <i class="fa-solid fa-user-minus"></i>
+                <span>Additional Classes You Will MISS (Bunks):</span>
+              </label>
+              <div class="flex items-center gap-2">
+                <input type="number" id="miss-input" min="0" max="40" value="0" oninput="syncMissFromInput(this.value)"
+                       class="w-16 px-2 py-1 text-center font-mono text-sm font-extrabold text-rose-400 bg-rose-950/90 border border-rose-700 rounded-lg outline-none focus:ring-1 focus:ring-rose-500">
+                <span class="text-xs text-slate-400">classes</span>
+              </div>
+            </div>
+            <input type="range" id="miss-slider" min="0" max="40" value="0" oninput="syncMissFromSlider(this.value)"
+                   class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-rose-500">
+            <div class="flex justify-between text-[10px] text-slate-400 mt-1.5 font-mono">
+              <span>0</span>
+              <span>10</span>
+              <span>20</span>
+              <span>30</span>
+              <span id="miss-slider-max">40</span>
+            </div>
           </div>
         </div>
 
-        <!-- Classes to Miss Slider -->
-        <div>
-          <div class="flex justify-between items-center mb-1.5">
-            <label class="text-xs font-bold text-red-400 flex items-center gap-1.5">
-              <i class="fa-solid fa-user-minus"></i>
-              <span>Additional Classes You Will MISS (Bunks):</span>
-            </label>
-            <span id="miss-val" class="font-mono text-base font-extrabold text-red-400 bg-red-950/80 px-2.5 py-0.5 rounded border border-red-800">0</span>
-          </div>
-          <input type="range" id="miss-slider" min="0" max="30" value="0" oninput="runLiveSimulation()"
-                 class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-red-500">
-          <div class="flex justify-between text-[10px] text-slate-500 mt-1">
-            <span>0</span>
-            <span>5</span>
-            <span>10</span>
-            <span>20</span>
-            <span>30 classes</span>
+        <!-- Tab 2: Goal-Seek Solver Mode (Hidden by default) -->
+        <div id="simGoalSeekContainer" class="hidden space-y-4">
+          <div class="p-4 rounded-xl bg-slate-900/80 border border-indigo-500/40">
+            <label class="block text-xs font-bold text-indigo-300 uppercase tracking-wider mb-2">Choose Your Desired Attendance Target:</label>
+            <div class="grid grid-cols-4 gap-2 mb-3">
+              <button type="button" onclick="runGoalSeek(75.0)" class="py-2 px-3 rounded-xl bg-slate-800 hover:bg-indigo-600 text-white text-xs font-bold border border-slate-700 transition-all text-center focus:ring-2 focus:ring-indigo-500">
+                75.0% (Mandatory)
+              </button>
+              <button type="button" onclick="runGoalSeek(80.0)" class="py-2 px-3 rounded-xl bg-slate-800 hover:bg-indigo-600 text-white text-xs font-bold border border-slate-700 transition-all text-center focus:ring-2 focus:ring-indigo-500">
+                80.0% (Secure)
+              </button>
+              <button type="button" onclick="runGoalSeek(85.0)" class="py-2 px-3 rounded-xl bg-slate-800 hover:bg-indigo-600 text-white text-xs font-bold border border-slate-700 transition-all text-center focus:ring-2 focus:ring-indigo-500">
+                85.0% (Distinction)
+              </button>
+              <button type="button" onclick="runGoalSeek(90.0)" class="py-2 px-3 rounded-xl bg-slate-800 hover:bg-indigo-600 text-white text-xs font-bold border border-slate-700 transition-all text-center focus:ring-2 focus:ring-indigo-500">
+                90.0% (Honors)
+              </button>
+            </div>
+            <div id="goalseek-output-box" class="p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs text-slate-300">
+              <span class="text-slate-400">Click a target button above to calculate the exact attendance recipe.</span>
+            </div>
           </div>
         </div>
 
-        <!-- Quick Presets -->
-        <div class="pt-2 flex flex-wrap gap-2 items-center text-xs">
-          <span class="text-[11px] text-slate-400">Quick Scenarios:</span>
-          <button onclick="setSimValues({{ ov.must_attend_now }}, 0)" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 font-medium">
-            🎯 Attend {{ ov.must_attend_now }} to clear detention
-          </button>
-          <button onclick="setSimValues(5, 0)" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-slate-700 font-medium">
-            +5 Perfect Attendance
-          </button>
-          <button onclick="setSimValues(0, 3)" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-red-300 border border-slate-700 font-medium">
-            Bunk Next 3 Classes
-          </button>
-          <button onclick="setSimValues(0, 0)" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-400 border border-slate-700 font-medium">
-            Reset
-          </button>
+        <!-- Dynamic Context-Aware Quick Presets -->
+        <div class="pt-3 border-t border-slate-800/80">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Dynamic Quick Presets:</span>
+            <span id="scope-badge" class="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-slate-800 text-blue-300">Combined Scope</span>
+          </div>
+          <div class="flex flex-wrap gap-2 items-center text-xs">
+            <button type="button" id="btn-preset-clear" onclick="applyPreset('clear')" class="px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-semibold transition-all flex items-center gap-1.5">
+              <i class="fa-solid fa-bullseye"></i>
+              <span id="btn-preset-clear-text">Clear Detention</span>
+            </button>
+            <button type="button" onclick="setSimValues(5, 0)" class="px-3 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 font-semibold transition-all flex items-center gap-1.5">
+              <i class="fa-solid fa-bolt"></i>
+              <span>+5 Sprint</span>
+            </button>
+            <button type="button" id="btn-preset-bunk" onclick="applyPreset('bunk')" class="px-3 py-1.5 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border border-blue-500/40 font-semibold transition-all flex items-center gap-1.5">
+              <i class="fa-solid fa-couch"></i>
+              <span id="btn-preset-bunk-text">Safe Bunks</span>
+            </button>
+            <button type="button" onclick="setSimValues(0, 0)" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 font-semibold transition-all">
+              Reset (0)
+            </button>
+          </div>
         </div>
 
       </div>
 
-      <!-- Projected Outcome Box -->
-      <div id="sim-result-box" class="bg-slate-950/80 rounded-xl p-6 border border-slate-700 text-center flex flex-col justify-center items-center">
-        <p class="text-xs uppercase font-bold text-slate-400 tracking-wider">Projected Attendance</p>
+      <!-- Projected Outcome Card -->
+      <div id="sim-result-box" class="bg-slate-950 rounded-2xl p-6 border border-slate-800 flex flex-col justify-between items-center text-center shadow-lg">
         
-        <div class="my-3">
-          <span id="sim-pct" class="text-5xl font-black text-emerald-400 tracking-tight">{{ ov.current_pct }}%</span>
+        <div class="w-full">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-800/80 text-xs">
+            <span class="text-slate-400 uppercase font-bold text-[10px] tracking-wider">Simulated Standing</span>
+            <span id="sim-scope-name" class="font-bold text-blue-400">OVERALL</span>
+          </div>
+
+          <!-- Main Projected Percentage Display -->
+          <div class="my-5">
+            <div class="inline-flex items-baseline gap-1">
+              <span id="sim-pct" class="text-5xl sm:text-6xl font-black text-emerald-400 tracking-tight transition-all">
+                {{ ov.current_pct }}%
+              </span>
+            </div>
+            <div class="mt-2">
+              <div id="sim-badge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold {% if ov.is_detained %}bg-red-900/60 text-red-300 border border-red-700{% else %}bg-emerald-900/60 text-emerald-300 border border-emerald-700{% endif %}">
+                <span id="sim-status">{{ ov.status }}</span>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div id="sim-badge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold {% if ov.is_detained %}bg-red-900/60 text-red-300 border border-red-700{% else %}bg-emerald-900/60 text-emerald-300 border border-emerald-700{% endif %}">
-          <span id="sim-status">{{ ov.status }}</span>
+        <!-- Before vs After Diagnostic Table -->
+        <div class="w-full pt-4 border-t border-slate-800/90 space-y-2 text-xs">
+          <div class="flex justify-between items-center text-slate-400">
+            <span>Base Attendance:</span>
+            <span id="sim-base" class="font-mono font-bold text-white">{{ ov.current_pct }}%</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-slate-400">Net Percentage Delta:</span>
+            <span id="sim-delta" class="font-mono font-bold text-emerald-400">+0.0%</span>
+          </div>
+          <div class="flex justify-between items-center text-slate-400">
+            <span>Projected Ratio:</span>
+            <span id="sim-ratio" class="font-mono font-bold text-white">{{ ov.total_attended }} / {{ ov.total_conducted }}</span>
+          </div>
+          <div class="flex justify-between items-center text-slate-400">
+            <span>Classes Remaining:</span>
+            <span id="sim-remaining-classes" class="font-mono font-bold text-white">{{ ov.remaining_classes }}</span>
+          </div>
         </div>
 
-        <div class="mt-4 pt-4 border-t border-slate-800 w-full space-y-1.5 text-xs text-slate-300">
-          <div class="flex justify-between">
-            <span class="text-slate-400">Current Base:</span>
-            <span id="sim-base" class="font-mono font-bold">{{ ov.current_pct }}%</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-slate-400">Net Delta:</span>
-            <span id="sim-delta" class="font-mono font-bold text-slate-300">+0.0%</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-slate-400">New Ratio:</span>
-            <span id="sim-ratio" class="font-mono font-bold">{{ ov.total_attended }} / {{ ov.total_conducted }}</span>
-          </div>
+        <!-- Directive Banner -->
+        <div id="sim-directive-box" class="w-full mt-4 p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-[11px] text-slate-300 text-left">
+          <span id="sim-directive-text">Drag sliders or pick a quick scenario to project attendance trajectory.</span>
         </div>
+
       </div>
 
     </div>
@@ -586,56 +665,190 @@
 
 <!-- Interactive Client-side Script for Simulator -->
 <script>
-  // Pre-load subject base numbers from Jinja
-  const subjectsData = {
-    "OVERALL": {
-      attended: {{ ov.total_attended }},
-      conducted: {{ ov.total_conducted }},
-      remaining: {{ ov.remaining_classes }}
-    },
-    {% for code, s in forecast.subjects.items() %}
-    "{{ code }}": {
-      attended: {{ s.total_attended }},
-      conducted: {{ s.total_conducted }},
-      remaining: {{ s.remaining_classes }}
-    },
-    {% endfor %}
-    {% if forecast.honors %}
-    "{{ forecast.honors.subject }}": {
-      attended: {{ forecast.honors.total_attended }},
-      conducted: {{ forecast.honors.total_conducted }},
-      remaining: {{ forecast.honors.remaining_classes }}
-    }
-    {% endif %}
-  };
+  // Pre-load subject base numbers from server-prepared JSON
+  const subjectsData = {{ forecast_subjects_json | safe }};
 
   let currentScope = "OVERALL";
+  let activeSimMode = "sliders";
+
+  function switchSimMode(mode) {
+    activeSimMode = mode;
+    const manualContainer = document.getElementById('simManualContainer');
+    const goalseekContainer = document.getElementById('simGoalSeekContainer');
+    const btnManual = document.getElementById('btn-sim-manual');
+    const btnGoalSeek = document.getElementById('btn-sim-goalseek');
+
+    if (mode === 'sliders') {
+      manualContainer.classList.remove('hidden');
+      goalseekContainer.classList.add('hidden');
+      btnManual.className = 'px-3 py-1.5 rounded-lg font-bold bg-blue-600 text-white transition-all shadow-sm';
+      btnGoalSeek.className = 'px-3 py-1.5 rounded-lg font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-all';
+    } else {
+      manualContainer.classList.add('hidden');
+      goalseekContainer.classList.remove('hidden');
+      btnGoalSeek.className = 'px-3 py-1.5 rounded-lg font-bold bg-indigo-600 text-white transition-all shadow-sm';
+      btnManual.className = 'px-3 py-1.5 rounded-lg font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-all';
+      runGoalSeek(75.0);
+    }
+  }
 
   function updateSimulatorBase() {
     currentScope = document.getElementById('sim-subject').value;
+    const base = subjectsData[currentScope] || subjectsData["OVERALL"];
+
+    // Update dynamic slider max boundaries based on remaining classes
+    const attendMax = Math.max(60, base.must_attend_now + 15, base.remaining);
+    const missMax = Math.max(40, base.can_miss_now + 10, base.remaining);
+
+    document.getElementById('attend-slider').max = attendMax;
+    document.getElementById('attend-input').max = attendMax;
+    document.getElementById('attend-slider-max').innerText = attendMax;
+
+    document.getElementById('miss-slider').max = missMax;
+    document.getElementById('miss-input').max = missMax;
+    document.getElementById('miss-slider-max').innerText = missMax;
+
+    // Reset inputs
     document.getElementById('attend-slider').value = 0;
+    document.getElementById('attend-input').value = 0;
     document.getElementById('miss-slider').value = 0;
-    document.getElementById('attend-val').innerText = '0';
-    document.getElementById('miss-val').innerText = '0';
+    document.getElementById('miss-input').value = 0;
+
+    // Update scope label and preset buttons
+    document.getElementById('sim-scope-name').innerText = currentScope;
+    document.getElementById('scope-badge').innerText = currentScope + ' Scope';
+    updatePresetsForScope(base);
+
+    runLiveSimulation();
+  }
+
+  function updatePresetsForScope(base) {
+    const clearBtn = document.getElementById('btn-preset-clear');
+    const clearText = document.getElementById('btn-preset-clear-text');
+    const bunkBtn = document.getElementById('btn-preset-bunk');
+    const bunkText = document.getElementById('btn-preset-bunk-text');
+
+    if (base.is_detained && base.must_attend_now > 0) {
+      clearText.innerText = `Clear Detention (+${base.must_attend_now})`;
+      clearBtn.className = 'px-3 py-1.5 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 font-semibold transition-all flex items-center gap-1.5';
+    } else {
+      clearText.innerText = 'Reach 85% Target';
+      clearBtn.className = 'px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-semibold transition-all flex items-center gap-1.5';
+    }
+
+    if (base.can_miss_now > 0) {
+      bunkText.innerText = `Safe Bunks (${base.can_miss_now})`;
+      bunkBtn.classList.remove('opacity-50', 'pointer-events-none');
+    } else {
+      bunkText.innerText = 'Bunk (0 Safe)';
+      bunkBtn.classList.add('opacity-50');
+    }
+  }
+
+  function applyPreset(type) {
+    const base = subjectsData[currentScope] || subjectsData["OVERALL"];
+    if (type === 'clear') {
+      if (base.is_detained && base.must_attend_now > 0) {
+        setSimValues(base.must_attend_now, 0);
+      } else {
+        // Calculate needed for 85%
+        const needed = Math.max(0, Math.ceil((85.0 * base.conducted - 100 * base.attended) / 15.0));
+        setSimValues(needed, 0);
+      }
+    } else if (type === 'bunk') {
+      setSimValues(0, Math.max(1, base.can_miss_now));
+    }
+  }
+
+  function syncAttendFromSlider(val) {
+    document.getElementById('attend-input').value = val;
+    runLiveSimulation();
+  }
+
+  function syncAttendFromInput(val) {
+    const num = Math.max(0, parseInt(val) || 0);
+    document.getElementById('attend-slider').value = num;
+    runLiveSimulation();
+  }
+
+  function syncMissFromSlider(val) {
+    document.getElementById('miss-input').value = val;
+    runLiveSimulation();
+  }
+
+  function syncMissFromInput(val) {
+    const num = Math.max(0, parseInt(val) || 0);
+    document.getElementById('miss-slider').value = num;
     runLiveSimulation();
   }
 
   function setSimValues(attend, miss) {
     document.getElementById('attend-slider').value = Math.max(0, attend);
+    document.getElementById('attend-input').value = Math.max(0, attend);
     document.getElementById('miss-slider').value = Math.max(0, miss);
+    document.getElementById('miss-input').value = Math.max(0, miss);
     runLiveSimulation();
+  }
+
+  function runGoalSeek(targetPct) {
+    const base = subjectsData[currentScope] || subjectsData["OVERALL"];
+    const outBox = document.getElementById('goalseek-output-box');
+    const currentBasePct = base.conducted > 0 ? ((base.attended / base.conducted) * 100) : 0.0;
+
+    if (targetPct > currentBasePct) {
+      // Must attend X consecutive
+      const numerator = targetPct * base.conducted - 100.0 * base.attended;
+      const denominator = 100.0 - targetPct;
+      const needed = denominator > 0 ? Math.max(0, Math.ceil(numerator / denominator)) : 0;
+      const isFeasible = needed <= base.remaining;
+
+      outBox.innerHTML = `
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-white">Target: ${targetPct.toFixed(1)}% (${currentScope})</span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isFeasible ? 'bg-emerald-900/80 text-emerald-300 border border-emerald-700' : 'bg-red-900/80 text-red-300 border border-red-700'}">
+              ${isFeasible ? 'FEASIBLE' : 'CHALLENGING'}
+            </span>
+          </div>
+          <p class="text-xs ${isFeasible ? 'text-emerald-300' : 'text-amber-300'}">
+            You must attend the next <b>${needed} consecutive class(es)</b> without missing any.
+          </p>
+          <p class="text-[11px] text-slate-400">
+            Total classes remaining in semester: <b>${base.remaining}</b>.
+            ${isFeasible ? `<button onclick="setSimValues(${needed}, 0); switchSimMode('sliders');" class="mt-2 px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-all">Apply ${needed} Classes to Simulator &rarr;</button>` : '<span class="text-red-400 font-semibold">Exceeds remaining term lectures.</span>'}
+          </p>
+        </div>
+      `;
+    } else {
+      // Can bunk Y classes
+      const numerator = 100.0 * base.attended - targetPct * base.conducted;
+      const canMiss = targetPct > 0 ? Math.max(0, Math.floor(numerator / targetPct)) : 0;
+
+      outBox.innerHTML = `
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-white">Target: ${targetPct.toFixed(1)}% (${currentScope})</span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-900/80 text-blue-300 border border-blue-700">BUFFER AVAILABLE</span>
+          </div>
+          <p class="text-xs text-blue-300">
+            Current attendance (${currentBasePct.toFixed(1)}%) already satisfies ${targetPct.toFixed(1)}%. You can safely miss up to <b>${canMiss} class(es)</b> right now.
+          </p>
+          <button onclick="setSimValues(0, ${canMiss}); switchSimMode('sliders');" class="mt-2 px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-all">
+            Simulate Missing ${canMiss} Classes &rarr;
+          </button>
+        </div>
+      `;
+    }
   }
 
   function runLiveSimulation() {
     const attend = parseInt(document.getElementById('attend-slider').value) || 0;
     const miss = parseInt(document.getElementById('miss-slider').value) || 0;
 
-    document.getElementById('attend-val').innerText = attend;
-    document.getElementById('miss-val').innerText = miss;
-
     const base = subjectsData[currentScope] || subjectsData["OVERALL"];
     const newAttended = base.attended + attend;
     const newConducted = base.conducted + attend + miss;
+    const newRemaining = Math.max(0, base.remaining - attend - miss);
 
     let projPct = 0.0;
     if (newConducted > 0) {
@@ -648,26 +861,42 @@
     const pctElem = document.getElementById('sim-pct');
     const badgeElem = document.getElementById('sim-badge');
     const statusElem = document.getElementById('sim-status');
+    const deltaElem = document.getElementById('sim-delta');
 
     pctElem.innerText = projPct + '%';
     document.getElementById('sim-base').innerText = currentBasePct + '%';
-    document.getElementById('sim-delta').innerText = (delta >= 0 ? '+' : '') + delta + '%';
+    deltaElem.innerText = (delta >= 0 ? '+' : '') + delta + '%';
+    deltaElem.className = delta > 0 ? "font-mono font-bold text-emerald-400" : (delta < 0 ? "font-mono font-bold text-rose-400" : "font-mono font-bold text-slate-300");
+
     document.getElementById('sim-ratio').innerText = newAttended + ' / ' + newConducted;
+    document.getElementById('sim-remaining-classes').innerText = newRemaining + ' remaining';
+
+    const directiveElem = document.getElementById('sim-directive-text');
 
     if (isSafe) {
-      pctElem.className = "text-5xl font-black text-emerald-400 tracking-tight";
+      pctElem.className = "text-5xl sm:text-6xl font-black text-emerald-400 tracking-tight transition-all";
       badgeElem.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-900/60 text-emerald-300 border border-emerald-700";
-      statusElem.innerText = parseFloat(projPct) >= 85 ? "SAFE & SECURE" : "BORDERLINE SAFE";
+      const statusText = parseFloat(projPct) >= 85 ? "SAFE & SECURE (≥ 85%)" : "BORDERLINE SAFE (75–85%)";
+      statusElem.innerText = statusText;
+      if (attend > 0) {
+        directiveElem.innerHTML = `<span class="text-emerald-400 font-bold">✓ Progress:</span> Attending <b>${attend}</b> lecture(s) increases standing by <b class="text-emerald-300">+${delta}%</b> to <b class="text-emerald-300">${projPct}%</b>.`;
+      } else if (miss > 0) {
+        directiveElem.innerHTML = `<span class="text-amber-400 font-bold">⚠ Warning:</span> Missing <b>${miss}</b> lecture(s) drops standing by <b class="text-rose-300">${delta}%</b>, but remains above 75%.`;
+      } else {
+        directiveElem.innerHTML = `Current baseline meets institutional requirement. Maintain this momentum till Nov 6!`;
+      }
     } else {
-      pctElem.className = "text-5xl font-black text-red-400 tracking-tight";
+      pctElem.className = "text-5xl sm:text-6xl font-black text-rose-400 tracking-tight transition-all";
       badgeElem.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-900/60 text-red-300 border border-red-700";
-      statusElem.innerText = "DETAINED (< 75%)";
+      statusElem.innerText = "DETAINED (< 75.0%)";
+      const gap = (75.0 - parseFloat(projPct)).toFixed(1);
+      directiveElem.innerHTML = `<span class="text-rose-400 font-bold">✗ Detention Risk:</span> Gap to 75% target is <b>${gap}%</b>. Attend more classes consecutively to clear detention.`;
     }
   }
 
   // Initialize on load
   document.addEventListener("DOMContentLoaded", () => {
-    runLiveSimulation();
+    updateSimulatorBase();
   });
 </script>
 {% endblock %}

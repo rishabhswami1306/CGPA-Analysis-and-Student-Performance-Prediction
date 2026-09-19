@@ -33,7 +33,10 @@ def get_student_sgpa_features(
     branch_key = branch if branch in BRANCH_BASELINES else "DEFAULT"
     baseline = BRANCH_BASELINES[branch_key]
 
-    tt_avg = (current_tt1_avg + current_tt2_avg) / 2.0
+    if current_tt1_avg > 20.0 or current_tt2_avg > 20.0:
+        tt_avg = (current_tt1_avg + current_tt2_avg) / 4.0  # Converted to 15.0 scale
+    else:
+        tt_avg = (current_tt1_avg + current_tt2_avg) / 2.0
     sorted_records = sorted(completed_records, key=lambda x: x.get("semester", 1))
 
     if not sorted_records:
@@ -105,9 +108,11 @@ def prepare_training_dataset_from_db(db) -> Tuple[pd.DataFrame, pd.DataFrame]:
     sgpa_rows = []
     for prn, recs in student_records.items():
         sorted_recs = sorted(recs, key=lambda x: x.get("semester", 1))
-        for i in range(len(sorted_recs) - 1):
-            history = sorted_recs[:i + 1]
-            target_sem_rec = sorted_recs[i + 1]
+        # Train strictly on finalized completed semesters (e.g. Sem 1 to 4)
+        completed_recs = [r for r in sorted_recs if r.get("is_completed", True) and r.get("sgpa") is not None]
+        for i in range(len(completed_recs) - 1):
+            history = completed_recs[:i + 1]
+            target_sem_rec = completed_recs[i + 1]
             
             # Subject average TTs for the target semester
             target_subjects = target_sem_rec.get("subjects", [])

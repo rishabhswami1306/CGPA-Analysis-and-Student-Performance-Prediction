@@ -62,9 +62,25 @@ def solve_what_if_target(
     for sub in subjects:
         tt1 = float(sub.get("tt1_score", 0.0))
         tt2 = float(sub.get("tt2_score", 0.0))
-        max_ese = float(sub.get("max_ese", 80.0))
-        tt_avg = (tt1 + tt2) / 2.0  # out of 20
-        
+        apt = float(sub.get("aptitude_score", 0.0))
+        skat = float(sub.get("skat_score", 0.0))
+        ta = float(sub.get("teacher_assessment_score", 0.0))
+        mock = float(sub.get("mock_interview_score", 0.0))
+        pres = float(sub.get("presentation_score", 0.0))
+        max_ese = float(sub.get("max_ese", 60.0))
+
+        # Check if full internal score is provided or compute it
+        if "internal_score" in sub and sub["internal_score"] is not None:
+            internal = float(sub["internal_score"])
+        elif tt1 > 20.0 or tt2 > 20.0 or apt > 0 or skat > 0 or ta > 0 or mock > 0 or pres > 0 or max_ese == 60.0:
+            tt_conv = (min(30.0, tt1) + min(30.0, tt2)) / 4.0
+            internal = min(40.0, tt_conv + apt + skat + ta + mock + pres)
+        else:
+            # Legacy fallback
+            internal = (tt1 + tt2) / 2.0
+            if max_ese != 60.0 and max_ese == 80.0:
+                pass
+
         # Find threshold marks for target_gp
         threshold_marks = 80.0
         for gp_val, marks_val, _ in grade_thresholds:
@@ -72,22 +88,24 @@ def solve_what_if_target(
                 threshold_marks = marks_val
                 break
 
-        # Required scaled ESE (out of 80)
-        needed_scaled_ese = max(0.0, threshold_marks - tt_avg)
-        needed_raw_ese = (needed_scaled_ese / 80.0) * max_ese
-        needed_raw_ese = round(needed_raw_ese, 1)
+        # Required ESE marks (out of 60)
+        needed_scaled_ese = max(0.0, threshold_marks - internal)
+        if max_ese == 60.0:
+            needed_raw_ese = round(min(max_ese, needed_scaled_ese), 1)
+        else:
+            needed_raw_ese = round((needed_scaled_ese / 60.0) * max_ese, 1)
 
-        # Min pass requirement (40 total marks -> 32 scaled ESE with 0 TT)
-        pass_scaled_ese = max(0.0, 40.0 - tt_avg)
-        pass_raw_ese = round((pass_scaled_ese / 80.0) * max_ese, 1)
+        # Min pass requirement (40 total marks)
+        pass_needed = max(0.0, 40.0 - internal)
+        pass_raw_ese = round(min(max_ese, pass_needed) if max_ese == 60.0 else (pass_needed / 60.0) * max_ese, 1)
 
-        sub_feasible = needed_raw_ese <= max_ese
+        sub_feasible = needed_scaled_ese <= 60.0
 
         # Provide a table of what ESE score gives what grade in this subject
         matrix = []
         for gp_val, marks_val, label in grade_thresholds:
-            needed_scaled = max(0.0, marks_val - tt_avg)
-            needed_raw = round((needed_scaled / 80.0) * max_ese, 1)
+            needed_scaled = max(0.0, marks_val - internal)
+            needed_raw = round(needed_scaled if max_ese == 60.0 else (needed_scaled / 60.0) * max_ese, 1)
             possible = needed_raw <= max_ese
             matrix.append({
                 "target_grade": label,
@@ -101,7 +119,8 @@ def solve_what_if_target(
             "subject_code": sub.get("subject_code", ""),
             "subject_name": sub.get("subject_name", ""),
             "credits": sub.get("credits", 4),
-            "tt_avg_score": round(tt_avg, 2),
+            "internal_score": round(internal, 2),
+            "tt_avg_score": round((tt1 + tt2) / 4.0 if (tt1 > 20 or tt2 > 20) else (tt1 + tt2) / 2.0, 2),
             "max_ese": max_ese,
             "target_grade_point": target_gp,
             "needed_ese_score": needed_raw_ese if sub_feasible else f"{needed_raw_ese} (Exceeds Max {max_ese})",

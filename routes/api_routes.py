@@ -141,89 +141,139 @@ def calculate_what_if(student_prn):
     return jsonify(analysis), 200
 
 
+@api_bp.route("/analytics/subject-risk/<student_prn>", methods=["GET"])
+@role_required(["student", "faculty", "admin"])
+@student_ownership_required
+def get_subject_risk_api(student_prn):
+    """Subject-level KT/Backlog risk breakdown and required ESE thresholds."""
+    pred = predict_student_analytics(student_prn)
+    return jsonify({
+        "student_prn": student_prn,
+        "subject_risk_analysis": pred.get("subject_risk_analysis", {})
+    }), 200
+
+
+@api_bp.route("/analytics/career-pathways/<student_prn>", methods=["GET"])
+@role_required(["student", "faculty", "admin"])
+@student_ownership_required
+def get_career_pathways_api(student_prn):
+    """Multi-pathway career readiness scores (SWE, MS, GATE, MBA)."""
+    pred = predict_student_analytics(student_prn)
+    return jsonify({
+        "student_prn": student_prn,
+        "multi_pathway_careers": pred.get("multi_pathway_careers", {})
+    }), 200
+
+
+@api_bp.route("/analytics/counterfactual", methods=["POST"])
+@role_required(["student", "faculty", "admin"])
+def calculate_counterfactual_api():
+    """Prescriptive minimal-effort counterfactual solver API."""
+    data = request.get_json() or {}
+    from ml_engine.counterfactuals import generate_counterfactual_pathways
+    
+    current_cgpa = float(data.get("current_cgpa", 7.5))
+    completed_credits = int(data.get("completed_credits", 80))
+    ongoing_credits = int(data.get("ongoing_credits", 20))
+    current_tt1_avg = float(data.get("current_tt1_avg", 15.0))
+    current_tt2_avg = float(data.get("current_tt2_avg", 15.0))
+    current_attendance = float(data.get("current_attendance", 80.0))
+    target_sgpa = float(data["target_sgpa"]) if "target_sgpa" in data else None
+    target_cgpa = float(data["target_cgpa"]) if "target_cgpa" in data else None
+
+    result = generate_counterfactual_pathways(
+        current_cgpa=current_cgpa,
+        completed_credits=completed_credits,
+        ongoing_credits=ongoing_credits,
+        current_tt1_avg=current_tt1_avg,
+        current_tt2_avg=current_tt2_avg,
+        current_attendance=current_attendance,
+        target_sgpa=target_sgpa,
+        target_cgpa=target_cgpa
+    )
+    return jsonify(result), 200
+
+
 @api_bp.route("/admin/branch-analytics", methods=["GET"])
 @role_required(["admin"])
 def get_branch_analytics():
     """
-    Institute & Branch Analytics for Heatmaps and Distributions
-    ---
-    tags:
-      - Admin Analytics
-    responses:
-      200:
-        description: Aggregated grade and attendance distributions
+    TY CSE-DS Cohort Academic Analytics: Audited Sem 1-4 CGPA vs Ongoing Sem 5 Forecast Distribution
     """
     db = get_db()
-    students = list(db.users.find({"role": "student"}))
+    students = list(db.users.find({"role": "student", "branch": "CSE-DS"}))
 
-    branch_data = {}
+    sem1_4_cgpas = []
+    sem5_preds = []
+
     for s in students:
-        branch = s.get("branch", "Other")
         prn = s.get("prn_roll")
-        recs = list(db.academic_records.find({"student_prn": prn}))
-        cgpa, backlogs, _ = compute_cumulative_cgpa(recs)
-        att = np.mean([float(r.get("attendance_percentage", 80.0)) for r in recs]) if recs else 80.0
+        # Completed Sem 1-4 records
+        recs = list(db.academic_records.find({
+            "student_prn": prn,
+            "semester": {"$lte": 4},
+            "is_completed": {"$ne": False}
+        }))
+        cgpa, _, _ = compute_cumulative_cgpa(recs)
+        sem1_4_cgpas.append(cgpa)
 
-        if branch not in branch_data:
-            branch_data[branch] = {"cgpas": [], "attendances": [], "backlogs_count": 0, "students_count": 0}
+        # Sem 5 prediction
+        pred = predict_student_analytics(prn)
+        sem5_preds.append(float(pred.get("predicted_next_sgpa", cgpa)))
 
-        branch_data[branch]["cgpas"].append(cgpa)
-        branch_data[branch]["attendances"].append(att)
-        branch_data[branch]["backlogs_count"] += backlogs
-        branch_data[branch]["students_count"] += 1
-
-    summary = {}
-    for b, d in branch_data.items():
-        summary[b] = {
-            "total_students": d["students_count"],
-            "avg_cgpa": round(float(np.mean(d["cgpas"])), 2) if d["cgpas"] else 0.0,
-            "avg_attendance": round(float(np.mean(d["attendances"])), 1) if d["attendances"] else 0.0,
-            "total_backlogs": d["backlogs_count"],
-            "cgpa_distribution": {
-                "distinction_9_plus": sum(1 for c in d["cgpas"] if c >= 9.0),
-                "first_class_7_5_to_9": sum(1 for c in d["cgpas"] if 7.5 <= c < 9.0),
-                "second_class_6_to_7_5": sum(1 for c in d["cgpas"] if 6.0 <= c < 7.5),
-                "pass_class_4_to_6": sum(1 for c in d["cgpas"] if 4.0 <= c < 6.0),
-                "fail_below_4": sum(1 for c in d["cgpas"] if c < 4.0),
-            }
+    def build_dist(values):
+        return {
+            "distinction_9_plus": sum(1 for c in values if c >= 9.0),
+            "first_class_7_5_to_9": sum(1 for c in values if 7.5 <= c < 9.0),
+            "second_class_6_to_7_5": sum(1 for c in values if 6.0 <= c < 7.5),
+            "pass_class_4_to_6": sum(1 for c in values if 4.0 <= c < 6.0),
+            "fail_below_4": sum(1 for c in values if c < 4.0),
         }
 
-    return jsonify({"branches": summary}), 200
+    summary = {
+        "Sem 1–4 Audited CGPA": {
+            "total_students": len(sem1_4_cgpas),
+            "avg_cgpa": round(float(np.mean(sem1_4_cgpas)), 2) if sem1_4_cgpas else 0.0,
+            "cgpa_distribution": build_dist(sem1_4_cgpas)
+        },
+        "Sem 5 ML Forecast": {
+            "total_students": len(sem5_preds),
+            "avg_cgpa": round(float(np.mean(sem5_preds)), 2) if sem5_preds else 0.0,
+            "cgpa_distribution": build_dist(sem5_preds)
+        }
+    }
+
+    return jsonify({"branches": summary, "cohort": "TY BTech DS (A) 2026-27"}), 200
 
 
 @api_bp.route("/admin/detention-list", methods=["GET"])
 @role_required(["admin"])
 def get_detention_list():
     """
-    Get Detention Alert List (<75% attendance)
-    ---
-    tags:
-      - Admin Analytics
-    responses:
-      200:
-        description: List of all students with critical attendance shortfall
+    Get Detention Alert List for ongoing Semester 5 (<75% attendance)
     """
     db = get_db()
-    risk_records = list(db.academic_records.find({"attendance_percentage": {"$lt": 75.0}}))
+    # Query from attendance_records (current ongoing Semester 5 attendance register)
+    risk_records = list(db.attendance_records.find({"percentage": {"$lt": 75.0}}).sort("percentage", 1))
 
     alert_list = []
-    seen = set()
     for rec in risk_records:
         prn = rec.get("student_prn")
-        if prn in seen:
-            continue
-        seen.add(prn)
         user = db.users.find_one({"prn_roll": prn}) or {}
-        att = float(rec.get("attendance_percentage", 0.0))
-        shortfall = compute_attendance_shortfall(int(att), 100, target_pct=75.0)
+        att = float(rec.get("percentage", 0.0))
+        tot_con = rec.get("total_conducted", 90)
+        tot_att = rec.get("total_attended", 60)
+        shortfall = compute_attendance_shortfall(tot_att, tot_con, target_pct=75.0)
 
         alert_list.append({
             "student_prn": prn,
             "name": user.get("name", prn),
-            "branch": user.get("branch", ""),
-            "semester": rec.get("semester"),
+            "branch": "CSE-DS",
+            "class_name": "TY BTech DS (A)",
+            "semester": 5,
             "attendance_percentage": att,
             "lectures_needed": shortfall.get("lectures_needed", 0),
+            "local_guardian": rec.get("local_guardian", "Mentor Assigned"),
             "alert_status": "CRITICAL SHORTFALL"
         })
 
@@ -261,12 +311,28 @@ def get_placement_eligibility(student_prn):
     records = list(db.academic_records.find({"student_prn": student_prn}).sort("semester", 1))
     cgpa, total_backlogs, total_credits = compute_cumulative_cgpa(records)
 
+    att_doc = db.attendance_records.find_one({"student_prn": student_prn})
+    sem5_rec = next((r for r in records if r.get("semester") == 5), None)
+    student_att = float(att_doc.get("percentage") if att_doc else (sem5_rec.get("attendance_percentage", 80.0) if sem5_rec else 80.0))
+
+    try:
+        from ml_engine.inference import predict_student_analytics
+        pred = predict_student_analytics(student_prn)
+        placement_score = float(pred.get("placement_readiness_score", 72.0))
+    except Exception:
+        placement_score = 72.0
+
     analysis = evaluate_company_eligibility(
         student_cgpa=cgpa,
         total_backlogs=total_backlogs,
         branch=user.get("branch", "CSE"),
         completed_credits=total_credits,
         current_sem_credits=20,
+        student_attendance=student_att,
+        student_placement_score=placement_score,
+        academic_gap_years=int(user.get("academic_gap_years", 0)),
+        tenth_marks=float(user.get("tenth_marks", 82.0)),
+        twelfth_marks=float(user.get("twelfth_marks", 80.0)),
         db=db
     )
 

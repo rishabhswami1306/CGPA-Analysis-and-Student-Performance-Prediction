@@ -33,6 +33,16 @@ An end-to-end, production-ready, high-performance web platform for academic perf
    - Generates ATS compatibility percentage (0–100%), detected vs missing competencies, and curriculum-aligned remedial coursework recommendations.
 8. **Zero-Config Demo Fallback**:
    - Auto-detects MongoDB and Redis; seamlessly falls back to `mongomock` and in-memory caching if local instances are unavailable.
+9. **Advanced Student Performance Prediction & Intervention Suite**:
+   - **Subject-Level Backlog Risk Predictor**: Individual course KT probability and minimum ESE target marks.
+   - **Probabilistic Forecasting**: 90% Confidence Prediction Intervals and 3-scenario projections (Pessimistic, Expected, Optimistic).
+   - **Prescriptive Counterfactual Engine**: Minimal-effort constrained solver generating 3 actionable study pathways.
+   - **Dynamic Early Warning System (EWS)**: Temporal Rescue Window countdown and mathematical ceiling SGPA.
+   - **Prerequisite Knowledge-Graph Analysis**: Curriculum DAG vulnerability index with remedial bridge modules.
+   - **Learner Persona Archetypes**: 5-trait radar profiling (Discipline, Internals, Exam Clutch, Practical, Resilience).
+   - **Multi-Pathway Career Predictor**: Evaluates suitability for SWE Core, MS/Research, GATE/PSU, and MBA.
+   - **Faculty Early-Intervention Cohort Matrix**: 2x2 Performance vs Engagement Quadrant with 1-Click action dispatcher.
+   - *Complete technical guide*: [docs/STUDENT_PERFORMANCE_PREDICTION_SUITE.md](file:///c:/Users/risha/Desktop/Sem%20project/docs/STUDENT_PERFORMANCE_PREDICTION_SUITE.md).
 
 ---
 

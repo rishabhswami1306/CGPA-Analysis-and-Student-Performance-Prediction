@@ -10,6 +10,12 @@ from utils.grade_calculator import compute_attendance_shortfall, compute_cumulat
 from ml_engine.preprocessor import get_student_sgpa_features
 from ml_engine.explainability import generate_sgpa_recommendations, generate_placement_recommendations
 from ml_engine.model_registry import load_model_bundle
+from ml_engine.subject_risk import analyze_all_enrolled_subjects
+from ml_engine.counterfactuals import generate_counterfactual_pathways
+from ml_engine.early_warning import evaluate_early_warning_system
+from ml_engine.knowledge_graph import analyze_prerequisite_knowledge_graph
+from ml_engine.persona_engine import classify_student_persona
+from ml_engine.career_pathways import evaluate_multi_pathway_careers
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +35,21 @@ def predict_student_analytics(
     cache = get_cache()
     cache_key = f"prediction:{student_prn}"
 
+    def _is_valid_cache_entry(entry):
+        if not isinstance(entry, dict):
+            return False
+        required_keys = (
+            "predicted_next_sgpa",
+            "scenario_projections",
+            "early_warning_system",
+            "subject_risk_analysis",
+            "persona_archetype",
+            "knowledge_graph_analysis",
+            "counterfactual_pathways",
+            "multi_pathway_careers"
+        )
+        return all(k in entry and entry[k] is not None for k in required_keys)
+
     # Check cache unless recalculation is forced
     if not force_recalculate:
         cached_val = cache.get(cache_key)
@@ -36,7 +57,9 @@ def predict_student_analytics(
             try:
                 if isinstance(cached_val, bytes):
                     cached_val = cached_val.decode('utf-8')
-                return json.loads(cached_val)
+                parsed = json.loads(cached_val)
+                if _is_valid_cache_entry(parsed):
+                    return parsed
             except Exception:
                 pass
 
@@ -44,43 +67,64 @@ def predict_student_analytics(
         db_cached = db.predictions_cache.find_one({"student_prn": student_prn})
         if db_cached and not force_recalculate:
             db_cached.pop("_id", None)
-            return db_cached
+            if _is_valid_cache_entry(db_cached):
+                return db_cached
 
     # 1. Fetch Student User Profile and Academic History
     user = db.users.find_one({"prn_roll": student_prn}) or {}
-    branch = user.get("branch", "CSE")
+    branch = user.get("branch", "CSE-DS")
     acad_records = list(db.academic_records.find({"student_prn": student_prn}).sort("semester", 1))
 
-    # Determine latest completed semester or current semester
-    completed_semesters = len(acad_records)
-    current_semester = completed_semesters + 1 if completed_semesters < 8 else 8
+    # Completed records have is_completed: True and non-None sgpa (Semesters 1-4)
+    completed_records = [r for r in acad_records if r.get("is_completed", True) and r.get("sgpa") is not None]
+    ongoing_record = next((r for r in acad_records if r.get("semester") == 5), None)
 
-    # Derive default TT scores and attendance if not supplied
-    if acad_records and (current_tt1_avg is None or current_tt2_avg is None or current_attendance is None):
-        latest_rec = acad_records[-1]
-        subjects = latest_rec.get("subjects", [])
-        tt1_vals = [float(s.get("tt1_score", 15.0)) for s in subjects]
-        tt2_vals = [float(s.get("tt2_score", 15.0)) for s in subjects]
-        if current_tt1_avg is None:
-            current_tt1_avg = float(np.mean(tt1_vals)) if tt1_vals else 15.0
-        if current_tt2_avg is None:
-            current_tt2_avg = float(np.mean(tt2_vals)) if tt2_vals else 15.0
-        if current_attendance is None:
-            current_attendance = float(latest_rec.get("attendance_percentage", 82.0))
-    else:
-        current_tt1_avg = current_tt1_avg if current_tt1_avg is not None else 15.0
-        current_tt2_avg = current_tt2_avg if current_tt2_avg is not None else 15.0
-        current_attendance = current_attendance if current_attendance is not None else 82.0
+    # 4 semesters completed, 5th semester ongoing
+    completed_semesters = len(completed_records)
+    target_semester = 5 if completed_semesters <= 4 else (completed_semesters + 1 if completed_semesters < 8 else 8)
 
-    # 2. Extract ML Feature Vector
+    # Derive 5th semester attendance and Unit Test scores from ongoing records
+    att_rec = db.attendance_records.find_one({"student_prn": student_prn})
+    if current_attendance is None:
+        if att_rec and "percentage" in att_rec:
+            current_attendance = float(att_rec["percentage"])
+        elif ongoing_record and ongoing_record.get("attendance_percentage") is not None:
+            current_attendance = float(ongoing_record["attendance_percentage"])
+        elif completed_records:
+            current_attendance = float(completed_records[-1].get("attendance_percentage", 80.0))
+        else:
+            current_attendance = 80.0
+
+    if current_tt1_avg is None or current_tt2_avg is None:
+        if ongoing_record:
+            sub_list = ongoing_record.get("subjects", [])
+            tt1_scores = [float(s.get("tt1_score", 15.0)) for s in sub_list if s.get("tt1_score") is not None]
+            tt2_scores = [float(s.get("tt2_score", 15.0)) for s in sub_list if s.get("tt2_score") is not None]
+            if current_tt1_avg is None:
+                current_tt1_avg = float(np.mean(tt1_scores)) if tt1_scores else 15.0
+            if current_tt2_avg is None:
+                current_tt2_avg = float(np.mean(tt2_scores)) if tt2_scores else 14.5
+        elif completed_records:
+            last_subs = completed_records[-1].get("subjects", [])
+            tt1_scores = [float(s.get("tt1_score", 15.0)) for s in last_subs]
+            tt2_scores = [float(s.get("tt2_score", 15.0)) for s in last_subs]
+            if current_tt1_avg is None:
+                current_tt1_avg = float(np.mean(tt1_scores)) if tt1_scores else 15.0
+            if current_tt2_avg is None:
+                current_tt2_avg = float(np.mean(tt2_scores)) if tt2_scores else 14.5
+        else:
+            current_tt1_avg = 15.0
+            current_tt2_avg = 14.5
+
+    # 2. Extract ML Feature Vector (Trained on completed history + ongoing Sem 5 variables)
     features = get_student_sgpa_features(
         student_prn=student_prn,
-        completed_records=acad_records,
+        completed_records=completed_records,
         current_tt1_avg=current_tt1_avg,
         current_tt2_avg=current_tt2_avg,
         current_attendance=current_attendance,
         branch=branch,
-        current_semester=current_semester
+        current_semester=target_semester
     )
 
     # 3. Pipeline 1: Next-Semester SGPA Regressor
@@ -115,15 +159,26 @@ def predict_student_analytics(
         detention_risk = "LOW"
 
     # 5. Pipeline 3: Placement Eligibility & Readiness Predictor
-    cgpa, total_backlogs, earned_credits = compute_cumulative_cgpa(acad_records)
+    cgpa, total_backlogs, earned_credits = compute_cumulative_cgpa(completed_records)
     if cgpa == 0.0:
         cgpa = pred_sgpa
 
+    # Projected cumulative CGPA after completing Semester 5 with predicted SGPA
+    sem5_credits = 20
+    if ongoing_record:
+        sem5_credits = sum(int(s.get("credits", 4)) for s in ongoing_record.get("subjects", [])) or 20
+    total_credits_with_sem5 = earned_credits + sem5_credits
+    if total_credits_with_sem5 > 0:
+        projected_cgpa = round(((cgpa * earned_credits) + (pred_sgpa * sem5_credits)) / total_credits_with_sem5, 2)
+    else:
+        projected_cgpa = pred_sgpa
+
     # Core tech score
     tech_scores = []
-    for r in acad_records:
+    for r in completed_records:
         for s in r.get("subjects", []):
-            tech_scores.append(float(s.get("total_marks", 65.0)))
+            if s.get("total_marks") is not None and s.get("total_marks") > 0:
+                tech_scores.append(float(s.get("total_marks")))
     tech_avg = float(np.mean(tech_scores)) if tech_scores else (current_tt1_avg + current_tt2_avg) / 2.0 * 2.5 + 40.0
 
     place_bundle = load_model_bundle("placement_predictor")
@@ -159,25 +214,152 @@ def predict_student_analytics(
     place_recs = generate_placement_recommendations(cgpa, total_backlogs, tech_avg, proba, placement_tier)
     all_recommendations = sgpa_recs + place_recs[:2]
 
-    # 7. Compile Final Payload
+    # 7. Advanced Prediction Enhancements
+    # A. Probabilistic Forecasting & Confidence Intervals (Uncertainty Quantification)
+    sgpas = [float(r.get("sgpa", 7.5)) for r in completed_records if r.get("sgpa") is not None]
+    if len(sgpas) >= 2:
+        sigma_u = max(0.18, min(0.60, float(np.std(sgpas)) * 0.85))
+    elif features.get("is_cold_start", False):
+        sigma_u = 0.50
+    else:
+        sigma_u = 0.32
+
+    if current_attendance < 75.0:
+        sigma_u += 0.10
+
+    margin_of_error = round(1.645 * sigma_u, 2)
+    pred_sgpa_min = round(max(4.0, pred_sgpa - margin_of_error), 2)
+    pred_sgpa_max = round(min(10.0, pred_sgpa + margin_of_error), 2)
+
+    scenarios = {
+        "pessimistic": {
+            "label": "Pessimistic / Lower Bound",
+            "sgpa": pred_sgpa_min,
+            "description": "Challenging ESE exam papers or attendance dip"
+        },
+        "expected": {
+            "label": "Expected / Baseline Model",
+            "sgpa": pred_sgpa,
+            "description": "Baseline regression projection matching historical pace"
+        },
+        "optimistic": {
+            "label": "Optimistic / Upper Bound",
+            "sgpa": pred_sgpa_max,
+            "description": "Top quartile Unit Test 2 & End-Semester clutch"
+        }
+    }
+
+    # Extract active ongoing subjects
+    active_subs = []
+    if ongoing_record and ongoing_record.get("subjects"):
+        active_subs = ongoing_record.get("subjects", [])
+    elif completed_records and completed_records[-1].get("subjects"):
+        active_subs = completed_records[-1].get("subjects", [])
+
+    # Class averages for active courses
+    class_averages = {}
+    try:
+        active_sem_num = ongoing_record.get("semester", target_semester) if ongoing_record else target_semester
+        class_records = list(db.academic_records.find({"semester": active_sem_num}))
+        for cr in class_records:
+            for sub_item in cr.get("subjects", []):
+                c_code = sub_item.get("subject_code")
+                c_score = float(sub_item.get("total_marks", 0.0) or (sub_item.get("tt1_score", 0.0) * 5.0) or 65.0)
+                class_averages.setdefault(c_code, []).append(c_score)
+        class_averages = {k: round(float(np.mean(v)), 1) for k, v in class_averages.items()}
+    except Exception:
+        pass
+
+    # B. Subject-Level Backlog & Grade Risk Predictor
+    subject_risk_analysis = analyze_all_enrolled_subjects(active_subs, current_attendance, class_averages)
+
+    # C. Prescriptive Counterfactual Minimal-Effort Pathways
+    target_goal_sgpa = min(10.0, max(pred_sgpa + 0.5, 8.5))
+    counterfactual_analysis = generate_counterfactual_pathways(
+        current_cgpa=cgpa,
+        completed_credits=earned_credits,
+        ongoing_credits=sem5_credits,
+        current_tt1_avg=current_tt1_avg,
+        current_tt2_avg=current_tt2_avg,
+        current_attendance=current_attendance,
+        target_sgpa=target_goal_sgpa,
+        subjects=active_subs
+    )
+
+    # D. Dynamic Early Warning System (EWS) & Rescue Window
+    early_warning = evaluate_early_warning_system(
+        current_attendance=current_attendance,
+        current_tt1_avg=current_tt1_avg,
+        current_tt2_avg=current_tt2_avg,
+        sgpa_mean=features.get("sgpa_mean", 7.5),
+        sgpa_trend_slope=features.get("sgpa_trend_slope", 0.0),
+        active_backlogs=total_backlogs,
+        ongoing_subjects=active_subs,
+        current_week=9,
+        semester_total_weeks=15
+    )
+
+    # E. Prerequisite Knowledge-Graph / Dependency Vulnerability Analysis
+    knowledge_graph = analyze_prerequisite_knowledge_graph(
+        completed_records=completed_records,
+        active_subjects=active_subs
+    )
+
+    # F. Unsupervised Student Persona / Archetype Clustering
+    persona_analysis = classify_student_persona(
+        attendance_pct=current_attendance,
+        current_tt_avg=(current_tt1_avg + current_tt2_avg) / 2.0,
+        sgpa_mean=features.get("sgpa_mean", 7.5),
+        sgpa_trend_slope=features.get("sgpa_trend_slope", 0.0),
+        active_backlogs=total_backlogs,
+        completed_records=completed_records,
+        ongoing_subjects=active_subs
+    )
+
+    # G. Multi-Pathway Career Predictor
+    career_pathways = evaluate_multi_pathway_careers(
+        cgpa=cgpa,
+        active_backlogs=total_backlogs,
+        attendance_pct=current_attendance,
+        completed_records=completed_records,
+        ongoing_subjects=active_subs
+    )
+
+    # 8. Compile Final Payload
     result = {
         "student_prn": student_prn,
+        "target_semester": target_semester,
+        "semester_label": f"Semester {target_semester} (Current Ongoing)",
         "predicted_next_sgpa": pred_sgpa,
+        "predicted_sgpa_min": pred_sgpa_min,
+        "predicted_sgpa_max": pred_sgpa_max,
+        "margin_of_error": margin_of_error,
+        "confidence_interval_pct": 90,
+        "scenario_projections": scenarios,
         "current_cgpa": cgpa,
+        "projected_cgpa": projected_cgpa,
+        "completed_semesters": completed_semesters,
+        "earned_credits": earned_credits,
         "detention_risk": detention_risk,
         "attendance_percentage": current_attendance,
         "shortfall_analysis": shortfall_info,
         "placement_readiness_score": readiness_percentage,
         "placement_tier": placement_tier,
         "improvement_recommendations": all_recommendations,
+        "subject_risk_analysis": subject_risk_analysis,
+        "counterfactual_pathways": counterfactual_analysis,
+        "early_warning_system": early_warning,
+        "knowledge_graph_analysis": knowledge_graph,
+        "persona_archetype": persona_analysis,
+        "multi_pathway_careers": career_pathways,
         "model_version": model_version,
         "computed_from_semester": completed_semesters,
         "is_cold_start": features.get("is_cold_start", False),
-        "confidence_label": features.get("confidence_label", "Provisional"),
+        "confidence_label": features.get("confidence_label", "High Confidence — Historical Multi-Semester Model"),
         "last_calculated_at": datetime.now(timezone.utc).isoformat()
     }
 
-    # 8. Save to DB and Cache
+    # 9. Save to DB and Cache
     try:
         db.predictions_cache.update_one(
             {"student_prn": student_prn},

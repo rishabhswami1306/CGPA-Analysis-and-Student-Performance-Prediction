@@ -15,8 +15,11 @@
   <!-- Header & Actions -->
   <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
     <div>
-      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Institutional Analytics & Control Center</h1>
-      <p class="text-xs sm:text-sm text-slate-500 mt-1">Multi-branch academic performance monitoring and ML pipeline control.</p>
+      <div class="flex items-center gap-2">
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Computer Engineering (Data Science)</h1>
+        <span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-blue-100 text-blue-800 border border-blue-200">TY BTech DS (A)</span>
+      </div>
+      <p class="text-xs sm:text-sm text-slate-500 mt-1">SES's R.C. Patel Institute of Technology • Academic Year 2026-27 • Semester 5 Ongoing Control Center</p>
     </div>
     
     <div class="flex items-center gap-3">
@@ -36,38 +39,38 @@
     
     <div class="glass-card rounded-2xl p-5 border border-slate-200 hover-lift">
       <div class="flex items-center justify-between mb-2">
-        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Total Students</span>
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Cohort Students</span>
         <span class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-sm"><i class="fa-solid fa-user-graduate"></i></span>
       </div>
       <p class="text-3xl font-extrabold text-slate-900">{{ total_students }}</p>
-      <p class="text-[11px] text-slate-500 mt-1">Enrolled across all branches</p>
+      <p class="text-[11px] text-slate-500 mt-1">Enrolled in TY BTech DS (A)</p>
     </div>
 
     <div class="glass-card rounded-2xl p-5 border border-slate-200 hover-lift">
       <div class="flex items-center justify-between mb-2">
-        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Active Faculty</span>
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Assigned Faculty</span>
         <span class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm"><i class="fa-solid fa-chalkboard-user"></i></span>
       </div>
       <p class="text-3xl font-extrabold text-slate-900">{{ total_faculty }}</p>
-      <p class="text-[11px] text-slate-500 mt-1">Authorized grading staff</p>
+      <p class="text-[11px] text-slate-500 mt-1">Teaching & Mentoring TY DS</p>
     </div>
 
     <div class="glass-card rounded-2xl p-5 border border-slate-200 hover-lift">
       <div class="flex items-center justify-between mb-2">
-        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Semester Records</span>
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Audited Marksheets</span>
         <span class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm"><i class="fa-solid fa-database"></i></span>
       </div>
       <p class="text-3xl font-extrabold text-slate-900">{{ total_records }}</p>
-      <p class="text-[11px] text-emerald-600 font-medium mt-1">✓ Audited & Verified</p>
+      <p class="text-[11px] text-emerald-600 font-medium mt-1">✓ Semesters 1 to 4 Finalized</p>
     </div>
 
     <div class="glass-card rounded-2xl p-5 border border-slate-200 hover-lift">
       <div class="flex items-center justify-between mb-2">
-        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Detention Alerts</span>
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Sem 5 Detention Risk</span>
         <span class="w-8 h-8 rounded-xl bg-red-50 text-red-600 flex items-center justify-center text-sm"><i class="fa-solid fa-triangle-exclamation"></i></span>
       </div>
       <p class="text-3xl font-extrabold text-red-600">{{ detention_risk_count }}</p>
-      <p class="text-[11px] text-red-500 font-medium mt-1">< 75% attendance recorded</p>
+      <p class="text-[11px] text-red-500 font-medium mt-1">< 75% attendance in Sem 5</p>
     </div>
 
   </div>
@@ -78,10 +81,10 @@
     <div class="glass-card rounded-2xl p-6 border border-slate-200 lg:col-span-2">
       <div class="flex items-center justify-between mb-4">
         <div>
-          <h2 class="text-base font-bold text-slate-900">Branch-wise Grade Distribution</h2>
-          <p class="text-xs text-slate-500">Aggregated academic tiers across departments</p>
+          <h2 class="text-base font-bold text-slate-900">TY CSE-DS Cohort Academic Tiers & Sem 5 AI Forecast</h2>
+          <p class="text-xs text-slate-500">Distribution comparison: Completed Sem 1–4 CGPA vs Ongoing Sem 5 Predicted Performance</p>
         </div>
-        <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-medium">Batch 2022-2026</span>
+        <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-medium">Batch 2024-2027</span>
       </div>
       <div class="chart-container-large">
         <canvas id="branchDistributionCanvas"></canvas>
@@ -92,10 +95,10 @@
     <div class="glass-card rounded-2xl p-6 border border-slate-200 flex flex-col">
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
-          <span>Critical Attendance</span>
+          <span>Sem 5 Critical Attendance</span>
           <span class="text-xs font-bold bg-red-100 text-red-700 px-2 py-0.5 rounded-full">{{ detention_risk_count }}</span>
         </h2>
-        <a href="/admin/users?role=student" class="text-xs text-blue-600 hover:underline">View All</a>
+        <a href="/attendance/detention-list" class="text-xs text-blue-600 hover:underline">Full Register &rarr;</a>
       </div>
 
       <div id="detention-alert-box" class="space-y-2.5 overflow-y-auto max-h-[290px] pr-1">

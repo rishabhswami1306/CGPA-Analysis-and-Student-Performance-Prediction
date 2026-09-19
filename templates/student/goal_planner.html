@@ -71,8 +71,8 @@
   <!-- Required Scores Breakdown Table -->
   <div class="glass-card rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
     <div class="p-4 bg-slate-100/90 border-b border-slate-200 flex items-center justify-between">
-      <span class="text-xs font-bold text-slate-800">Subject-by-Subject Required Exam Marks</span>
-      <span class="text-xs text-slate-500">Internal average fixed from Unit Tests 1 & 2</span>
+      <span class="text-xs font-bold text-slate-800">Subject-by-Subject Required Exam Marks (60 ESE + 40 Internal)</span>
+      <span class="text-xs text-slate-500">Continuous Assessment: 40 Marks Internal (TT 15 + Apt 5 + SKAT 5 + TA 5 + Mock 5 + Pres 5)</span>
     </div>
 
     <div class="overflow-x-auto">
@@ -82,9 +82,9 @@
             <th class="p-3.5">Course Code</th>
             <th class="p-3.5">Course Name</th>
             <th class="p-3.5">Credits</th>
-            <th class="p-3.5">Internal Avg (20)</th>
+            <th class="p-3.5">Internal Score (40)</th>
             <th class="p-3.5">Target Grade</th>
-            <th class="p-3.5">Min ESE Needed</th>
+            <th class="p-3.5">Min ESE Needed (60)</th>
             <th class="p-3.5">Status</th>
             <th class="p-3.5 text-right">Grade Matrix</th>
           </tr>
@@ -95,10 +95,10 @@
             <td class="p-3.5 font-mono font-bold text-slate-900">{{ sub.subject_code }}</td>
             <td class="p-3.5 font-semibold text-slate-800">{{ sub.subject_name }}</td>
             <td class="p-3.5 text-slate-600">{{ sub.credits }}</td>
-            <td class="p-3.5 font-mono">{{ sub.tt_avg_score }}</td>
+            <td class="p-3.5 font-mono font-bold text-indigo-700">{{ sub.internal_score }} / 40</td>
             <td class="p-3.5 font-bold text-indigo-600">{{ sub.target_grade_point }} Pt</td>
             <td class="p-3.5 font-mono font-bold text-sm {% if sub.is_feasible %}text-emerald-600{% else %}text-red-600{% endif %}">
-              {{ sub.needed_ese_score }} / {{ sub.max_ese }}
+              {{ sub.needed_ese_score }} / 60
             </td>
             <td class="p-3.5">
               {% if sub.is_feasible %}

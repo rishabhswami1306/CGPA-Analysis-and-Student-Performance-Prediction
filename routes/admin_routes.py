@@ -29,27 +29,32 @@ def allowed_file(filename):
 @admin_bp.route("/dashboard", methods=["GET"])
 @role_required(["admin"])
 def dashboard_view():
-    """Admin summary dashboard view with institute-wide KPIs."""
+    """Admin summary dashboard view scoped for TY CSE-DS cohort."""
     db = get_db()
     
-    total_students = db.users.count_documents({"role": "student"})
+    total_students = db.users.count_documents({"role": "student", "branch": "CSE-DS"})
     total_faculty = db.users.count_documents({"role": "faculty"})
-    total_records = db.academic_records.count_documents({})
+    # Completed semester marksheets across Sem 1 to 4
+    total_records = db.academic_records.count_documents({"semester": {"$lte": 4}, "is_completed": {"$ne": False}})
     
-    # Students with attendance < 75%
-    detention_risk_count = db.academic_records.count_documents({"attendance_percentage": {"$lt": 75.0}})
+    # Students with attendance < 75% in the ongoing Semester 5 register
+    detention_risk_count = db.attendance_records.count_documents({"percentage": {"$lt": 75.0}})
     
     # Recent audit logs
     recent_logs = list(db.audit_logs.find({}).sort("timestamp", -1).limit(8))
     for log in recent_logs:
         log["_id"] = str(log["_id"])
 
-    # Branch counts
-    branches = db.users.aggregate([
-        {"$match": {"role": "student"}},
-        {"$group": {"_id": "$branch", "count": {"$sum": 1}}}
-    ])
-    branch_stats = {b["_id"]: b["count"] for b in branches if b["_id"]}
+    cohort_info = {
+        "branch": "Computer Engineering (Data Science)",
+        "branch_code": "CSE-DS",
+        "class_name": "TY BTech DS (A)",
+        "academic_year": "2026-27",
+        "current_semester": 5,
+        "completed_semesters": 4,
+        "safe_students": total_students - detention_risk_count,
+        "detained_students": detention_risk_count
+    }
 
     return render_template(
         "admin/admin_dashboard.html",
@@ -57,7 +62,7 @@ def dashboard_view():
         total_faculty=total_faculty,
         total_records=total_records,
         detention_risk_count=detention_risk_count,
-        branch_stats=branch_stats,
+        cohort_info=cohort_info,
         recent_logs=recent_logs
     )
 
