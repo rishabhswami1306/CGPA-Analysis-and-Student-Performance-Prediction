@@ -36,7 +36,7 @@ NO_CLASS_DATES = HOLIDAYS | TERM_TEST_DAYS
 TIMETABLE = {
     # Monday
     0: [
-        ("HONORS", "L", None),   # 11:40-12:30 Honors (CMPM or EM – student dependent)
+        ("CMPM",   "L", None),   # 11:40-12:30 Honors CMPM
         ("ML-II",  "P", "T1"),   # 12:30-01:20
         ("ML-II",  "P", "T1"),   # 01:20-02:10 (2-hr practical slot)
         ("DAA",    "L", None),   # 02:20-03:10
@@ -46,7 +46,7 @@ TIMETABLE = {
     ],
     # Tuesday
     1: [
-        ("HONORS", "L", None),   # Honors CMPM
+        ("CMPM",   "L", None),   # 11:40-12:30 Honors CMPM
         ("DAA",    "P", "T1"),   # 12:30-01:20
         ("CCN",    "P", "T1"),   # (combined slot)
         ("CCS",    "P", "T1"),   # CCS, CCN, AJL practicals spread across batches
@@ -57,7 +57,7 @@ TIMETABLE = {
     ],
     # Wednesday
     2: [
-        ("HONORS", "L", None),
+        ("CMPM",   "L", None),   # 11:40-12:30 Honors CMPM
         ("AJL",    "P", "T1"),   # 12:30-01:20
         ("IS",     "P", "T2"),   # (practicals)
         ("IS",     "L", None),   # 02:20-03:10
@@ -67,7 +67,7 @@ TIMETABLE = {
     ],
     # Thursday
     3: [
-        ("HONORS", "L", None),   # Honors EM
+        ("EM",     "L", None),   # 11:40-12:30 Honors EM
         ("CCN",    "P", "T1"),
         ("ML-II",  "P", "T2"),
         ("DAA",    "P", "T2"),
@@ -78,7 +78,7 @@ TIMETABLE = {
     ],
     # Friday
     4: [
-        ("HONORS", "L", None),   # Honors EM
+        ("EM",     "L", None),   # 11:40-12:30 Honors EM
         ("IS",     "P", "T1"),
         ("DAA",    "P", "T2"),
         ("AJL",    "P", "T2"),
@@ -88,7 +88,7 @@ TIMETABLE = {
     ],
     # Saturday
     5: [
-        ("HONORS", "L", None),   # Honors EM
+        ("EM",     "L", None),   # 11:40-12:30 Honors EM
         ("SEM_PROJECT", "L", None),  # Sem Project / LG meeting (12:30-02:10)
         ("SEM_PROJECT", "L", None),
         ("SEM_PROJECT", "L", None),  # 04:10-05:00
@@ -121,7 +121,7 @@ FORTNIGHTLY_PRACTICALS = {
 
 # Subjects in the semester (for TY DS A, 2026-27 Sem 1)
 SUBJECTS = ["ML-II", "IS", "DAA", "CCN", "CCS", "CI"]
-HONORS_SUBJECTS = ["EM", "CMPM"]   # One per student
+HONORS_SUBJECTS = ["EM", "CMPM"]   # Honors subjects taken by honors students (EM and CMPM)
 PRACTICAL_SUBJECTS = ["ML-II", "IS", "DAA", "CCN", "CCS", "AJL"]
 
 # Teaching staff
@@ -307,7 +307,22 @@ def compute_attendance_predictions(student_prn: str, attendance_record: dict,
         as_of_date = date.today()
 
     subjects_data = attendance_record.get("subjects", {})
-    honors_subject = attendance_record.get("honors_course")
+    raw_honors = attendance_record.get("honors_course")
+
+    # Determine honors subjects for this student
+    # A student with honors is enrolled in both EM and CMPM
+    student_honors = []
+    if isinstance(raw_honors, list):
+        student_honors = [str(h).strip() for h in raw_honors if str(h).strip()]
+    elif isinstance(raw_honors, str) and raw_honors.strip() and raw_honors.strip().lower() not in ["none", "null", "false", ""]:
+        student_honors = [s.strip() for s in raw_honors.split(",") if s.strip()]
+
+    # If the student is enrolled in honors or has honors subjects in records
+    has_honors = bool(student_honors) or any(h in subjects_data for h in HONORS_SUBJECTS)
+    if has_honors:
+        for hs in HONORS_SUBJECTS:
+            if hs not in student_honors:
+                student_honors.append(hs)
 
     result = {
         "student_prn": student_prn,
@@ -319,6 +334,8 @@ def compute_attendance_predictions(student_prn: str, attendance_record: dict,
         "subjects": {},
         "overall": {},
         "honors": None,
+        "honors_list": [],
+        "honors_names": ", ".join(student_honors) if student_honors else None,
     }
 
     total_attended = 0
@@ -327,11 +344,13 @@ def compute_attendance_predictions(student_prn: str, attendance_record: dict,
 
     all_subjects = list(SUBJECTS)
     for k in subjects_data.keys():
-        if k not in all_subjects and k != honors_subject:
+        if k not in all_subjects and k not in student_honors and k not in HONORS_SUBJECTS:
             all_subjects.append(k)
-    if honors_subject:
-        all_subjects.append(honors_subject)
+    for hs in student_honors:
+        if hs not in all_subjects:
+            all_subjects.append(hs)
 
+    honors_list = []
     for subj in all_subjects:
         subj_data = subjects_data.get(subj, {})
         lect_att = subj_data.get("lecture_attended", 0)
@@ -348,6 +367,7 @@ def compute_attendance_predictions(student_prn: str, attendance_record: dict,
         remaining = rem_lect + rem_prac
 
         pred = compute_subject_prediction(att, con, remaining, target_pct)
+        pred["subject"] = subj
         pred["lecture_attended"] = lect_att
         pred["lecture_conducted"] = lect_con
         pred["practical_attended"] = prac_att
@@ -357,19 +377,23 @@ def compute_attendance_predictions(student_prn: str, attendance_record: dict,
         pred["remaining_lectures"] = rem_lect
         pred["remaining_practicals"] = rem_prac
         pred["teacher"] = TEACHING_STAFF.get(subj, {}).get("theory", "")
-        pred["is_honors"] = subj in HONORS_SUBJECTS
+        pred["is_honors"] = subj in HONORS_SUBJECTS or subj in student_honors
 
-        if subj in HONORS_SUBJECTS:
-            result["honors"] = {
+        if pred["is_honors"]:
+            h_obj = {
                 "subject": subj,
                 "teacher": TEACHING_STAFF.get(subj, {}).get("theory", ""),
                 **pred
             }
+            honors_list.append(h_obj)
         else:
             result["subjects"][subj] = pred
             total_attended += att
             total_conducted += con
             total_remaining += remaining
+
+    result["honors_list"] = honors_list
+    result["honors"] = honors_list[0] if honors_list else None
 
     # Overall prediction (excluding honors)
     overall_pred = compute_subject_prediction(total_attended, total_conducted,

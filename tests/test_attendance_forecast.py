@@ -131,3 +131,27 @@ def test_attendance_routes_integration(client, auth_headers):
     res_fac = client.get("/attendance/forecast?student_prn=241106010", headers=headers_fac)
     assert res_fac.status_code == 200
     assert b"Switch Student:" in res_fac.data
+
+
+def test_honors_subjects_dual_enrollment():
+    """Ensure honors students receive predictions for both EM and CMPM."""
+    rec = {
+        "student_prn": "241106058",
+        "honors_course": "EM, CMPM",
+        "subjects": {
+            "ML-II": {"lecture_attended": 11, "lecture_conducted": 12},
+            "EM": {"lecture_attended": 5, "lecture_conducted": 9},
+            "CMPM": {"lecture_attended": 8, "lecture_conducted": 9},
+        }
+    }
+    forecast = compute_attendance_predictions("241106058", rec)
+    assert "honors_list" in forecast
+    assert len(forecast["honors_list"]) == 2
+    honors_codes = [h["subject"] for h in forecast["honors_list"]]
+    assert "EM" in honors_codes
+    assert "CMPM" in honors_codes
+    assert forecast["honors_names"] == "EM, CMPM"
+    # Core overall attendance should exclude honors
+    assert "EM" not in forecast["subjects"]
+    assert "CMPM" not in forecast["subjects"]
+

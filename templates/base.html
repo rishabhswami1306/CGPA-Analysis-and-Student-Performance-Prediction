@@ -55,10 +55,7 @@
           <i class="fa-solid fa-graduation-cap text-lg text-white"></i>
         </div>
         <div>
-          <div class="flex items-center gap-1.5">
-            <span class="brand-font text-base font-bold text-white tracking-tight">EduForecast</span>
-            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30">AI</span>
-          </div>
+          <span class="brand-font text-base font-bold text-white tracking-tight">EduForecast</span>
           <p class="text-[10px] text-slate-400 font-medium">R. C. Patel Inst. of Tech.</p>
         </div>
       </div>
@@ -74,7 +71,7 @@
           {{ auth_user.name[:1] if auth_user.name else 'U' }}
         </div>
         <div class="overflow-hidden flex-1">
-          <p class="text-xs font-bold text-white truncate">{{ auth_user.name }}</p>
+          <p class="text-xs font-bold text-white truncate">{% if auth_role == 'admin' and ('Dean of Academics' in (auth_user.name or '')) %}Dean of Academics{% elif auth_user.name and ' - ' in auth_user.name %}{{ auth_user.name.split(' - ')[0] }}{% else %}{{ auth_user.name }}{% endif %}</p>
           <div class="flex items-center gap-1.5 mt-0.5">
             <span class="text-[10px] font-mono font-semibold text-blue-400 bg-blue-950 px-1.5 py-0.2 rounded border border-blue-800/50">
               {{ auth_prn }}
@@ -83,7 +80,15 @@
               {{ auth_role }}
             </span>
           </div>
-          <p class="text-[10px] text-slate-400 mt-1">TY BTech DS (A) • Sem I</p>
+          <p class="text-[10px] text-slate-400 mt-1">
+            {% if auth_role == 'admin' %}
+              Institutional Administrator
+            {% elif auth_role == 'faculty' %}
+              Faculty Instructor • CSE-DS
+            {% else %}
+              TY BTech DS (A) • Sem I
+            {% endif %}
+          </p>
         </div>
       </div>
     </div>
@@ -91,34 +96,154 @@
     <!-- Scrollable Navigation Links -->
     <nav class="flex-1 overflow-y-auto px-3 space-y-5 text-xs py-2">
       
-      <!-- Core Portals -->
+      {# ========================== 1. ADMIN ROLE NAVIGATION ========================== #}
+      {% if auth_role == 'admin' %}
       <div>
-        <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">Core Dashboard</p>
+        <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-purple-400 flex items-center gap-1.5">
+          <i class="fa-solid fa-shield-halved"></i>
+          <span>Institutional Control</span>
+        </p>
         <div class="mt-2 space-y-1">
-          {% if auth_role == 'admin' %}
-          <a href="/admin/dashboard" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-all hover:bg-slate-800 hover:text-white {% if request.path == '/admin/dashboard' %}bg-blue-600 text-white shadow-lg shadow-blue-600/30{% endif %}">
-            <i class="fa-solid fa-chart-line w-4 text-center"></i>
-            <span>Admin Control Hub</span>
+          <a href="/admin/dashboard" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-all hover:bg-slate-800 hover:text-white {% if request.path == '/admin/dashboard' %}bg-purple-600 text-white shadow-lg shadow-purple-600/30{% endif %}">
+            <i class="fa-solid fa-gauge-high w-4 text-center text-purple-300"></i>
+            <span>Admin Control Center</span>
           </a>
-          {% elif auth_role == 'faculty' %}
-          <a href="/faculty/dashboard" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-all hover:bg-slate-800 hover:text-white {% if request.path == '/faculty/dashboard' %}bg-blue-600 text-white shadow-lg shadow-blue-600/30{% endif %}">
-            <i class="fa-solid fa-chalkboard-user w-4 text-center"></i>
-            <span>Faculty Dashboard</span>
-          </a>
-          {% endif %}
-          <a href="/student/dashboard" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-all hover:bg-slate-800 hover:text-white {% if request.path == '/student/dashboard' %}bg-blue-600 text-white shadow-lg shadow-blue-600/30{% endif %}">
-            <i class="fa-solid fa-house-user w-4 text-center"></i>
-            <span>Student Dashboard</span>
+          <a href="/admin/users" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-all hover:bg-slate-800 hover:text-white {% if request.path == '/admin/users' %}bg-purple-600 text-white shadow-lg shadow-purple-600/30{% endif %}">
+            <i class="fa-solid fa-users-gear w-4 text-center text-blue-400"></i>
+            <span>Student & User Accounts</span>
           </a>
         </div>
       </div>
 
-      <!-- Attendance & Detention System -->
+      <div>
+        <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+          <i class="fa-solid fa-database"></i>
+          <span>Academic Data Management</span>
+        </p>
+        <div class="mt-2 space-y-1">
+          <a href="/admin/bulk-upload" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-all hover:bg-slate-800 hover:text-white {% if request.path == '/admin/bulk-upload' %}bg-purple-600 text-white shadow-lg shadow-purple-600/30{% endif %}">
+            <i class="fa-solid fa-file-excel w-4 text-center text-emerald-400"></i>
+            <span>Bulk Upload Marks (CSV/XLSX)</span>
+          </a>
+          <a href="/admin/upload-results-pdf" class="flex items-center justify-between px-3 py-2.5 rounded-xl font-semibold transition-all hover:bg-slate-800 hover:text-white {% if request.path == '/admin/upload-results-pdf' %}bg-purple-600 text-white shadow-lg shadow-purple-600/30{% endif %}">
+            <div class="flex items-center gap-3">
+              <i class="fa-solid fa-file-pdf w-4 text-center text-rose-400"></i>
+              <span>Upload Result PDFs</span>
+            </div>
+            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300">OCR AI</span>
+          </a>
+        </div>
+      </div>
+
+      <div>
+        <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+          <i class="fa-solid fa-clipboard-check"></i>
+          <span>Attendance & Audit Trail</span>
+        </p>
+        <div class="mt-2 space-y-1">
+          <a href="/attendance/detention-list" class="flex items-center justify-between px-3 py-2.5 rounded-xl font-semibold transition-all hover:bg-slate-800 hover:text-white {% if request.path == '/attendance/detention-list' %}bg-purple-600 text-white shadow-lg shadow-purple-600/30{% endif %}">
+            <div class="flex items-center gap-3">
+              <i class="fa-solid fa-triangle-exclamation w-4 text-center text-amber-400"></i>
+              <span>Detention Register</span>
+            </div>
+            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300">66 TY DS</span>
+          </a>
+          <a href="/attendance/reupload-detention-list" class="flex items-center justify-between px-3 py-2.5 rounded-xl font-semibold transition-all hover:bg-slate-800 hover:text-white {% if '/attendance/reupload-detention-list' in request.path %}bg-purple-600 text-white shadow-lg shadow-purple-600/30{% endif %}">
+            <div class="flex items-center gap-3">
+              <i class="fa-solid fa-cloud-arrow-up w-4 text-center text-amber-400"></i>
+              <span>Re-upload Detention Notice</span>
+            </div>
+            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300">Sync</span>
+          </a>
+          <a href="/admin/audit-logs" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-all hover:bg-slate-800 hover:text-white {% if request.path == '/admin/audit-logs' %}bg-purple-600 text-white shadow-lg shadow-purple-600/30{% endif %}">
+            <i class="fa-solid fa-clock-rotate-left w-4 text-center text-slate-400"></i>
+            <span>System Audit Trail</span>
+          </a>
+        </div>
+      </div>
+
+      {# ========================== 2. FACULTY ROLE NAVIGATION ========================== #}
+      {% elif auth_role == 'faculty' %}
+      <div>
+        <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-blue-400 flex items-center gap-1.5">
+          <i class="fa-solid fa-chalkboard-user"></i>
+          <span>Faculty Portal</span>
+        </p>
+        <div class="mt-2 space-y-1">
+          <a href="/faculty/dashboard" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-all hover:bg-slate-800 hover:text-white {% if request.path == '/faculty/dashboard' %}bg-blue-600 text-white shadow-lg shadow-blue-600/30{% endif %}">
+            <i class="fa-solid fa-chart-line w-4 text-center text-blue-300"></i>
+            <span>Class Dashboard</span>
+          </a>
+        </div>
+      </div>
+
+      <div>
+        <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
+          <i class="fa-solid fa-pen-ruler"></i>
+          <span>Evaluation & Grading</span>
+        </p>
+        <div class="mt-2 space-y-1">
+          <a href="/faculty/grade-entry?semester=5" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-all hover:bg-slate-800 hover:text-white {% if '/faculty/grade-entry' in request.path %}bg-blue-600 text-white shadow-lg shadow-blue-600/30{% endif %}">
+            <i class="fa-solid fa-pen-to-square w-4 text-center text-sky-400"></i>
+            <span>Continuous Grade Entry</span>
+          </a>
+          <a href="/faculty/bulk-upload" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-all hover:bg-slate-800 hover:text-white {% if request.path == '/faculty/bulk-upload' %}bg-blue-600 text-white shadow-lg shadow-blue-600/30{% endif %}">
+            <i class="fa-solid fa-file-excel w-4 text-center text-emerald-400"></i>
+            <span>Bulk Upload Marks</span>
+          </a>
+          <a href="/faculty/upload-results-pdf" class="flex items-center justify-between px-3 py-2.5 rounded-xl font-semibold transition-all hover:bg-slate-800 hover:text-white {% if 'upload-results-pdf' in request.path %}bg-rose-600 text-white shadow-lg shadow-rose-600/30{% endif %}">
+            <div class="flex items-center gap-3">
+              <i class="fa-solid fa-file-pdf w-4 text-center text-rose-400"></i>
+              <span>Upload Result PDFs</span>
+            </div>
+            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300">OCR AI</span>
+          </a>
+        </div>
+      </div>
+
+      <div>
+        <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+          <i class="fa-solid fa-user-clock"></i>
+          <span>Class Attendance</span>
+        </p>
+        <div class="mt-2 space-y-1">
+          <a href="/attendance/detention-list" class="flex items-center justify-between px-3 py-2.5 rounded-xl font-semibold transition-all hover:bg-slate-800 hover:text-white {% if request.path == '/attendance/detention-list' %}bg-blue-600 text-white shadow-lg shadow-blue-600/30{% endif %}">
+            <div class="flex items-center gap-3">
+              <i class="fa-solid fa-triangle-exclamation w-4 text-center text-amber-400"></i>
+              <span>Class Detention List</span>
+            </div>
+            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-red-500/20 text-red-300">66 TY DS</span>
+          </a>
+          <a href="/attendance/reupload-detention-list" class="flex items-center justify-between px-3 py-2.5 rounded-xl font-semibold transition-all hover:bg-slate-800 hover:text-white {% if '/attendance/reupload-detention-list' in request.path %}bg-amber-600 text-white shadow-lg shadow-amber-600/30{% endif %}">
+            <div class="flex items-center gap-3">
+              <i class="fa-solid fa-cloud-arrow-up w-4 text-center text-amber-400"></i>
+              <span>Re-upload Notice</span>
+            </div>
+            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300">Sync</span>
+          </a>
+        </div>
+      </div>
+
+      {# ========================== 3. STUDENT ROLE NAVIGATION ========================== #}
+      {% else %}
+      <div>
+        <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+          <i class="fa-solid fa-user-graduate"></i>
+          <span>Student Portal</span>
+        </p>
+        <div class="mt-2 space-y-1">
+          <a href="/student/dashboard" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-all hover:bg-slate-800 hover:text-white {% if request.path == '/student/dashboard' %}bg-blue-600 text-white shadow-lg shadow-blue-600/30{% endif %}">
+            <i class="fa-solid fa-house-user w-4 text-center text-blue-300"></i>
+            <span>My Academic Dashboard</span>
+          </a>
+        </div>
+      </div>
+
       <div>
         <div class="flex items-center justify-between px-3">
           <p class="text-[10px] font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
             <i class="fa-solid fa-user-clock text-amber-400"></i>
-            <span>Attendance Intelligence</span>
+            <span>My Attendance</span>
           </p>
           <span class="text-[9px] font-bold bg-amber-400/10 text-amber-300 px-1.5 py-0.5 rounded border border-amber-400/20">75% Target</span>
         </div>
@@ -130,19 +255,21 @@
             </div>
             <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300">Live AI</span>
           </a>
-          <a href="/attendance/detention-list" class="flex items-center justify-between px-3 py-2.5 rounded-xl font-semibold transition-all hover:bg-slate-800 hover:text-white {% if '/attendance/detention-list' in request.path %}bg-blue-600 text-white shadow-lg shadow-blue-600/30{% endif %}">
+          <a href="/attendance/detention-list" class="flex items-center justify-between px-3 py-2.5 rounded-xl font-semibold transition-all hover:bg-slate-800 hover:text-white {% if request.path == '/attendance/detention-list' %}bg-blue-600 text-white shadow-lg shadow-blue-600/30{% endif %}">
             <div class="flex items-center gap-3">
               <i class="fa-solid fa-triangle-exclamation w-4 text-center text-amber-400"></i>
-              <span>First Detention List</span>
+              <span>Detention Notice</span>
             </div>
-            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-red-500/20 text-red-300">66 TY DS</span>
+            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-red-500/20 text-red-300">List</span>
           </a>
         </div>
       </div>
 
-      <!-- Predictive ML Solvers -->
       <div>
-        <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">Predictive Solvers</p>
+        <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+          <i class="fa-solid fa-brain"></i>
+          <span>Academic & Career Tools</span>
+        </p>
         <div class="mt-2 space-y-1">
           <a href="/student/what-if" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-all hover:bg-slate-800 hover:text-white {% if request.path == '/student/what-if' %}bg-blue-600 text-white shadow-lg shadow-blue-600/30{% endif %}">
             <i class="fa-solid fa-calculator w-4 text-center text-indigo-400"></i>
@@ -162,37 +289,12 @@
           </a>
         </div>
       </div>
-
-      <!-- Faculty / Admin Management -->
-      {% if auth_role in ['faculty', 'admin'] %}
-      <div>
-        <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">Faculty Tools</p>
-        <div class="mt-2 space-y-1">
-          <a href="/faculty/grade-entry" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-all hover:bg-slate-800 hover:text-white {% if request.path == '/faculty/grade-entry' %}bg-blue-600 text-white shadow-lg shadow-blue-600/30{% endif %}">
-            <i class="fa-solid fa-pen-to-square w-4 text-center text-sky-400"></i>
-            <span>Enter & Update Marks</span>
-          </a>
-          <a href="/faculty/bulk-upload" class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-all hover:bg-slate-800 hover:text-white {% if request.path == '/faculty/bulk-upload' %}bg-blue-600 text-white shadow-lg shadow-blue-600/30{% endif %}">
-            <i class="fa-solid fa-file-excel w-4 text-center text-emerald-400"></i>
-            <span>Bulk Upload (TT & Bunk)</span>
-          </a>
-        </div>
-      </div>
       {% endif %}
 
     </nav>
 
     <!-- Bottom Status & Actions -->
-    <div class="p-3 border-t border-slate-800 bg-slate-950/70 space-y-2">
-      <div class="flex items-center justify-between px-2 text-[11px] text-slate-400">
-        <div class="flex items-center gap-1.5">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span>WebSocket Active</span>
-        </div>
-        <a href="/apidocs" target="_blank" class="hover:text-white transition-colors" title="Swagger API Documentation">
-          <i class="fa-solid fa-code"></i> API
-        </a>
-      </div>
+    <div class="p-3 border-t border-slate-800 bg-slate-950/70">
 
       <a href="/auth/logout" class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-slate-800 hover:bg-red-600/80 text-slate-300 hover:text-white font-semibold text-xs transition-all border border-slate-700">
         <i class="fa-solid fa-arrow-right-from-bracket"></i>
@@ -226,14 +328,34 @@
       <!-- Quick Action Badges -->
       <div class="flex items-center gap-2">
         {% if auth_user %}
-        <a href="/attendance/detention-list" class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition-all">
-          <i class="fa-solid fa-clipboard-list text-amber-500"></i>
-          <span>Detention List</span>
-        </a>
-        <a href="/attendance/forecast" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-all">
-          <i class="fa-solid fa-user-clock text-blue-500"></i>
-          <span>Attendance 75%</span>
-        </a>
+          {% if auth_role == 'admin' %}
+          <a href="/admin/users" class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 transition-all">
+            <i class="fa-solid fa-users text-purple-600"></i>
+            <span>Students & Users</span>
+          </a>
+          <a href="/attendance/detention-list" class="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition-all">
+            <i class="fa-solid fa-clipboard-list text-amber-500"></i>
+            <span>Detention Register</span>
+          </a>
+          {% elif auth_role == 'faculty' %}
+          <a href="/attendance/detention-list" class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition-all">
+            <i class="fa-solid fa-clipboard-list text-amber-500"></i>
+            <span>Class Detention List</span>
+          </a>
+          <a href="/faculty/grade-entry?semester=5" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-all">
+            <i class="fa-solid fa-pen-to-square text-blue-500"></i>
+            <span>Grade Ongoing Sem 5</span>
+          </a>
+          {% else %}
+          <a href="/attendance/detention-list" class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition-all">
+            <i class="fa-solid fa-clipboard-list text-amber-500"></i>
+            <span>Detention Notice</span>
+          </a>
+          <a href="/attendance/forecast" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-all">
+            <i class="fa-solid fa-user-clock text-blue-500"></i>
+            <span>Attendance 75%</span>
+          </a>
+          {% endif %}
         {% else %}
         <a href="/auth/login" class="text-xs font-semibold text-blue-600 hover:text-blue-800">Sign In</a>
         {% endif %}

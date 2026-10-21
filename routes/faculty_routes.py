@@ -15,52 +15,97 @@ from utils.grade_calculator import (
 from utils.bulk_uploader import (
     parse_upload_file, validate_and_prepare_batch, commit_faculty_bulk_upload, generate_bulk_template
 )
+from utils.pdf_result_parser import parse_batch_pdfs, commit_result_records, parse_result_pdf, get_student_year_context
+from ml_engine.train_models import retrain_all_models
 from ml_engine.inference import predict_student_analytics
 
 faculty_bp = Blueprint("faculty", __name__, url_prefix="/faculty")
 
 
+SUBJECT_METADATA = {
+    "ML-II": {"name": "Machine Learning II", "credits": 4},
+    "IS": {"name": "Information Security", "credits": 3},
+    "DAA": {"name": "Design & Analysis of Algorithms", "credits": 4},
+    "CCN": {"name": "Computer Communication & Networks", "credits": 4},
+    "CCS": {"name": "Cloud Computing & Services", "credits": 4},
+    "CI": {"name": "Competitive Intelligence", "credits": 1},
+    "AJL": {"name": "Advanced Java Lab", "credits": 2},
+    "EM": {"name": "Honors – Engineering Mathematics", "credits": 2},
+    "CMPM": {"name": "Honors – Computational Photography & Media", "credits": 2},
+}
+
+
 @faculty_bp.route("/dashboard", methods=["GET"])
 @role_required(["faculty", "admin"])
 def dashboard_view():
-    """Faculty portal showing only assigned subjects and student enrollment."""
+    """Faculty continuous assessment and pedagogical triage hub."""
     db = get_db()
     current_prn = get_jwt_identity()
     user = db.users.find_one({"prn_roll": current_prn})
     assigned_subjects = user.get("assigned_subjects", []) if user else []
 
     # If Admin, show all ongoing Sem 5 subjects
-    if user.get("role") == "admin":
-        assigned_subjects = db.academic_records.distinct("subjects.subject_code", {"semester": 5}) or ["ML-II", "IS", "DAA", "CCN", "CCS", "CI", "AJL", "EM"]
+    if user and user.get("role") == "admin":
+        assigned_subjects = db.academic_records.distinct("subjects.subject_code", {"semester": 5}) or [
+            "ML-II", "IS", "DAA", "CCN", "CCS", "CI", "AJL", "EM"
+        ]
 
     # Fetch summary for assigned subjects (focused on ongoing Semester 5)
     subject_summaries = []
+    all_assigned_tt1_scores = []
+    
     for code in assigned_subjects:
         records = list(db.academic_records.find({"semester": 5, "subjects.subject_code": code}))
-        sub_name = code
+        meta = SUBJECT_METADATA.get(code, {})
+        sub_name = meta.get("name", code)
         tt1_scores = []
+        tt2_scores = []
         for r in records:
             for s in r.get("subjects", []):
                 if s.get("subject_code") == code:
-                    sub_name = s.get("subject_name", code)
+                    if s.get("subject_name"):
+                        sub_name = s.get("subject_name")
                     if s.get("tt1_score") is not None:
                         tt1_scores.append(float(s.get("tt1_score", 0.0)))
+                    if s.get("tt2_score") is not None and float(s.get("tt2_score", 0.0)) > 0:
+                        tt2_scores.append(float(s.get("tt2_score", 0.0)))
         
+        all_assigned_tt1_scores.extend(tt1_scores)
         avg_score = round(sum(tt1_scores) / len(tt1_scores), 1) if tt1_scores else 0.0
-        pass_count = sum(1 for sc in tt1_scores if sc >= 8.0)  # Pass mark for internal 20
+        max_score = round(max(tt1_scores), 1) if tt1_scores else 0.0
+        min_score = round(min(tt1_scores), 1) if tt1_scores else 0.0
+        pass_count = sum(1 for sc in tt1_scores if sc >= 12.0)  # Pass mark for TT out of 30 (40%)
         pass_pct = round((pass_count / len(tt1_scores)) * 100.0, 1) if tt1_scores else 100.0
+
+        distinction_count = sum(1 for sc in tt1_scores if sc >= 24.0)  # >= 80% of 30
+        first_class_count = sum(1 for sc in tt1_scores if 18.0 <= sc < 24.0)  # 60% - 79% of 30
+        pass_class_count = sum(1 for sc in tt1_scores if 12.0 <= sc < 18.0)  # 40% - 59% of 30
+        fail_count = sum(1 for sc in tt1_scores if sc < 12.0)  # < 40% of 30
 
         subject_summaries.append({
             "subject_code": code,
             "subject_name": sub_name,
+            "credits": meta.get("credits", 3),
             "enrolled_students": len(records),
             "average_marks": avg_score,
-            "pass_percentage": pass_pct
+            "max_score": max_score,
+            "min_score": min_score,
+            "pass_percentage": pass_pct,
+            "pass_count": pass_count,
+            "tt2_entered_count": len(tt2_scores),
+            "distribution": {
+                "distinction": distinction_count,
+                "first_class": first_class_count,
+                "pass_class": pass_class_count,
+                "fail": fail_count
+            }
         })
 
-    # 2x2 Risk Quadrant Computation (Point 8)
+    # Cohort Data & Maps
     cohort_records = list(db.academic_records.find({"semester": 5}))
-    attendance_map = {a["student_prn"]: a.get("percentage", 80.0) for a in db.attendance_records.find({})}
+    att_docs = list(db.attendance_records.find({}))
+    attendance_map = {a["student_prn"]: a.get("percentage", 80.0) for a in att_docs}
+    att_detail_map = {a["student_prn"]: a for a in att_docs}
     users_map = {u["prn_roll"]: u for u in db.users.find({"role": "student"})}
 
     quadrant_stars = []            # High marks (>= 15), High att (>= 75)
@@ -68,41 +113,120 @@ def dashboard_view():
     quadrant_tutoring = []         # Low marks (< 15), High att (>= 75)
     quadrant_critical = []         # Low marks (< 15), Low att (< 75)
 
+    student_roster = []
+    defaulters_list = []
     seen_students = set()
+
     for rec in cohort_records:
         prn = rec.get("student_prn")
         if not prn or prn in seen_students:
             continue
         
         stu_subs = rec.get("subjects", [])
-        relevant_subs = [s for s in stu_subs if s.get("subject_code") in assigned_subjects] if user.get("role") != "admin" else stu_subs
+        relevant_subs = [s for s in stu_subs if s.get("subject_code") in assigned_subjects] if (user and user.get("role") != "admin") else stu_subs
         if not relevant_subs:
             continue
 
         seen_students.add(prn)
         stu_user = users_map.get(prn, {})
         stu_name = stu_user.get("name", prn)
+        att_doc = att_detail_map.get(prn, {})
         att = float(attendance_map.get(prn, rec.get("attendance_percentage", 80.0)))
+        roll_no = att_doc.get("roll_no") or stu_user.get("roll_no") or prn[-3:]
         
         tt_scores = [float(s.get("tt1_score", 15.0)) for s in relevant_subs if s.get("tt1_score") is not None]
         avg_tt = round(float(sum(tt_scores) / len(tt_scores)), 1) if tt_scores else 15.0
 
+        # Primary / subject specific breakdown
+        sub_marks_map = {}
+        for s in relevant_subs:
+            sub_marks_map[s.get("subject_code")] = {
+                "tt1": s.get("tt1_score"),
+                "tt2": s.get("tt2_score"),
+                "tt_converted": s.get("tt_converted"),
+                "internal": s.get("internal_score"),
+                "grade_letter": s.get("grade_letter", "Pending")
+            }
+
+        # Determine Quadrant
+        if att >= 75.0 and avg_tt >= 15.0:
+            quadrant_id = "stars"
+            quadrant_label = "Star Performer"
+        elif att < 75.0 and avg_tt >= 15.0:
+            quadrant_id = "engagement_risk"
+            quadrant_label = "Engagement Risk"
+        elif att >= 75.0 and avg_tt < 15.0:
+            quadrant_id = "tutoring_needed"
+            quadrant_label = "Needs Tutoring"
+        else:
+            quadrant_id = "critical_risk"
+            quadrant_label = "Critical Risk"
+
         student_entry = {
             "prn": prn,
             "name": stu_name,
+            "roll_no": roll_no,
             "attendance": att,
             "avg_tt": avg_tt,
-            "subjects": [s.get("subject_code") for s in relevant_subs]
+            "subjects": [s.get("subject_code") for s in relevant_subs],
+            "sub_marks": sub_marks_map,
+            "quadrant": quadrant_id,
+            "quadrant_label": quadrant_label,
+            "first_subject_code": relevant_subs[0].get("subject_code") if relevant_subs else (assigned_subjects[0] if assigned_subjects else "IS"),
+            "first_subject_tt1": relevant_subs[0].get("tt1_score") if relevant_subs else None,
+            "first_subject_tt2": relevant_subs[0].get("tt2_score") if relevant_subs else None,
+            "first_subject_internal": relevant_subs[0].get("internal_score") if relevant_subs else None
         }
 
-        if att >= 75.0 and avg_tt >= 15.0:
+        if quadrant_id == "stars":
             quadrant_stars.append(student_entry)
-        elif att < 75.0 and avg_tt >= 15.0:
+        elif quadrant_id == "engagement_risk":
             quadrant_engagement.append(student_entry)
-        elif att >= 75.0 and avg_tt < 15.0:
+        elif quadrant_id == "tutoring_needed":
             quadrant_tutoring.append(student_entry)
         else:
             quadrant_critical.append(student_entry)
+
+        student_roster.append(student_entry)
+
+        # Check Defaulter (< 75% attendance)
+        if att < 75.0:
+            tot_att = att_doc.get("total_attended", 0)
+            tot_cond = att_doc.get("total_conducted", 0)
+            needed = max(0, int(3 * tot_cond - 4 * tot_att)) if tot_cond > 0 else 5
+            defaulters_list.append({
+                "prn": prn,
+                "name": stu_name,
+                "roll_no": roll_no,
+                "attendance": att,
+                "total_attended": tot_att,
+                "total_conducted": tot_cond,
+                "lectures_needed": needed,
+                "avg_tt": avg_tt
+            })
+
+    # Sort defaulters by lowest attendance first
+    defaulters_list.sort(key=lambda x: x["attendance"])
+    # Sort roster by roll number or PRN
+    student_roster.sort(key=lambda x: x["prn"])
+
+    # High level Cohort Statistics
+    cohort_att_values = [s["attendance"] for s in student_roster]
+    avg_cohort_att = round(sum(cohort_att_values) / len(cohort_att_values), 1) if cohort_att_values else 75.0
+    avg_cohort_tt = round(sum(all_assigned_tt1_scores) / len(all_assigned_tt1_scores), 1) if all_assigned_tt1_scores else 0.0
+    overall_pass_count = sum(1 for sc in all_assigned_tt1_scores if sc >= 12.0)
+    overall_pass_rate = round(overall_pass_count / len(all_assigned_tt1_scores) * 100.0, 1) if all_assigned_tt1_scores else 100.0
+
+    cohort_stats = {
+        "total_students": len(seen_students),
+        "assigned_subjects_count": len(assigned_subjects),
+        "avg_attendance": avg_cohort_att,
+        "avg_tt1": avg_cohort_tt,
+        "defaulters_count": len(defaulters_list),
+        "critical_count": len(quadrant_critical),
+        "stars_count": len(quadrant_stars),
+        "overall_pass_rate": overall_pass_rate
+    }
 
     risk_quadrants = {
         "stars": quadrant_stars,
@@ -118,14 +242,49 @@ def dashboard_view():
         }
     }
 
-    recent_interventions = list(db.interventions.find({"faculty_prn": current_prn}).sort("timestamp", -1).limit(6)) if "interventions" in db.list_collection_names() or hasattr(db, "interventions") else []
+    # Chart datasets
+    distinction_tot = sum(1 for sc in all_assigned_tt1_scores if sc >= 24.0)
+    first_tot = sum(1 for sc in all_assigned_tt1_scores if 18.0 <= sc < 24.0)
+    pass_tot = sum(1 for sc in all_assigned_tt1_scores if 12.0 <= sc < 18.0)
+    fail_tot = sum(1 for sc in all_assigned_tt1_scores if sc < 12.0)
+
+    chart_data = {
+        "score_dist": {
+            "labels": ["Needs Support (<12)", "Pass Class (12–17.9)", "First Class (18–23.9)", "Distinction (24–30)"],
+            "data": [fail_tot, pass_tot, first_tot, distinction_tot]
+        },
+        "quadrants": {
+            "labels": ["★ Stars", "⚠ Engagement Risk", "✎ Needs Tutoring", "⛔ Critical Risk"],
+            "data": [len(quadrant_stars), len(quadrant_engagement), len(quadrant_tutoring), len(quadrant_critical)]
+        }
+    }
+
+    # Recent interventions with student names
+    raw_interventions = list(db.interventions.find({"faculty_prn": current_prn}).sort("timestamp", -1).limit(10)) if "interventions" in db.list_collection_names() or hasattr(db, "interventions") else []
+    recent_interventions = []
+    for iv in raw_interventions:
+        st_p = iv.get("student_prn")
+        st_u = users_map.get(st_p, {})
+        recent_interventions.append({
+            "student_prn": st_p,
+            "student_name": st_u.get("name", st_p),
+            "intervention_type": iv.get("intervention_type"),
+            "subject_code": iv.get("subject_code"),
+            "notes": iv.get("notes"),
+            "timestamp": iv.get("timestamp"),
+            "status": iv.get("status", "DISPATCHED")
+        })
 
     return render_template(
         "faculty/faculty_dashboard.html",
         user=user,
         assigned_subjects=assigned_subjects,
         subject_summaries=subject_summaries,
+        cohort_stats=cohort_stats,
+        student_roster=student_roster,
+        defaulters_list=defaulters_list,
         risk_quadrants=risk_quadrants,
+        chart_data=chart_data,
         recent_interventions=recent_interventions
     )
 
@@ -215,13 +374,15 @@ def grade_entry_view():
             
             tt1 = float(target_sub.get("tt1_score", 0.0))
             tt2 = float(target_sub.get("tt2_score", 0.0))
-            tt_conv = target_sub.get("tt_converted", round((tt1 + tt2) / 4.0, 2))
+            tt_conv = round((min(30.0, max(0.0, tt1)) + min(30.0, max(0.0, tt2))) / 4.0, 2)
             apt = float(target_sub.get("aptitude_score", 0.0))
             skat = float(target_sub.get("skat_score", 0.0))
             ta = float(target_sub.get("teacher_assessment_score", 0.0))
             mock = float(target_sub.get("mock_interview_score", 0.0))
             pres = float(target_sub.get("presentation_score", 0.0))
-            internal = target_sub.get("internal_score", round(tt_conv + apt + skat + ta + mock + pres, 2))
+            internal = compute_subject_internal(tt1, tt2, apt, skat, ta, mock, pres)
+            ese = float(target_sub.get("ese_score", 0.0))
+            total_marks = round(min(100.0, internal + ese), 2)
 
             students_data.append({
                 "student_prn": prn,
@@ -238,8 +399,8 @@ def grade_entry_view():
                 "mock_interview_score": mock,
                 "presentation_score": pres,
                 "internal_score": internal,
-                "ese_score": float(target_sub.get("ese_score", 0.0)),
-                "total_marks": float(target_sub.get("total_marks", internal if selected_sem == 5 else 0.0)),
+                "ese_score": ese,
+                "total_marks": total_marks,
                 "grade_point": target_sub.get("grade_point", 0.0),
                 "grade_letter": target_sub.get("grade_letter", "Pending" if selected_sem == 5 else "P"),
                 "attendance_percentage": rec.get("attendance_percentage", 80.0)
@@ -580,4 +741,338 @@ def download_bulk_template():
         download_name=filename,
         mimetype=mimetype
     )
+
+
+def _get_registered_students_with_records(db):
+    """Fetches all registered students with current year, semester, and completed academic history."""
+    students_cursor = db.users.find(
+        {"role": "student"},
+        {
+            "prn_roll": 1,
+            "name": 1,
+            "email": 1,
+            "branch": 1,
+            "current_year": 1,
+            "current_semester": 1,
+            "roll_no": 1,
+            "class_name": 1,
+            "cgpa": 1,
+        }
+    ).sort("roll_no", 1)
+    students = list(students_cursor)
+    for s in students:
+        s["_id"] = str(s["_id"])
+        year_ctx = get_student_year_context(s)
+        s["year_num"] = year_ctx["year_num"]
+        s["year_label"] = year_ctx["year_label"]
+        s["default_semesters"] = year_ctx["default_semesters"]
+        # Fetch completed semester records for this student
+        recs = list(db.academic_records.find(
+            {"student_prn": s["prn_roll"]},
+            {"semester": 1, "sgpa": 1, "cgpa": 1, "credits_earned": 1, "is_real_marksheet": 1, "subjects": 1}
+        ).sort("semester", 1))
+        s["existing_semesters"] = [
+            {
+                "semester": int(r.get("semester", 1)),
+                "sgpa": float(r.get("sgpa", 0.0) or 0.0),
+                "cgpa": float(r.get("cgpa", 0.0) or 0.0),
+                "credits": int(r.get("credits_earned", 0) or 0),
+                "courses_count": len(r.get("subjects") or []),
+                "is_real": bool(r.get("is_real_marksheet", False))
+            }
+            for r in recs
+        ]
+    return students
+
+
+@faculty_bp.route("/api/registered-students", methods=["GET"])
+@role_required(["faculty", "admin"])
+def get_registered_students_api():
+    """API returning registered student profiles with their year and completed semester records."""
+    db = get_db()
+    students = _get_registered_students_with_records(db)
+    return jsonify({"status": "success", "count": len(students), "students": students})
+
+
+@faculty_bp.route("/upload-results-pdf", methods=["GET", "POST"])
+@role_required(["faculty", "admin"])
+def upload_results_pdf():
+    """Faculty endpoint for uploading student result marksheet PDFs section-wise with upcoming ML predictions."""
+    db = get_db()
+    current_prn = get_jwt_identity()
+
+    if request.method == "GET":
+        students = _get_registered_students_with_records(db)
+        selected_prn = request.args.get("student_prn")
+        selected_student = next((s for s in students if s["prn_roll"] == selected_prn), None) if selected_prn else None
+        return render_template(
+            "admin/upload_results_pdf.html",
+            preview=None,
+            students=students,
+            students_json=json.dumps(students),
+            selected_student=selected_student,
+            prediction=None,
+            committed=False
+        )
+
+    action = request.form.get("action", "parse")
+    purge_legacy = request.form.get("purge_legacy", "true").lower() in ("true", "1", "on", "yes")
+
+    # ---------------------------------------------------------
+    # Mode 1: Section-Wise Upload for a Selected Registered Student
+    # ---------------------------------------------------------
+    if action in ("parse_sectionwise", "upload_and_predict", "upload_single_semester"):
+        student_prn = request.form.get("student_prn", "").strip()
+        auto_commit = request.form.get("auto_commit", "true").lower() in ("true", "1", "on", "yes") or (action in ("upload_and_predict", "upload_single_semester"))
+        is_ajax = (
+            request.headers.get("X-Requested-With") == "XMLHttpRequest"
+            or request.is_json
+            or request.form.get("ajax") == "true"
+        )
+
+        student_user = db.users.find_one({"prn_roll": student_prn})
+        if not student_user:
+            if is_ajax:
+                return jsonify({"status": "error", "message": "Selected registered student was not found."}), 404
+            flash("Selected registered student was not found.", "danger")
+            return redirect(url_for("faculty.upload_results_pdf"))
+
+        student_name = student_user.get("name", f"Student {student_prn}")
+        parsed_records = []
+        errors = []
+
+        # Find files for each semester
+        found_files = {}
+
+        # 1. Single semester direct upload support (via individual card upload)
+        single_sem = request.form.get("semester")
+        if single_sem:
+            try:
+                single_sem_num = int(single_sem)
+                f = request.files.get("file") or request.files.get(f"sem_file_{single_sem_num}")
+                if f and f.filename:
+                    found_files[single_sem_num] = f
+            except ValueError:
+                pass
+
+        # 2. Multi-files by specific sem_file_X keys
+        if not found_files:
+            for key, file_storage in request.files.items():
+                if key.startswith("sem_file_") and file_storage and file_storage.filename:
+                    sem_str = key.replace("sem_file_", "")
+                    try:
+                        sem_num = int(sem_str)
+                        found_files[sem_num] = file_storage
+                    except ValueError:
+                        pass
+
+        # 3. Multi-files mapped by active_semesters
+        if not found_files:
+            active_sem_strs = request.form.getlist("active_semesters")
+            if not active_sem_strs and request.form.get("active_semesters_csv"):
+                active_sem_strs = [s.strip() for s in request.form.get("active_semesters_csv", "").split(",") if s.strip()]
+            uploaded_list = request.files.getlist("pdf_files")
+            for idx, f in enumerate(uploaded_list):
+                if f and f.filename:
+                    assigned_sem = int(active_sem_strs[idx]) if idx < len(active_sem_strs) else (idx + 1)
+                    found_files[assigned_sem] = f
+
+        if not found_files:
+            if is_ajax:
+                return jsonify({"status": "error", "message": f"Please select at least one semester result PDF to upload for {student_name}."}), 400
+            flash(f"Please select at least one semester result PDF to upload for {student_name}.", "warning")
+            return redirect(url_for("faculty.upload_results_pdf", student_prn=student_prn))
+
+        for sem_num in sorted(found_files.keys()):
+            file_storage = found_files[sem_num]
+            try:
+                rec = parse_result_pdf(
+                    file_storage,
+                    filename=file_storage.filename,
+                    override_prn=student_prn,
+                    override_semester=sem_num,
+                    student_name_hint=student_name
+                )
+                parsed_records.append(rec)
+            except Exception as e:
+                errors.append(f"Failed to parse Semester {sem_num} ({file_storage.filename}): {str(e)}")
+
+        if not parsed_records:
+            if is_ajax:
+                return jsonify({"status": "error", "message": "Could not parse result records from uploaded file(s). " + "; ".join(errors)}), 400
+            flash("Could not parse result records from uploaded file(s). " + "; ".join(errors), "danger")
+            return redirect(url_for("faculty.upload_results_pdf", student_prn=student_prn))
+
+        batch_result = {
+            "total_files": len(parsed_records),
+            "success_count": sum(1 for r in parsed_records if r["status"] == "success"),
+            "warning_count": sum(1 for r in parsed_records if r["status"] == "warning"),
+            "error_count": sum(1 for r in parsed_records if r["status"] == "error") + len(errors),
+            "records": parsed_records,
+            "errors": errors,
+            "purge_legacy": purge_legacy,
+            "student_prn": student_prn,
+            "student_name": student_name,
+        }
+
+        prediction = None
+        committed = False
+
+        if auto_commit:
+            commit_res = commit_result_records(
+                records=parsed_records,
+                purge_legacy_seed=purge_legacy,
+                actor_prn=current_prn
+            )
+            committed = True
+            prediction = predict_student_analytics(student_prn, force_recalculate=True)
+
+            log_audit_event(
+                actor_prn=current_prn,
+                actor_role="faculty",
+                action="SECTIONWISE_PDF_RESULTS_COMMIT",
+                details=f"Committed {len(parsed_records)} semester marksheets for student {student_name} ({student_prn})."
+            )
+
+            target_sem = prediction.get("target_semester", (parsed_records[-1]["semester"] + 1))
+            flash(
+                f"Successfully saved {len(parsed_records)} semester marksheet(s) for {student_name} ({student_prn})! AI model generated upcoming prediction for Semester {target_sem}.",
+                "success"
+            )
+        else:
+            flash(
+                f"Parsed {len(parsed_records)} semester result(s) for {student_name} ({student_prn}). Please review below before committing.",
+                "info"
+            )
+
+        students = _get_registered_students_with_records(db)
+        student_user_fresh = next((s for s in students if s["prn_roll"] == student_prn), student_user)
+
+        if is_ajax:
+            latest_rec = parsed_records[-1] if parsed_records else {}
+            return jsonify({
+                "status": "success",
+                "message": f"Successfully parsed and saved {len(parsed_records)} semester marksheet(s) for {student_name}!",
+                "semester": latest_rec.get("semester"),
+                "sgpa": latest_rec.get("sgpa") or latest_rec.get("computed_sgpa"),
+                "computed_sgpa": latest_rec.get("computed_sgpa"),
+                "credits_earned": latest_rec.get("credits_earned"),
+                "courses_count": len(latest_rec.get("subjects") or []),
+                "courses": latest_rec.get("subjects") or [],
+                "records": parsed_records,
+                "student": {
+                    "prn_roll": student_prn,
+                    "name": student_name,
+                    "cgpa": student_user_fresh.get("cgpa"),
+                    "credits_earned": student_user_fresh.get("credits_earned"),
+                    "active_backlogs": student_user_fresh.get("active_backlogs", 0),
+                    "existing_semesters": student_user_fresh.get("existing_semesters", [])
+                },
+                "prediction": {
+                    "target_semester": prediction.get("target_semester") if prediction else None,
+                    "predicted_next_sgpa": prediction.get("predicted_next_sgpa") if prediction else None,
+                    "projected_cgpa": prediction.get("projected_cgpa") if prediction else None,
+                    "current_attendance": prediction.get("current_attendance") or prediction.get("attendance_percentage") if prediction else None,
+                    "detention_risk": prediction.get("detention_risk") if prediction else None,
+                    "placement_readiness_score": prediction.get("placement_readiness_score") if prediction else None
+                } if prediction else None
+            }), 200
+
+        return render_template(
+            "admin/upload_results_pdf.html",
+            preview=batch_result,
+            staged_records_json=json.dumps(parsed_records),
+            students=students,
+            students_json=json.dumps(students),
+            selected_student=student_user_fresh,
+            prediction=prediction,
+            committed=committed
+        )
+
+    # ---------------------------------------------------------
+    # Mode 2: Commit Staged Records
+    # ---------------------------------------------------------
+    if action == "commit":
+        raw_payload = request.form.get("staged_records")
+        if not raw_payload:
+            flash("No staged records provided for commit.", "danger")
+            return redirect(url_for("faculty.upload_results_pdf"))
+
+        try:
+            staged_records = json.loads(raw_payload)
+        except Exception as e:
+            flash(f"Invalid record payload: {e}", "danger")
+            return redirect(url_for("faculty.upload_results_pdf"))
+
+        result = commit_result_records(
+            records=staged_records,
+            purge_legacy_seed=purge_legacy,
+            actor_prn=current_prn
+        )
+
+        log_audit_event(
+            actor_prn=current_prn,
+            actor_role="faculty",
+            action="PDF_RESULTS_COMMIT",
+            details=f"Committed {result['committed_students_count']} real students across {result['committed_semesters_count']} semester marksheets."
+        )
+
+        affected_prns = result.get("affected_prns", [])
+        prediction = None
+        selected_student = None
+        if affected_prns:
+            first_prn = affected_prns[0]
+            prediction = result.get("predictions", {}).get(first_prn) or predict_student_analytics(first_prn, force_recalculate=True)
+            selected_student = db.users.find_one({"prn_roll": first_prn})
+
+        students = _get_registered_students_with_records(db)
+        flash(
+            f"Successfully saved {result['committed_students_count']} student(s) with {result['committed_semesters_count']} verified marksheet records!",
+            "success"
+        )
+
+        return render_template(
+            "admin/upload_results_pdf.html",
+            preview={"total_files": len(staged_records), "records": staged_records, "success_count": len(staged_records), "warning_count": 0, "error_count": 0, "errors": []},
+            staged_records_json=json.dumps(staged_records),
+            students=students,
+            students_json=json.dumps(students),
+            selected_student=selected_student,
+            prediction=prediction,
+            committed=True
+        )
+
+    # ---------------------------------------------------------
+    # Mode 3: General Batch Upload
+    # ---------------------------------------------------------
+    uploaded_files = request.files.getlist("pdf_files")
+    if not uploaded_files or (len(uploaded_files) == 1 and uploaded_files[0].filename == ""):
+        if "file" in request.files and request.files["file"].filename:
+            uploaded_files = [request.files["file"]]
+        else:
+            flash("Please select at least one PDF file or a ZIP archive to upload.", "warning")
+            return redirect(url_for("faculty.upload_results_pdf"))
+
+    batch_result = parse_batch_pdfs(uploaded_files, purge_legacy=purge_legacy)
+    if not batch_result["records"]:
+        flash("Could not parse any student result records from the uploaded file(s).", "danger")
+        return redirect(url_for("faculty.upload_results_pdf"))
+
+    flash(
+        f"Parsed {batch_result['total_files']} marksheet(s): {batch_result['success_count']} high confidence, {batch_result['warning_count']} warnings.",
+        "info"
+    )
+
+    students = _get_registered_students_with_records(db)
+    return render_template(
+        "admin/upload_results_pdf.html",
+        preview=batch_result,
+        staged_records_json=json.dumps(batch_result["records"]),
+        students=students,
+        students_json=json.dumps(students),
+        selected_student=None,
+        prediction=None,
+        committed=False
+    )
+
 

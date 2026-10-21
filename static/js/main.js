@@ -21,6 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
 function initFacultyGradeCalculators() {
   const studentRows = document.querySelectorAll('.grade-row');
   studentRows.forEach(row => {
+    if (row.dataset.calcInit) return;
+    row.dataset.calcInit = 'true';
     const tt1Input = row.querySelector('.input-tt1');
     const tt2Input = row.querySelector('.input-tt2');
     const ttConvDisplay = row.querySelector('.display-tt-conv');
@@ -35,11 +37,40 @@ function initFacultyGradeCalculators() {
     const gradeBadge = row.querySelector('.display-grade');
     const saveBtn = row.querySelector('.btn-save-grade');
 
+    function formatMarks(val) {
+      const rounded = Math.round(val * 100) / 100;
+      return rounded.toString();
+    }
+
+    function checkBounds(input, maxVal) {
+      if (!input) return;
+      const val = parseFloat(input.value);
+      if (!isNaN(val) && (val > maxVal || val < 0)) {
+        input.classList.add('border-red-500', 'bg-red-50', 'text-red-700');
+        input.classList.remove('border-slate-300', 'bg-white', 'text-slate-800');
+        input.title = `Maximum allowed is ${maxVal}`;
+      } else {
+        input.classList.remove('border-red-500', 'bg-red-50', 'text-red-700');
+        input.classList.add('border-slate-300', 'bg-white', 'text-slate-800');
+        input.removeAttribute('title');
+      }
+    }
+
     function updateRowTotal() {
+      checkBounds(tt1Input, 30);
+      checkBounds(tt2Input, 30);
+      checkBounds(aptInput, 5);
+      checkBounds(skatInput, 5);
+      checkBounds(taInput, 5);
+      checkBounds(mockInput, 5);
+      checkBounds(presInput, 5);
+      checkBounds(eseInput, 60);
+
       const tt1 = Math.min(30, Math.max(0, parseFloat(tt1Input?.value || 0)));
       const tt2 = Math.min(30, Math.max(0, parseFloat(tt2Input?.value || 0)));
-      const ttConv = (tt1 + tt2) / 4.0;
-      if (ttConvDisplay) ttConvDisplay.innerText = ttConv.toFixed(1);
+      // Term tests out of 30 each converted to 15 marks max: (TT1 + TT2) / 4.0
+      const ttConv = Math.min(15, (tt1 + tt2) / 4.0);
+      if (ttConvDisplay) ttConvDisplay.innerText = formatMarks(ttConv);
 
       const apt = Math.min(5, Math.max(0, parseFloat(aptInput?.value || 0)));
       const skat = Math.min(5, Math.max(0, parseFloat(skatInput?.value || 0)));
@@ -47,13 +78,14 @@ function initFacultyGradeCalculators() {
       const mock = Math.min(5, Math.max(0, parseFloat(mockInput?.value || 0)));
       const pres = Math.min(5, Math.max(0, parseFloat(presInput?.value || 0)));
 
-      const internal = Math.min(40, ttConv + apt + skat + ta + mock + pres);
-      if (internalDisplay) internalDisplay.innerText = internal.toFixed(1);
+      // Continuous internal marks out of 40: TT Conv (15) + Apt (5) + SKAT (5) + TA (5) + Mock (5) + Pres (5)
+      const internal = Math.min(40, Math.max(0, ttConv + apt + skat + ta + mock + pres));
+      if (internalDisplay) internalDisplay.innerText = formatMarks(internal);
 
       const ese = Math.min(60, Math.max(0, parseFloat(eseInput?.value || 0)));
       const total = Math.min(100, Math.max(0, internal + ese));
       
-      if (totalDisplay) totalDisplay.innerText = total.toFixed(1);
+      if (totalDisplay) totalDisplay.innerText = formatMarks(total);
 
       // Grade calculation (>=80 O, >=75 A+, >=70 A, >=60 B+, >=50 B, >=45 C, >=40 P, <40 F)
       const sem = parseInt(row.dataset.sem || 5);
@@ -80,9 +112,17 @@ function initFacultyGradeCalculators() {
       }
     }
 
+    // Attach listeners on input, change, keyup, paste for instant live response
     [tt1Input, tt2Input, aptInput, skatInput, taInput, mockInput, presInput, eseInput].forEach(inp => {
-      if (inp) inp.addEventListener('input', updateRowTotal);
+      if (inp) {
+        ['input', 'change', 'keyup', 'paste'].forEach(evt => {
+          inp.addEventListener(evt, updateRowTotal);
+        });
+      }
     });
+
+    // Initial calculation pass to ensure displayed totals match input values
+    updateRowTotal();
 
     if (saveBtn) {
       saveBtn.addEventListener('click', async (e) => {
@@ -117,6 +157,17 @@ function initFacultyGradeCalculators() {
           if (res.ok) {
             saveBtn.className = 'btn-save-grade bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-all';
             saveBtn.innerHTML = `✓ Saved`;
+
+            if (data.tt_converted !== undefined && ttConvDisplay) {
+              ttConvDisplay.innerText = formatMarks(data.tt_converted);
+            }
+            if (data.internal_score !== undefined && internalDisplay) {
+              internalDisplay.innerText = formatMarks(data.internal_score);
+            }
+            if (data.total_marks !== undefined && totalDisplay) {
+              totalDisplay.innerText = formatMarks(data.total_marks);
+            }
+
             setTimeout(() => {
               saveBtn.disabled = false;
               saveBtn.className = 'btn-save-grade bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-3.5 py-1.5 rounded-lg shadow-sm transition-all flex items-center gap-1.5 ml-auto';
@@ -133,9 +184,6 @@ function initFacultyGradeCalculators() {
           saveBtn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i><span>Save</span>`;
         }
       });
-    }
-  });
-}
     }
   });
 }

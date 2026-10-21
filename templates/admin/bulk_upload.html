@@ -4,7 +4,7 @@
 
 {% block nav_links %}
 <a href="/admin/dashboard" class="text-xs font-medium px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">Dashboard</a>
-<a href="/admin/users" class="text-xs font-medium px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">Users & Accounts</a>
+<a href="/admin/users" class="text-xs font-medium px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">Student & User Management</a>
 <a href="/admin/bulk-upload" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 text-white border border-slate-700">Bulk Upload</a>
 <a href="/admin/audit-logs" class="text-xs font-medium px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">Audit Trail</a>
 {% endblock %}
@@ -31,13 +31,19 @@
         <input type="file" id="file" name="file" required accept=".csv,.xlsx,.xls" class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
       </div>
 
-      <div class="flex items-center justify-between pt-2">
-        <button type="submit" name="commit" value="false" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold px-5 py-2.5 rounded-xl transition-all flex items-center gap-2">
-          <i class="fa-solid fa-magnifying-glass"></i>
-          <span>Perform Dry-Run Validation</span>
-        </button>
+      <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+        <div class="flex items-center gap-2">
+          <button type="submit" name="commit" value="true" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-5 py-2.5 rounded-xl transition-all flex items-center gap-2 shadow-sm">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <span>Upload & Ingest to Database</span>
+          </button>
+          <button type="submit" name="commit" value="false" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all flex items-center gap-2">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <span>Preview Validation</span>
+          </button>
+        </div>
 
-        <a href="data:text/csv;charset=utf-8,student_prn,semester,subject_code,subject_name,credits,tt1_score,tt2_score,ese_score,attendance_percentage%0A2022CS001,3,CS301,Data Structures,4,16.5,15.0,68.0,85.0"
+        <a href="data:text/csv;charset=utf-8,student_prn,semester,subject_code,subject_name,credits,tt1_score,tt2_score,ese_score,attendance_percentage%0A241106005,3,BTCOC303,Data Structures,4,24.0,26.0,68.0,85.0"
            download="marks_upload_template.csv"
            class="text-xs text-blue-600 hover:underline flex items-center gap-1">
           <i class="fa-solid fa-download"></i>
@@ -56,7 +62,7 @@
     </p>
     <ul class="list-disc pl-5 space-y-1 text-slate-700">
       <li><b>Mandatory Columns:</b> <code class="bg-blue-100 px-1 py-0.5 rounded font-mono">student_prn, semester, subject_code, subject_name, credits, tt1_score, tt2_score, ese_score, attendance_percentage</code></li>
-      <li>Unit Tests (<code class="font-mono">tt1_score, tt2_score</code>) must be within <b>0.0 to 20.0</b>.</li>
+      <li>Unit Tests (<code class="font-mono">tt1_score, tt2_score</code>) must be within <b>0.0 to 30.0</b>.</li>
       <li>End Sem Exam (<code class="font-mono">ese_score</code>) must be within <b>0.0 to 80.0 (or 100.0)</b>.</li>
       <li>Duplicate PRN + Semester + Subject rows within the file will be flagged during validation.</li>
       <li>Committing marks automatically triggers the <b>Deterministic SGPA Engine</b> and retrains the <b>ML Forecasting Models</b>.</li>

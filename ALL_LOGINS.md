@@ -1,5 +1,5 @@
 # SES's R. C. Patel Institute of Technology, Shirpur
-## TY BTech Computer Engineering (Data Science) – Division A
+## TY BTech Computer Science and Engineering (Data Science) – Division A
 ### Academic Year 2026-27, Semester I (Odd Semester)
 ### Master Portal Login Credentials Directory
 

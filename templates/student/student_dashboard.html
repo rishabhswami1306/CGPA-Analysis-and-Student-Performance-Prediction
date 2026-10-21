@@ -26,7 +26,7 @@
         </span>
       </div>
       <p class="text-xs sm:text-sm text-slate-500 mt-1">
-        Department of <b>{{ user.branch }}</b> | Class: <b>{{ user.class_name or 'TY BTech DS (A)' }}</b> | <b>4 Semesters Audited</b> (Semester 5 Ongoing)
+        Department of <b>{% if user.branch == 'CSE-DS' %}Computer Science and Engineering (Data Science){% else %}{{ user.branch }}{% endif %}</b> | Class: <b>{{ user.class_name or 'TY BTech DS (A)' }}</b> | <b>4 Semesters Audited</b> (Semester 5 Ongoing)
       </p>
     </div>
 
@@ -288,7 +288,7 @@
     <!-- Subject Mini-Cards Grid -->
     <div>
       <p class="text-xs font-bold text-slate-700 mb-2 uppercase tracking-wider">Subject-Wise 75% Status & Directives</p>
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-3">
         {% for code, s in attendance_forecast.subjects.items() %}
         <div class="p-3 rounded-xl border {% if s.is_detained %}bg-red-50/40 border-red-200{% else %}bg-slate-50 border-slate-200{% endif %} flex flex-col justify-between">
           <div>
@@ -313,27 +313,49 @@
         </div>
         {% endfor %}
 
-        {% if attendance_forecast.honors %}
-        {% set h = attendance_forecast.honors %}
-        <div class="p-3 rounded-xl border border-purple-200 bg-purple-50/40 flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between">
-              <span class="font-bold font-mono text-xs text-purple-800">{{ h.subject }}</span>
-              <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-purple-100 text-purple-700">Honors</span>
+        {% if attendance_forecast.honors_list %}
+          {% for h in attendance_forecast.honors_list %}
+          <div class="p-3 rounded-xl border border-purple-200 bg-purple-50/40 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="font-bold font-mono text-xs text-purple-800">{{ h.subject }}</span>
+                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-purple-100 text-purple-700">Honors</span>
+              </div>
+              <p class="text-lg font-extrabold mt-1 {% if h.is_detained %}text-red-600{% else %}text-purple-800{% endif %}">
+                {{ h.current_pct }}%
+              </p>
+              <p class="text-[10px] text-slate-500 font-mono">{{ h.total_attended }}/{{ h.total_conducted }}</p>
             </div>
-            <p class="text-lg font-extrabold mt-1 {% if h.is_detained %}text-red-600{% else %}text-purple-800{% endif %}">
-              {{ h.current_pct }}%
-            </p>
-            <p class="text-[10px] text-slate-500 font-mono">{{ h.total_attended }}/{{ h.total_conducted }}</p>
+            <div class="mt-2 pt-2 border-t border-purple-200/60 text-[10px]">
+              {% if h.is_detained %}
+              <span class="text-red-700 font-bold">Attend {{ h.must_attend_now }} consec.</span>
+              {% else %}
+              <span class="text-purple-700 font-medium">Bunk ≤ {{ h.can_miss_now }}</span>
+              {% endif %}
+            </div>
           </div>
-          <div class="mt-2 pt-2 border-t border-purple-200/60 text-[10px]">
-            {% if h.is_detained %}
-            <span class="text-red-700 font-bold">Attend {{ h.must_attend_now }} consec.</span>
-            {% else %}
-            <span class="text-purple-700 font-medium">Bunk ≤ {{ h.can_miss_now }}</span>
-            {% endif %}
+          {% endfor %}
+        {% elif attendance_forecast.honors %}
+          {% set h = attendance_forecast.honors %}
+          <div class="p-3 rounded-xl border border-purple-200 bg-purple-50/40 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="font-bold font-mono text-xs text-purple-800">{{ h.subject }}</span>
+                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-purple-100 text-purple-700">Honors</span>
+              </div>
+              <p class="text-lg font-extrabold mt-1 {% if h.is_detained %}text-red-600{% else %}text-purple-800{% endif %}">
+                {{ h.current_pct }}%
+              </p>
+              <p class="text-[10px] text-slate-500 font-mono">{{ h.total_attended }}/{{ h.total_conducted }}</p>
+            </div>
+            <div class="mt-2 pt-2 border-t border-purple-200/60 text-[10px]">
+              {% if h.is_detained %}
+              <span class="text-red-700 font-bold">Attend {{ h.must_attend_now }} consec.</span>
+              {% else %}
+              <span class="text-purple-700 font-medium">Bunk ≤ {{ h.can_miss_now }}</span>
+              {% endif %}
+            </div>
           </div>
-        </div>
         {% endif %}
       </div>
     </div>
@@ -834,21 +856,23 @@
         </thead>
         <tbody class="divide-y divide-slate-100">
           {% for r in records %}
+          {% set r_subs = r.subjects if (r.subjects is defined and r.subjects) else (r.courses if (r.courses is defined and r.courses) else []) %}
+          {% set r_att = r.attendance_percentage if (r.attendance_percentage is defined and r.attendance_percentage is not none) else (latest_attendance or 80.0) %}
           <tr class="hover:bg-slate-50 transition-colors">
             <td class="p-3.5 font-bold text-slate-900">Semester {{ r.semester }}</td>
             <td class="p-3.5">
-              <span class="text-slate-700 font-medium">{{ r.subjects | length }} Courses</span>
+              <span class="text-slate-700 font-medium">{{ r_subs | length }} Courses</span>
               <span class="text-[11px] text-slate-400 block truncate max-w-xs">
-                {{ r.subjects | map(attribute='subject_name') | join(', ') }}
+                {{ r_subs | map(attribute='subject_name') | join(', ') if r_subs else 'N/A' }}
               </span>
             </td>
             <td class="p-3.5">
-              <span class="px-2 py-0.5 rounded-full font-bold {% if r.attendance_percentage < 75 %}bg-red-100 text-red-700{% else %}bg-emerald-100 text-emerald-700{% endif %}">
-                {{ r.attendance_percentage }}%
+              <span class="px-2 py-0.5 rounded-full font-bold {% if r_att < 75 %}bg-red-100 text-red-700{% else %}bg-emerald-100 text-emerald-700{% endif %}">
+                {{ r_att | round(1) if r_att is number else r_att }}%
               </span>
             </td>
-            <td class="p-3.5 text-slate-700 font-semibold">{{ r.active_backlogs }}</td>
-            <td class="p-3.5 font-mono text-sm font-extrabold text-blue-600">{{ r.sgpa | round(2) }}</td>
+            <td class="p-3.5 text-slate-700 font-semibold">{{ r.active_backlogs if r.active_backlogs is defined else 0 }}</td>
+            <td class="p-3.5 font-mono text-sm font-extrabold text-blue-600">{{ r.sgpa | round(2) if (r.sgpa is defined and r.sgpa is not none) else '0.00' }}</td>
             <td class="p-3.5 text-right">
               <a href="/student/transcript/pdf?semester={{ r.semester }}" class="text-xs font-semibold text-slate-600 hover:text-blue-600 inline-flex items-center gap-1">
                 <i class="fa-regular fa-file-pdf"></i> PDF
@@ -858,6 +882,7 @@
           {% endfor %}
 
           {% if ongoing_record %}
+          {% set og_subs = ongoing_record.subjects if (ongoing_record.subjects is defined and ongoing_record.subjects) else (ongoing_record.courses if (ongoing_record.courses is defined and ongoing_record.courses) else []) %}
           <tr class="bg-purple-50/60 hover:bg-purple-50 border-l-4 border-purple-500 transition-colors">
             <td class="p-3.5 font-bold text-purple-900">
               <div class="flex items-center gap-1.5">
@@ -866,9 +891,9 @@
               </div>
             </td>
             <td class="p-3.5">
-              <span class="text-purple-900 font-semibold">{{ ongoing_record.subjects | length }} Subjects</span>
+              <span class="text-purple-900 font-semibold">{{ og_subs | length }} Subjects</span>
               <span class="text-[11px] text-purple-600/80 block truncate max-w-xs">
-                {{ ongoing_record.subjects | map(attribute='subject_name') | join(', ') }}
+                {{ og_subs | map(attribute='subject_name') | join(', ') if og_subs else 'N/A' }}
               </span>
             </td>
             <td class="p-3.5">

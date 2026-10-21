@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+
+{% block title %}Re-upload Detention Notice Image / Document | RCPIT Intelligence{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+  <!-- Header & Breadcrumbs -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+    <div>
+      <div class="flex items-center gap-2 text-xs text-slate-500 mb-1">
+        <a href="/attendance/detention-list" class="hover:text-blue-600 transition-colors">Attendance Intelligence</a>
+        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+        <span class="text-slate-800 font-medium">Re-upload Detention List</span>
+      </div>
+      <h1 class="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2.5">
+        <span class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-600 text-white flex items-center justify-center shadow-lg shadow-amber-500/25">
+          <i class="fa-solid fa-cloud-arrow-up text-lg"></i>
+        </span>
+        <span>Re-upload Detention List & Update Attendance</span>
+      </h1>
+      <p class="text-xs text-slate-500 mt-1 max-w-2xl">
+        Upload a fresh detention notice image (photo of notice board, scan, or PDF) or spreadsheet. The OCR engine reads the attendance table, compares with existing records, and auto-updates the First Detention List, attendance forecast simulator, and student dashboards.
+      </p>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <a href="/attendance/detention-list" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 transition-all flex items-center gap-2 shadow-sm">
+        <i class="fa-solid fa-arrow-left"></i>
+        <span>Back to Detention Register</span>
+      </a>
+      {% if auth_role == 'admin' %}
+      <a href="/admin/dashboard" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-purple-50 text-purple-700 hover:bg-purple-100 transition-all flex items-center gap-2">
+        <i class="fa-solid fa-gauge-high"></i>
+        <span>Admin Dashboard</span>
+      </a>
+      {% else %}
+      <a href="/faculty/dashboard" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-blue-50 text-blue-700 hover:bg-blue-100 transition-all flex items-center gap-2">
+        <i class="fa-solid fa-chalkboard-user"></i>
+        <span>Faculty Dashboard</span>
+      </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Upload Card -->
+  <div class="glass-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div class="p-6">
+      <form id="detention-upload-form" method="POST" action="{{ url_for('attendance.reupload_detention_list') }}" enctype="multipart/form-data" class="space-y-5">
+        <input type="hidden" name="action" value="parse">
+
+        <div id="dropzone" class="relative border-2 border-dashed border-amber-300 hover:border-amber-500 rounded-2xl p-8 text-center transition-all bg-amber-50/30 hover:bg-amber-50/60 cursor-pointer group">
+          <input type="file" id="detention_file_input" name="file" accept=".png,.jpg,.jpeg,.webp,.pdf,.csv,.xlsx,.xls,.json" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" onchange="handleFileChange(this)">
+          
+          <div class="space-y-3">
+            <div class="w-16 h-16 mx-auto rounded-2xl bg-white shadow-md border border-amber-100 flex items-center justify-center text-amber-600 group-hover:scale-110 group-hover:bg-amber-600 group-hover:text-white transition-all duration-300">
+              <i class="fa-solid fa-image text-2xl"></i>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-slate-800">
+                Drag and drop detention notice image or document, or <span class="text-amber-600 underline">browse</span>
+              </p>
+              <p class="text-xs text-slate-500 mt-1">
+                Accepted formats: <strong class="text-slate-700">PNG, JPG, WebP</strong> (Notice photos/scans), <strong class="text-slate-700">PDF</strong> notices, <strong class="text-slate-700">CSV, Excel (.xlsx)</strong>, or <strong class="text-slate-700">JSON</strong>.
+              </p>
+            </div>
+            <div class="inline-flex items-center gap-2 text-[11px] font-semibold text-amber-700 bg-amber-100/70 px-3 py-1 rounded-full border border-amber-200/60">
+              <i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i>
+              <span>Auto-detects Roll No, PRN, Total Attended & Conducted, and 75% Cutoff</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="file-info" class="hidden p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between text-xs">
+          <div class="flex items-center gap-2 text-slate-800 font-semibold truncate">
+            <i class="fa-solid fa-file text-amber-500"></i>
+            <span id="file-name" class="truncate"></span>
+          </div>
+          <span id="file-size" class="text-slate-400 font-mono text-[11px]"></span>
+        </div>
+
+        <div class="flex justify-end">
+          <button type="submit" id="btn-parse-detention" class="px-6 py-2.5 rounded-xl font-bold text-xs text-white bg-amber-600 hover:bg-amber-700 shadow-lg shadow-amber-600/30 transition-all flex items-center gap-2">
+            <i class="fa-solid fa-bolt"></i>
+            <span>Parse & Compare Attendance</span>
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- Loading State Indicator -->
+  <div id="detention-loader" class="hidden glass-card bg-white rounded-2xl border border-amber-200 p-8 text-center space-y-4 shadow-sm animate-pulse">
+    <div class="w-12 h-12 mx-auto rounded-full border-4 border-amber-600 border-t-transparent animate-spin"></div>
+    <div>
+      <h3 class="text-sm font-bold text-slate-900">Scanning Detention Notice...</h3>
+      <p class="text-xs text-slate-500 mt-1">
+        Running OCR on document columns, extracting student roll numbers, and computing new detention statuses.
+      </p>
+    </div>
+  </div>
+
+  <!-- PREVIEW & COMPARISON STAGING -->
+  {% if preview %}
+  <div class="space-y-6">
+
+    <!-- KPI Summary Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="glass-card bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
+        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Scanned</p>
+        <div class="flex items-baseline justify-between mt-2">
+          <span class="text-2xl font-black text-slate-900">{{ preview.total_records }}</span>
+          <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">Students</span>
+        </div>
+      </div>
+
+      <div class="glass-card bg-white rounded-2xl p-4 border border-red-200 bg-red-50/20 shadow-sm">
+        <p class="text-[10px] font-bold uppercase tracking-wider text-red-600">Detained (&lt; 75%)</p>
+        <div class="flex items-baseline justify-between mt-2">
+          <span class="text-2xl font-black text-red-700">{{ preview.detained_count }}</span>
+          <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-800">Critical</span>
+        </div>
+      </div>
+
+      <div class="glass-card bg-white rounded-2xl p-4 border border-emerald-200 bg-emerald-50/20 shadow-sm">
+        <p class="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Safe (&ge; 75%)</p>
+        <div class="flex items-baseline justify-between mt-2">
+          <span class="text-2xl font-black text-emerald-700">{{ preview.safe_count }}</span>
+          <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Eligible</span>
+        </div>
+      </div>
+
+      <div class="glass-card bg-white rounded-2xl p-4 border border-blue-200 bg-blue-50/20 shadow-sm">
+        <p class="text-[10px] font-bold uppercase tracking-wider text-blue-600">Parser Method</p>
+        <div class="flex items-baseline justify-between mt-2">
+          <span class="text-sm font-black text-blue-800 uppercase">{{ preview.method }}</span>
+          <span class="text-[10px] font-mono text-slate-400 truncate max-w-[90px]">{{ preview.filename }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comparison Table -->
+    <div class="glass-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      
+      <div class="p-5 border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50/60">
+        <div>
+          <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-arrows-rotate text-amber-600"></i>
+            <span>Attendance Delta & Verification Grid</span>
+          </h2>
+          <p class="text-xs text-slate-500 mt-0.5">
+            Compare previous recorded attendance with newly scanned notice data. Click Commit to apply changes globally.
+          </p>
+        </div>
+
+        <form id="commit-detention-form" method="POST" action="{{ url_for('attendance.reupload_detention_list') }}">
+          <input type="hidden" name="action" value="commit">
+          <input type="hidden" name="staged_records" value='{{ staged_records_json | safe }}'>
+          
+          <button type="submit" id="btn-commit-detention" class="w-full md:w-auto px-6 py-2.5 rounded-xl font-black text-xs text-white bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-600/30 transition-all flex items-center justify-center gap-2 group">
+            <i class="fa-solid fa-check-double group-hover:scale-110 transition-transform"></i>
+            <span>Commit Updated Attendance to Database</span>
+          </button>
+        </form>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr class="bg-slate-100/80 text-slate-600 font-bold border-b border-slate-200 uppercase tracking-wider text-[10px]">
+              <th class="py-3 px-4 text-center">Roll</th>
+              <th class="py-3 px-4">Student & PRN</th>
+              <th class="py-3 px-4 text-center">Attended / Total</th>
+              <th class="py-3 px-4 text-center">Previous %</th>
+              <th class="py-3 px-4 text-center">New %</th>
+              <th class="py-3 px-4 text-center">Status Delta</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+            {% for r in preview.records %}
+            <tr class="hover:bg-slate-50/80 transition-colors {% if r.is_detained %}bg-red-50/20{% endif %}">
+              <td class="py-3 px-4 text-center font-bold text-slate-900">
+                #{{ r.roll_no or loop.index }}
+              </td>
+              <td class="py-3 px-4">
+                <span class="font-bold text-slate-900 block">{{ r.student_name }}</span>
+                <span class="font-mono text-[11px] text-slate-500">{{ r.student_prn }}</span>
+              </td>
+              <td class="py-3 px-4 text-center font-mono">
+                {% if r.total_attended is not none and r.total_conducted is not none %}
+                  <span class="font-bold text-slate-900">{{ r.total_attended }}</span> / {{ r.total_conducted }}
+                {% else %}
+                  <span class="text-slate-400">—</span>
+                {% endif %}
+              </td>
+              <td class="py-3 px-4 text-center font-mono text-slate-500">
+                {% if r.old_percentage is not none %}
+                  {{ "%.1f"|format(r.old_percentage) }}%
+                {% else %}
+                  <span class="text-slate-300">N/A</span>
+                {% endif %}
+              </td>
+              <td class="py-3 px-4 text-center font-mono font-bold text-xs {% if r.is_detained %}text-red-600{% else %}text-emerald-700{% endif %}">
+                {{ "%.2f"|format(r.percentage) }}%
+              </td>
+              <td class="py-3 px-4 text-center">
+                {% if r.is_detained %}
+                  <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-800 border border-red-200">
+                    <i class="fa-solid fa-triangle-exclamation text-red-600"></i> Detained
+                  </span>
+                {% else %}
+                  <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                    <i class="fa-solid fa-circle-check text-emerald-600"></i> Safe
+                  </span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+  </div>
+  {% endif %}
+
+</div>
+
+<script>
+  function handleFileChange(input) {
+    if (input.files && input.files[0]) {
+      const f = input.files[0];
+      document.getElementById('file-name').innerText = f.name;
+      document.getElementById('file-size').innerText = `${(f.size / 1024).toFixed(1)} KB`;
+      document.getElementById('file-info').classList.remove('hidden');
+    }
+  }
+
+  const uploadForm = document.getElementById('detention-upload-form');
+  if (uploadForm) {
+    uploadForm.addEventListener('submit', function() {
+      const input = document.getElementById('detention_file_input');
+      if (input.files.length > 0) {
+        document.getElementById('detention-loader').classList.remove('hidden');
+        document.getElementById('btn-parse-detention').disabled = true;
+        document.getElementById('btn-parse-detention').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing Document...';
+      }
+    });
+  }
+
+  const commitForm = document.getElementById('commit-detention-form');
+  if (commitForm) {
+    commitForm.addEventListener('submit', function() {
+      const btn = document.getElementById('btn-commit-detention');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Committing Attendance Updates...';
+    });
+  }
+</script>
+{% endblock %}

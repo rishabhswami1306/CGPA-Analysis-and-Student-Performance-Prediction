@@ -4,7 +4,7 @@
 
 {% block nav_links %}
 <a href="/admin/dashboard" class="text-xs font-medium px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">Dashboard</a>
-<a href="/admin/users" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 text-white border border-slate-700">Users & Accounts</a>
+<a href="/admin/users" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 text-white border border-slate-700">Student & User Management</a>
 <a href="/admin/bulk-upload" class="text-xs font-medium px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">Bulk Upload</a>
 <a href="/admin/audit-logs" class="text-xs font-medium px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">Audit Trail</a>
 {% endblock %}
@@ -86,14 +86,17 @@
                 <span class="text-red-700 bg-red-50 px-2 py-0.5 rounded-full font-semibold text-[11px]">Deactivated</span>
               {% endif %}
             </td>
-            <td class="p-3.5 text-right space-x-2">
+            <td class="p-3.5 text-right space-x-1.5 whitespace-nowrap">
               {% if u.role == 'student' %}
-              <a href="/student/dashboard?student_prn={{ u.prn_roll }}" class="text-blue-600 hover:text-blue-800 font-semibold" title="View Student Analytics">
-                <i class="fa-solid fa-chart-line"></i> Analytics
+              <a href="/admin/students/{{ u.prn_roll }}" class="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 font-semibold text-[11px] inline-flex items-center gap-1 transition-all border border-blue-200" title="View Full Profile">
+                <i class="fa-solid fa-user"></i> Profile
               </a>
               {% endif %}
-              <button onclick="toggleUserStatus('{{ u.prn_roll }}')" class="text-slate-500 hover:text-red-600" title="Toggle Status">
-                <i class="fa-solid fa-power-off"></i>
+              <button onclick="openEditUserModal('{{ u.prn_roll }}', '{{ u.name|replace('\'', '\\\'') }}', '{{ u.email }}', '{{ u.branch }}', '{{ u.admission_year or 2024 }}', '{{ u.is_active }}')" class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 font-semibold text-[11px] inline-flex items-center gap-1 transition-all" title="Edit Details">
+                <i class="fa-solid fa-user-pen"></i> Edit
+              </button>
+              <button onclick="confirmDeleteUser('{{ u.prn_roll }}', '{{ u.name|replace('\'', '\\\'') }}')" class="px-2 py-1 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 font-semibold text-[11px] inline-flex items-center gap-1 transition-all border border-red-200" title="Permanently Delete">
+                <i class="fa-solid fa-trash-can"></i>
               </button>
             </td>
           </tr>
@@ -157,7 +160,7 @@
         <div>
           <label class="block font-semibold text-slate-700 mb-1">Branch Scope</label>
           <select name="branch" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-slate-50 text-slate-700 font-medium">
-            <option value="CSE-DS" selected>Computer Engineering (Data Science) [CSE-DS]</option>
+            <option value="CSE-DS" selected>Computer Science and Engineering (Data Science) [CSE-DS]</option>
           </select>
         </div>
       </div>
@@ -178,6 +181,80 @@
   </div>
 </div>
 
+<!-- Edit User Modal -->
+<div id="edit-user-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl border border-slate-100">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+        <i class="fa-solid fa-user-pen text-blue-600"></i>
+        <span>Update User Details</span>
+      </h3>
+      <button onclick="closeModal('edit-user-modal')" class="text-slate-400 hover:text-slate-600 text-lg">&times;</button>
+    </div>
+
+    <form id="edit-user-form" method="POST" action="" class="space-y-3.5 text-xs">
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">PRN / Roll Number</label>
+        <input type="text" id="edit-prn" readonly class="w-full px-3 py-2 bg-slate-100 border border-slate-300 rounded-xl font-mono text-slate-600 font-bold">
+      </div>
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">Full Name</label>
+        <input type="text" name="name" id="edit-name" required class="w-full px-3 py-2 border border-slate-300 rounded-xl font-semibold">
+      </div>
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">Email</label>
+        <input type="email" name="email" id="edit-email" required class="w-full px-3 py-2 border border-slate-300 rounded-xl">
+      </div>
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">Branch</label>
+        <input type="text" name="branch" id="edit-branch" class="w-full px-3 py-2 border border-slate-300 rounded-xl font-semibold">
+      </div>
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">Admission Year</label>
+        <input type="number" name="admission_year" id="edit-year" class="w-full px-3 py-2 border border-slate-300 rounded-xl">
+      </div>
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">Account Active Status</label>
+        <select name="is_active" id="edit-status" class="w-full px-3 py-2 border border-slate-300 rounded-xl font-semibold">
+          <option value="true">Active</option>
+          <option value="false">Deactivated</option>
+        </select>
+      </div>
+
+      <div class="pt-2 flex gap-2">
+        <button type="button" onclick="closeModal('edit-user-modal')" class="w-1/2 py-2.5 rounded-xl border border-slate-300 font-semibold text-slate-700 hover:bg-slate-50">Cancel</button>
+        <button type="submit" class="w-1/2 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition-all shadow-md shadow-blue-500/20">Save Updates</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Delete User Confirmation Modal -->
+<div id="delete-user-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl border border-red-100 space-y-4">
+    <div class="w-12 h-12 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center text-xl mx-auto">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+    </div>
+    <div class="text-center space-y-1">
+      <h3 class="font-black text-slate-900 text-base">Permanent Record Deletion</h3>
+      <p class="text-xs text-slate-500">
+        Are you sure you want to permanently delete user <b id="delete-user-name"></b> (<code class="font-mono font-bold text-red-600" id="delete-user-prn"></code>)?
+      </p>
+      <p class="text-[11px] text-red-600 bg-red-50 p-2.5 rounded-xl mt-2 border border-red-200">
+        <b>Warning:</b> This permanently purges the user credentials, all semester marksheets, attendance registers, and academic analytics. This action cannot be reversed.
+      </p>
+    </div>
+
+    <form id="delete-user-form" method="POST" action="" class="flex gap-2 pt-2">
+      <button type="button" onclick="closeModal('delete-user-modal')" class="w-1/2 py-2.5 rounded-xl border border-slate-300 font-semibold text-slate-700 hover:bg-slate-50 text-xs">Cancel</button>
+      <button type="submit" class="w-1/2 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs transition-all shadow-md shadow-red-500/20 flex items-center justify-center gap-1.5">
+        <i class="fa-solid fa-trash-can"></i>
+        <span>Delete Permanently</span>
+      </button>
+    </form>
+  </div>
+</div>
+
 <script>
   function toggleAssignedSubjectsInput() {
     const role = document.getElementById('new-user-role').value;
@@ -187,6 +264,24 @@
     } else {
       group.classList.add('hidden');
     }
+  }
+
+  function openEditUserModal(prn, name, email, branch, year, isActive) {
+    document.getElementById('edit-prn').value = prn;
+    document.getElementById('edit-name').value = name;
+    document.getElementById('edit-email').value = email;
+    document.getElementById('edit-branch').value = branch || 'Computer Science and Engineering (Data Science)';
+    document.getElementById('edit-year').value = year || 2024;
+    document.getElementById('edit-status').value = (isActive === 'True' || isActive === true || isActive === 'true') ? 'true' : 'false';
+    document.getElementById('edit-user-form').action = `/admin/users/${prn}/edit`;
+    openModal('edit-user-modal');
+  }
+
+  function confirmDeleteUser(prn, name) {
+    document.getElementById('delete-user-prn').innerText = prn;
+    document.getElementById('delete-user-name').innerText = name;
+    document.getElementById('delete-user-form').action = `/admin/users/${prn}/delete`;
+    openModal('delete-user-modal');
   }
 
   async function toggleUserStatus(prn) {

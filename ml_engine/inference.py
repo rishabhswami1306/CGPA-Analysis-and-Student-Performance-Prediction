@@ -76,12 +76,19 @@ def predict_student_analytics(
     acad_records = list(db.academic_records.find({"student_prn": student_prn}).sort("semester", 1))
 
     # Completed records have is_completed: True and non-None sgpa (Semesters 1-4)
-    completed_records = [r for r in acad_records if r.get("is_completed", True) and r.get("sgpa") is not None]
-    ongoing_record = next((r for r in acad_records if r.get("semester") == 5), None)
-
-    # 4 semesters completed, 5th semester ongoing
+    completed_records = [
+        r for r in acad_records
+        if (r.get("is_completed") is True or r.get("sgpa") is not None or r.get("is_real_marksheet") is True)
+    ]
     completed_semesters = len(completed_records)
-    target_semester = 5 if completed_semesters <= 4 else (completed_semesters + 1 if completed_semesters < 8 else 8)
+    if completed_records:
+        max_completed_sem = max(int(r.get("semester", 1)) for r in completed_records)
+        target_semester = min(8, max_completed_sem + 1)
+    else:
+        curr_sem = user.get("current_semester")
+        target_semester = min(8, max(1, int(curr_sem))) if curr_sem else 1
+
+    ongoing_record = next((r for r in acad_records if r.get("semester") == target_semester), None)
 
     # Derive 5th semester attendance and Unit Test scores from ongoing records
     att_rec = db.attendance_records.find_one({"student_prn": student_prn})
@@ -163,13 +170,13 @@ def predict_student_analytics(
     if cgpa == 0.0:
         cgpa = pred_sgpa
 
-    # Projected cumulative CGPA after completing Semester 5 with predicted SGPA
-    sem5_credits = 20
+    # Projected cumulative CGPA after completing upcoming semester with predicted SGPA
+    next_sem_credits = 20
     if ongoing_record:
-        sem5_credits = sum(int(s.get("credits", 4)) for s in ongoing_record.get("subjects", [])) or 20
-    total_credits_with_sem5 = earned_credits + sem5_credits
-    if total_credits_with_sem5 > 0:
-        projected_cgpa = round(((cgpa * earned_credits) + (pred_sgpa * sem5_credits)) / total_credits_with_sem5, 2)
+        next_sem_credits = sum(int(s.get("credits", 4)) for s in ongoing_record.get("subjects", [])) or 20
+    total_credits_with_next = earned_credits + next_sem_credits
+    if total_credits_with_next > 0:
+        projected_cgpa = round(((cgpa * earned_credits) + (pred_sgpa * next_sem_credits)) / total_credits_with_next, 2)
     else:
         projected_cgpa = pred_sgpa
 
@@ -278,7 +285,7 @@ def predict_student_analytics(
     counterfactual_analysis = generate_counterfactual_pathways(
         current_cgpa=cgpa,
         completed_credits=earned_credits,
-        ongoing_credits=sem5_credits,
+        ongoing_credits=next_sem_credits,
         current_tt1_avg=current_tt1_avg,
         current_tt2_avg=current_tt2_avg,
         current_attendance=current_attendance,

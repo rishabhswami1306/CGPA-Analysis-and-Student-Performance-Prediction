@@ -58,7 +58,7 @@
     "student_name": "PATHARKAR AISHWARYA MOHAN",
     "local_guardian": "U B Chimankar",
     "class_name": "TY DS (A) (2026-27)(SEM-1)",
-    "honors_course": "EM",
+    "honors_course": "EM, CMPM",
     "subjects": {
       "ML-II": {
         "lecture_attended": 7,
@@ -101,11 +101,15 @@
       "AJL": {
         "practical_attended": 6,
         "practical_conducted": 10
+      },
+      "CMPM": {
+        "lecture_attended": 6,
+        "lecture_conducted": 9
       }
     },
-    "total_attended": 66,
-    "total_conducted": 98,
-    "percentage": 67.35,
+    "total_attended": 72,
+    "total_conducted": 107,
+    "percentage": 67.29,
     "recorded_percentage": 67,
     "is_detained": true
   },
@@ -645,7 +649,7 @@
     "student_name": "UTKARSH VISHNU NARKHEDE",
     "local_guardian": "Dr. K D Chaudhari",
     "class_name": "TY DS (A) (2026-27)(SEM-1)",
-    "honors_course": "EM",
+    "honors_course": "EM, CMPM",
     "subjects": {
       "ML-II": {
         "lecture_attended": 10,
@@ -688,11 +692,15 @@
       "AJL": {
         "practical_attended": 6,
         "practical_conducted": 10
+      },
+      "CMPM": {
+        "lecture_attended": 7,
+        "lecture_conducted": 9
       }
     },
-    "total_attended": 75,
-    "total_conducted": 98,
-    "percentage": 76.53,
+    "total_attended": 82,
+    "total_conducted": 107,
+    "percentage": 76.64,
     "recorded_percentage": 77,
     "is_detained": false
   },
@@ -755,7 +763,7 @@
     "student_name": "RISHABH SWAMI",
     "local_guardian": "Dr. P S Sanjekar",
     "class_name": "TY DS (A) (2026-27)(SEM-1)",
-    "honors_course": "EM",
+    "honors_course": "EM, CMPM",
     "subjects": {
       "ML-II": {
         "lecture_attended": 7,
@@ -798,11 +806,15 @@
       "AJL": {
         "practical_attended": 6,
         "practical_conducted": 8
+      },
+      "CMPM": {
+        "lecture_attended": 7,
+        "lecture_conducted": 9
       }
     },
-    "total_attended": 74,
-    "total_conducted": 96,
-    "percentage": 77.08,
+    "total_attended": 81,
+    "total_conducted": 105,
+    "percentage": 77.14,
     "recorded_percentage": 77,
     "is_detained": false
   },
@@ -812,7 +824,7 @@
     "student_name": "GIRASE VEDIKA SACHIN",
     "local_guardian": "Dr. K D Chaudhari",
     "class_name": "TY DS (A) (2026-27)(SEM-1)",
-    "honors_course": "EM",
+    "honors_course": "EM, CMPM",
     "subjects": {
       "ML-II": {
         "lecture_attended": 8,
@@ -855,11 +867,15 @@
       "AJL": {
         "practical_attended": 4,
         "practical_conducted": 4
+      },
+      "CMPM": {
+        "lecture_attended": 7,
+        "lecture_conducted": 9
       }
     },
-    "total_attended": 74,
-    "total_conducted": 95,
-    "percentage": 77.89,
+    "total_attended": 81,
+    "total_conducted": 104,
+    "percentage": 77.88,
     "recorded_percentage": 78,
     "is_detained": false
   },
@@ -1081,7 +1097,7 @@
     "student_name": "BOHRI MOHAMMAD SHABBIR HUS",
     "local_guardian": "U B Chimankar",
     "class_name": "TY DS (A) (2026-27)(SEM-1)",
-    "honors_course": "EM",
+    "honors_course": "EM, CMPM",
     "subjects": {
       "ML-II": {
         "lecture_attended": 10,
@@ -1124,12 +1140,16 @@
       "AJL": {
         "practical_attended": 7,
         "practical_conducted": 10
+      },
+      "CMPM": {
+        "lecture_attended": 7,
+        "lecture_conducted": 9
       }
     },
-    "total_attended": 77,
-    "total_conducted": 98,
-    "percentage": 78.57,
-    "recorded_percentage": 79,
+    "total_attended": 84,
+    "total_conducted": 107,
+    "percentage": 78.5,
+    "recorded_percentage": 78,
     "is_detained": false
   },
   {
@@ -1191,7 +1211,7 @@
     "student_name": "DEVANSH YOGESH CHAUDHARI",
     "local_guardian": "Dr. K D Chaudhari",
     "class_name": "TY DS (A) (2026-27)(SEM-1)",
-    "honors_course": "EM",
+    "honors_course": "EM, CMPM",
     "subjects": {
       "ML-II": {
         "lecture_attended": 9,
@@ -1234,11 +1254,15 @@
       "AJL": {
         "practical_attended": 4,
         "practical_conducted": 4
+      },
+      "CMPM": {
+        "lecture_attended": 7,
+        "lecture_conducted": 9
       }
     },
-    "total_attended": 77,
-    "total_conducted": 95,
-    "percentage": 81.05,
+    "total_attended": 84,
+    "total_conducted": 104,
+    "percentage": 80.77,
     "recorded_percentage": 81,
     "is_detained": false
   },
@@ -1354,7 +1378,7 @@
     "student_name": "MAHAJAN KUBER BHIKAN",
     "local_guardian": "U B Chimankar",
     "class_name": "TY DS (A) (2026-27)(SEM-1)",
-    "honors_course": "EM",
+    "honors_course": "EM, CMPM",
     "subjects": {
       "ML-II": {
         "lecture_attended": 9,
@@ -1397,12 +1421,16 @@
       "AJL": {
         "practical_attended": 8,
         "practical_conducted": 10
+      },
+      "CMPM": {
+        "lecture_attended": 7,
+        "lecture_conducted": 9
       }
     },
-    "total_attended": 81,
-    "total_conducted": 98,
-    "percentage": 82.65,
-    "recorded_percentage": 83,
+    "total_attended": 88,
+    "total_conducted": 107,
+    "percentage": 82.24,
+    "recorded_percentage": 82,
     "is_detained": false
   },
   {
@@ -1464,7 +1492,7 @@
     "student_name": "PATIL KIRTI BALASAHEB",
     "local_guardian": "Dr. P S Sanjekar",
     "class_name": "TY DS (A) (2026-27)(SEM-1)",
-    "honors_course": "EM",
+    "honors_course": "EM, CMPM",
     "subjects": {
       "ML-II": {
         "lecture_attended": 10,
@@ -1507,11 +1535,15 @@
       "AJL": {
         "practical_attended": 7,
         "practical_conducted": 8
+      },
+      "CMPM": {
+        "lecture_attended": 7,
+        "lecture_conducted": 9
       }
     },
-    "total_attended": 80,
-    "total_conducted": 96,
-    "percentage": 83.33,
+    "total_attended": 87,
+    "total_conducted": 105,
+    "percentage": 82.86,
     "recorded_percentage": 83,
     "is_detained": false
   },
@@ -1733,7 +1765,7 @@
     "student_name": "CHAUDHARI VISHAKHA KAILAS",
     "local_guardian": "Dr. K D Chaudhari",
     "class_name": "TY DS (A) (2026-27)(SEM-1)",
-    "honors_course": "EM",
+    "honors_course": "EM, CMPM",
     "subjects": {
       "ML-II": {
         "lecture_attended": 9,
@@ -1776,12 +1808,16 @@
       "AJL": {
         "practical_attended": 4,
         "practical_conducted": 4
+      },
+      "CMPM": {
+        "lecture_attended": 8,
+        "lecture_conducted": 9
       }
     },
-    "total_attended": 82,
-    "total_conducted": 95,
-    "percentage": 86.32,
-    "recorded_percentage": 86,
+    "total_attended": 90,
+    "total_conducted": 104,
+    "percentage": 86.54,
+    "recorded_percentage": 87,
     "is_detained": false
   },
   {
@@ -1843,7 +1879,7 @@
     "student_name": "GIRASE ANJALI PREMSING",
     "local_guardian": "U B Chimankar",
     "class_name": "TY DS (A) (2026-27)(SEM-1)",
-    "honors_course": "EM",
+    "honors_course": "EM, CMPM",
     "subjects": {
       "ML-II": {
         "lecture_attended": 10,
@@ -1886,11 +1922,15 @@
       "AJL": {
         "practical_attended": 9,
         "practical_conducted": 10
+      },
+      "CMPM": {
+        "lecture_attended": 8,
+        "lecture_conducted": 9
       }
     },
-    "total_attended": 85,
-    "total_conducted": 98,
-    "percentage": 86.73,
+    "total_attended": 93,
+    "total_conducted": 107,
+    "percentage": 86.92,
     "recorded_percentage": 87,
     "is_detained": false
   },
@@ -2165,7 +2205,7 @@
     "student_name": "BHAMARE GUNJAN PRAVIN",
     "local_guardian": "Dr. P S Sanjekar",
     "class_name": "TY DS (A) (2026-27)(SEM-1)",
-    "honors_course": "EM",
+    "honors_course": "EM, CMPM",
     "subjects": {
       "ML-II": {
         "lecture_attended": 11,
@@ -2208,11 +2248,15 @@
       "AJL": {
         "practical_attended": 8,
         "practical_conducted": 8
+      },
+      "CMPM": {
+        "lecture_attended": 8,
+        "lecture_conducted": 9
       }
     },
-    "total_attended": 85,
-    "total_conducted": 96,
-    "percentage": 88.54,
+    "total_attended": 93,
+    "total_conducted": 105,
+    "percentage": 88.57,
     "recorded_percentage": 89,
     "is_detained": false
   },
@@ -2222,7 +2266,7 @@
     "student_name": "PATIL MAYURESH SUDAM",
     "local_guardian": "Dr. P S Sanjekar",
     "class_name": "TY DS (A) (2026-27)(SEM-1)",
-    "honors_course": "EM",
+    "honors_course": "EM, CMPM",
     "subjects": {
       "ML-II": {
         "lecture_attended": 9,
@@ -2265,11 +2309,15 @@
       "AJL": {
         "practical_attended": 8,
         "practical_conducted": 8
+      },
+      "CMPM": {
+        "lecture_attended": 8,
+        "lecture_conducted": 9
       }
     },
-    "total_attended": 85,
-    "total_conducted": 96,
-    "percentage": 88.54,
+    "total_attended": 93,
+    "total_conducted": 105,
+    "percentage": 88.57,
     "recorded_percentage": 89,
     "is_detained": false
   },
@@ -2332,7 +2380,7 @@
     "student_name": "PATIL KUNAL SUDHAKAR",
     "local_guardian": "Dr. P S Sanjekar",
     "class_name": "TY DS (A) (2026-27)(SEM-1)",
-    "honors_course": "EM",
+    "honors_course": "EM, CMPM",
     "subjects": {
       "ML-II": {
         "lecture_attended": 10,
@@ -2375,11 +2423,15 @@
       "AJL": {
         "practical_attended": 8,
         "practical_conducted": 8
+      },
+      "CMPM": {
+        "lecture_attended": 8,
+        "lecture_conducted": 9
       }
     },
-    "total_attended": 86,
-    "total_conducted": 96,
-    "percentage": 89.58,
+    "total_attended": 94,
+    "total_conducted": 105,
+    "percentage": 89.52,
     "recorded_percentage": 90,
     "is_detained": false
   },
@@ -2389,7 +2441,7 @@
     "student_name": "PATIL PRIYANKA SAMADHAN",
     "local_guardian": "Dr. P S Sanjekar",
     "class_name": "TY DS (A) (2026-27)(SEM-1)",
-    "honors_course": "EM",
+    "honors_course": "EM, CMPM",
     "subjects": {
       "ML-II": {
         "lecture_attended": 10,
@@ -2432,11 +2484,15 @@
       "AJL": {
         "practical_attended": 8,
         "practical_conducted": 8
+      },
+      "CMPM": {
+        "lecture_attended": 8,
+        "lecture_conducted": 9
       }
     },
-    "total_attended": 86,
-    "total_conducted": 96,
-    "percentage": 89.58,
+    "total_attended": 94,
+    "total_conducted": 105,
+    "percentage": 89.52,
     "recorded_percentage": 90,
     "is_detained": false
   },
@@ -2446,7 +2502,7 @@
     "student_name": "SHIMPI YOGITA PRAVIN",
     "local_guardian": "U B Chimankar",
     "class_name": "TY DS (A) (2026-27)(SEM-1)",
-    "honors_course": "EM",
+    "honors_course": "EM, CMPM",
     "subjects": {
       "ML-II": {
         "lecture_attended": 11,
@@ -2489,11 +2545,15 @@
       "AJL": {
         "practical_attended": 9,
         "practical_conducted": 10
+      },
+      "CMPM": {
+        "lecture_attended": 8,
+        "lecture_conducted": 9
       }
     },
-    "total_attended": 88,
-    "total_conducted": 98,
-    "percentage": 89.8,
+    "total_attended": 96,
+    "total_conducted": 107,
+    "percentage": 89.72,
     "recorded_percentage": 90,
     "is_detained": false
   },
@@ -2662,7 +2722,7 @@
     "student_name": "PATIL NEHA RAVINDRA",
     "local_guardian": "Dr. K D Chaudhari",
     "class_name": "TY DS (A) (2026-27)(SEM-1)",
-    "honors_course": "EM",
+    "honors_course": "EM, CMPM",
     "subjects": {
       "ML-II": {
         "lecture_attended": 10,
@@ -2705,12 +2765,16 @@
       "AJL": {
         "practical_attended": 4,
         "practical_conducted": 4
+      },
+      "CMPM": {
+        "lecture_attended": 8,
+        "lecture_conducted": 9
       }
     },
-    "total_attended": 86,
-    "total_conducted": 95,
-    "percentage": 90.53,
-    "recorded_percentage": 91,
+    "total_attended": 94,
+    "total_conducted": 104,
+    "percentage": 90.38,
+    "recorded_percentage": 90,
     "is_detained": false
   },
   {
@@ -2931,7 +2995,7 @@
     "student_name": "PRAJAPAT DIYA MANOJ",
     "local_guardian": "U B Chimankar",
     "class_name": "TY DS (A) (2026-27)(SEM-1)",
-    "honors_course": "EM",
+    "honors_course": "EM, CMPM",
     "subjects": {
       "ML-II": {
         "lecture_attended": 11,
@@ -2974,11 +3038,15 @@
       "AJL": {
         "practical_attended": 9,
         "practical_conducted": 10
+      },
+      "CMPM": {
+        "lecture_attended": 8,
+        "lecture_conducted": 9
       }
     },
-    "total_attended": 89,
-    "total_conducted": 98,
-    "percentage": 90.82,
+    "total_attended": 97,
+    "total_conducted": 107,
+    "percentage": 90.65,
     "recorded_percentage": 91,
     "is_detained": false
   },
@@ -3094,7 +3162,7 @@
     "student_name": "VRUSHALI MACHHINDRA WADILE",
     "local_guardian": "Dr. K D Chaudhari",
     "class_name": "TY DS (A) (2026-27)(SEM-1)",
-    "honors_course": "EM",
+    "honors_course": "EM, CMPM",
     "subjects": {
       "ML-II": {
         "lecture_attended": 11,
@@ -3137,12 +3205,16 @@
       "AJL": {
         "practical_attended": 4,
         "practical_conducted": 4
+      },
+      "CMPM": {
+        "lecture_attended": 8,
+        "lecture_conducted": 9
       }
     },
-    "total_attended": 88,
-    "total_conducted": 95,
-    "percentage": 92.63,
-    "recorded_percentage": 93,
+    "total_attended": 96,
+    "total_conducted": 104,
+    "percentage": 92.31,
+    "recorded_percentage": 92,
     "is_detained": false
   },
   {
@@ -3151,7 +3223,7 @@
     "student_name": "KUMAWAT NANDINI PAWAN",
     "local_guardian": "Dr. P S Sanjekar",
     "class_name": "TY DS (A) (2026-27)(SEM-1)",
-    "honors_course": "EM",
+    "honors_course": "EM, CMPM",
     "subjects": {
       "ML-II": {
         "lecture_attended": 11,
@@ -3194,12 +3266,16 @@
       "AJL": {
         "practical_attended": 8,
         "practical_conducted": 8
+      },
+      "CMPM": {
+        "lecture_attended": 8,
+        "lecture_conducted": 9
       }
     },
-    "total_attended": 89,
-    "total_conducted": 96,
-    "percentage": 92.71,
-    "recorded_percentage": 93,
+    "total_attended": 97,
+    "total_conducted": 105,
+    "percentage": 92.38,
+    "recorded_percentage": 92,
     "is_detained": false
   },
   {

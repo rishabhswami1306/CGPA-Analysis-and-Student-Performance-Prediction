@@ -1,0 +1,401 @@
+{% extends "base.html" %}
+
+{% block title %}Academic Grade Entry & Evaluation | Admin Portal{% endblock %}
+
+{% block nav_links %}
+<a href="/admin/dashboard" class="text-xs font-medium px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">Dashboard</a>
+<a href="/admin/users" class="text-xs font-medium px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">Users & Accounts</a>
+<a href="/admin/grade-entry" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 text-white border border-slate-700">Grade Entry</a>
+<a href="/admin/bulk-upload" class="text-xs font-medium px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">Bulk Upload</a>
+<a href="/admin/audit-logs" class="text-xs font-medium px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">Audit Trail</a>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-7xl mx-auto pb-12">
+
+  <!-- Header -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div>
+      <div class="flex items-center gap-2 mb-1.5">
+        <span class="px-2.5 py-0.5 rounded-md bg-blue-100 text-blue-800 text-[11px] font-bold uppercase tracking-wider">
+          <i class="fa-solid fa-graduation-cap mr-1"></i> Computer Science & Engineering (Data Science)
+        </span>
+        <span class="px-2.5 py-0.5 rounded-md bg-indigo-100 text-indigo-800 text-[11px] font-bold">
+          Class: TY BTech DS (A)
+        </span>
+        {% if selected_sem == 5 %}
+        <span class="px-2.5 py-0.5 rounded-md bg-amber-100 text-amber-800 text-[11px] font-bold">
+          Semester 5 (Active Ongoing)
+        </span>
+        {% else %}
+        <span class="px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[11px] font-bold">
+          Semester {{ selected_sem }} (Audited)
+        </span>
+        {% endif %}
+      </div>
+      <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Academic Grade Entry & Continuous Evaluation</h1>
+      <p class="text-xs text-slate-500 mt-1">Directly record or modify continuous internal assessment (40) and end-sem exam marks (60).</p>
+    </div>
+
+    <!-- Selectors -->
+    <div class="flex flex-wrap items-center gap-3">
+      <form method="GET" action="/admin/grade-entry" class="flex items-center gap-3">
+        <div>
+          <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Student</label>
+          <select name="student_prn" onchange="this.form.submit()" class="px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500 shadow-xs">
+            {% for s in students %}
+            <option value="{{ s.prn_roll }}" {% if selected_prn == s.prn_roll %}selected{% endif %}>
+              {{ s.name }} ({{ s.prn_roll }})
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Semester</label>
+          <select name="semester" onchange="this.form.submit()" class="px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500 shadow-xs">
+            <option value="5" {% if selected_sem == 5 %}selected{% endif %}>Semester 5 (Ongoing)</option>
+            <option value="4" {% if selected_sem == 4 %}selected{% endif %}>Semester 4 (Audited)</option>
+            <option value="3" {% if selected_sem == 3 %}selected{% endif %}>Semester 3 (Audited)</option>
+            <option value="2" {% if selected_sem == 2 %}selected{% endif %}>Semester 2 (Audited)</option>
+            <option value="1" {% if selected_sem == 1 %}selected{% endif %}>Semester 1 (Audited)</option>
+          </select>
+        </div>
+      </form>
+
+      {% if selected_prn %}
+      <a href="/admin/students/{{ selected_prn }}" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold px-3.5 py-2.5 rounded-xl shadow-xs transition-all flex items-center gap-1.5 self-end">
+        <i class="fa-solid fa-user"></i>
+        <span>Full Profile</span>
+      </a>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if student_data %}
+  <!-- Selected Student Banner -->
+  <div class="glass-card rounded-2xl p-4 border border-slate-200 bg-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-xs">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-sm shrink-0">
+        {{ student_data.name[:1] }}
+      </div>
+      <div>
+        <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+          <span>{{ student_data.name }}</span>
+          <span class="font-mono text-xs font-bold px-2 py-0.2 rounded bg-slate-100 text-slate-700 border border-slate-200">
+            {{ student_data.prn_roll }}
+          </span>
+        </h3>
+        <p class="text-xs text-slate-500">
+          Branch: <b>Computer Science and Engineering (Data Science)</b> • Email: {{ student_data.email }}
+        </p>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <div class="text-right">
+        <span class="text-[10px] uppercase font-bold text-slate-400 block">Semester SGPA</span>
+        <span class="font-mono font-extrabold text-base text-blue-700" id="sem-sgpa-display">
+          {{ "%.2f"|format(record_data.sgpa) if record_data.sgpa is not none else 'Pending (0.0)' }}
+        </span>
+      </div>
+      <form method="POST" action="/admin/students/{{ student_data.prn_roll }}/recalculate-cgpa" class="inline">
+        <button type="submit" class="px-3 py-2 rounded-xl bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 text-indigo-700 text-xs font-bold transition-all shadow-xs flex items-center gap-1.5" title="Recalculate SGPA & CGPA">
+          <i class="fa-solid fa-calculator"></i>
+          <span>Recalculate</span>
+        </button>
+      </form>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Marks Table -->
+  <div class="glass-card rounded-2xl border border-slate-200 overflow-hidden shadow-xs bg-white">
+    <div class="p-4 bg-slate-100/90 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+      <span class="text-xs font-bold text-slate-800 flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full {% if selected_sem == 5 %}bg-amber-500 animate-ping{% else %}bg-emerald-500{% endif %}"></span>
+        <span>Course Marksheet &bull; Semester {{ selected_sem }}</span>
+      </span>
+      <span class="text-xs text-slate-500">
+        Formula: Total (100) = Internal (40) [TT Conv (15) + Apt (5) + SKAT (5) + TA (5) + Mock (5) + Pres (5)] + ESE (60)
+      </span>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs whitespace-nowrap">
+        <thead class="bg-slate-50 text-slate-600 font-semibold uppercase tracking-wider text-[11px]">
+          <tr>
+            <th class="p-3">Course Code</th>
+            <th class="p-3">Course Name</th>
+            <th class="p-2.5 text-center">Credits</th>
+            <th class="p-2.5 w-16 text-center bg-blue-50/50">TT1 (30)</th>
+            <th class="p-2.5 w-16 text-center bg-blue-50/50">TT2 (30)</th>
+            <th class="p-2.5 w-16 text-center bg-blue-100/70 text-blue-900 font-bold">TT (15)</th>
+            <th class="p-2.5 w-14 text-center">Apt (5)</th>
+            <th class="p-2.5 w-14 text-center">SKAT (5)</th>
+            <th class="p-2.5 w-14 text-center">TA (5)</th>
+            <th class="p-2.5 w-14 text-center">Mock (5)</th>
+            <th class="p-2.5 w-14 text-center">Pres (5)</th>
+            <th class="p-2.5 w-16 text-center bg-indigo-50 text-indigo-950 font-extrabold">Internal (40)</th>
+            <th class="p-2.5 w-20 text-center bg-amber-50/60">ESE (60)</th>
+            <th class="p-3 text-center font-extrabold">Total (100)</th>
+            <th class="p-2.5 text-center">Grade</th>
+            <th class="p-3 text-right">Action</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {% for sub in subjects_data %}
+          <tr class="grade-row hover:bg-blue-50/30 transition-colors"
+              data-prn="{{ selected_prn }}"
+              data-sem="{{ selected_sem }}"
+              data-sub-code="{{ sub.subject_code }}"
+              data-credits="{{ sub.credits }}">
+            <td class="p-3 font-mono font-bold text-slate-900">{{ sub.subject_code }}</td>
+            <td class="p-3 font-medium text-slate-700">{{ sub.subject_name }}</td>
+            <td class="p-2.5 text-center font-bold text-slate-600">{{ sub.credits }}</td>
+
+            <!-- TT1 (30) -->
+            <td class="p-2 text-center bg-blue-50/30">
+              <input type="number" step="0.5" min="0" max="30" value="{{ sub.tt1_score }}"
+                     class="input-tt1 w-14 px-2 py-1 text-center bg-white border border-slate-300 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-blue-500">
+            </td>
+
+            <!-- TT2 (30) -->
+            <td class="p-2 text-center bg-blue-50/30">
+              <input type="number" step="0.5" min="0" max="30" value="{{ sub.tt2_score }}"
+                     class="input-tt2 w-14 px-2 py-1 text-center bg-white border border-slate-300 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-blue-500">
+            </td>
+
+            <!-- TT Converted (15) Display -->
+            <td class="p-2 text-center font-mono font-bold text-blue-900 bg-blue-50/60">
+              <span class="display-tt-conv">{{ sub.tt_converted }}</span>
+            </td>
+
+            <!-- Aptitude (5) -->
+            <td class="p-2 text-center">
+              <input type="number" step="0.5" min="0" max="5" value="{{ sub.aptitude_score }}"
+                     class="input-apt w-12 px-1.5 py-1 text-center bg-white border border-slate-300 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-blue-500">
+            </td>
+
+            <!-- SKAT (5) -->
+            <td class="p-2 text-center">
+              <input type="number" step="0.5" min="0" max="5" value="{{ sub.skat_score }}"
+                     class="input-skat w-12 px-1.5 py-1 text-center bg-white border border-slate-300 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-blue-500">
+            </td>
+
+            <!-- Teacher Assessment (5) -->
+            <td class="p-2 text-center">
+              <input type="number" step="0.5" min="0" max="5" value="{{ sub.teacher_assessment_score }}"
+                     class="input-ta w-12 px-1.5 py-1 text-center bg-white border border-slate-300 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-blue-500">
+            </td>
+
+            <!-- Mock Interview (5) -->
+            <td class="p-2 text-center">
+              <input type="number" step="0.5" min="0" max="5" value="{{ sub.mock_interview_score }}"
+                     class="input-mock w-12 px-1.5 py-1 text-center bg-white border border-slate-300 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-blue-500">
+            </td>
+
+            <!-- Presentation (5) -->
+            <td class="p-2 text-center">
+              <input type="number" step="0.5" min="0" max="5" value="{{ sub.presentation_score }}"
+                     class="input-pres w-12 px-1.5 py-1 text-center bg-white border border-slate-300 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-blue-500">
+            </td>
+
+            <!-- Total Internal Display (/40) -->
+            <td class="p-2 text-center font-mono font-bold text-indigo-900 bg-indigo-50/50">
+              <span class="display-internal">{{ sub.internal_score }}</span>
+            </td>
+
+            <!-- ESE Input (60) -->
+            <td class="p-2 text-center bg-amber-50/30">
+              <input type="number" step="0.5" min="0" max="60" value="{{ sub.ese_score }}"
+                     class="input-ese w-16 px-2 py-1 text-center bg-white border border-slate-300 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-blue-500">
+            </td>
+
+            <!-- Total Marks Display (/100) -->
+            <td class="p-3 text-center font-mono font-extrabold text-slate-900 text-sm">
+              <span class="display-total">{{ sub.total_marks }}</span>
+            </td>
+
+            <!-- Grade Letter -->
+            <td class="p-2.5 text-center">
+              <span class="display-grade text-xs font-bold px-2 py-0.5 rounded-full {% if sub.grade_point >= 8.0 %}bg-emerald-100 text-emerald-700{% elif sub.grade_point >= 6.0 %}bg-blue-100 text-blue-700{% elif sub.grade_point >= 4.0 %}bg-amber-100 text-amber-700{% else %}bg-red-100 text-red-700{% endif %}">
+                {{ sub.grade_letter }}
+              </span>
+            </td>
+
+            <!-- Save Action Button -->
+            <td class="p-3 text-right">
+              <button class="btn-save-grade bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg shadow-xs transition-all flex items-center gap-1.5 ml-auto">
+                <i class="fa-solid fa-floppy-disk"></i>
+                <span>Save</span>
+              </button>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="16" class="p-8 text-center text-slate-400">
+              No subjects registered for student in Semester {{ selected_sem }}.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Real-time calculation logic for Admin Grade Entry
+  document.addEventListener('DOMContentLoaded', () => {
+    initAdminGradeCalculators();
+  });
+
+  function initAdminGradeCalculators() {
+    const rows = document.querySelectorAll('.grade-row');
+    rows.forEach(row => {
+      if (row.dataset.calcInit) return;
+      row.dataset.calcInit = 'true';
+
+      const tt1Inp = row.querySelector('.input-tt1');
+      const tt2Inp = row.querySelector('.input-tt2');
+      const ttConvDisp = row.querySelector('.display-tt-conv');
+      const aptInp = row.querySelector('.input-apt');
+      const skatInp = row.querySelector('.input-skat');
+      const taInp = row.querySelector('.input-ta');
+      const mockInp = row.querySelector('.input-mock');
+      const presInp = row.querySelector('.input-pres');
+      const intDisp = row.querySelector('.display-internal');
+      const eseInp = row.querySelector('.input-ese');
+      const totDisp = row.querySelector('.display-total');
+      const gradeDisp = row.querySelector('.display-grade');
+      const saveBtn = row.querySelector('.btn-save-grade');
+
+      function formatMarks(val) {
+        return (Math.round(val * 100) / 100).toString();
+      }
+
+      function checkBounds(inp, maxVal) {
+        if (!inp) return;
+        const v = parseFloat(inp.value);
+        if (!isNaN(v) && (v > maxVal || v < 0)) {
+          inp.classList.add('border-red-500', 'bg-red-50', 'text-red-700');
+          inp.classList.remove('border-slate-300', 'bg-white', 'text-slate-800');
+          inp.title = `Max allowed: ${maxVal}`;
+        } else {
+          inp.classList.remove('border-red-500', 'bg-red-50', 'text-red-700');
+          inp.classList.add('border-slate-300', 'bg-white', 'text-slate-800');
+          inp.removeAttribute('title');
+        }
+      }
+
+      function recalculateRow() {
+        checkBounds(tt1Inp, 30);
+        checkBounds(tt2Inp, 30);
+        checkBounds(aptInp, 5);
+        checkBounds(skatInp, 5);
+        checkBounds(taInp, 5);
+        checkBounds(mockInp, 5);
+        checkBounds(presInp, 5);
+        checkBounds(eseInp, 60);
+
+        const t1 = Math.min(30, Math.max(0, parseFloat(tt1Inp?.value || 0)));
+        const t2 = Math.min(30, Math.max(0, parseFloat(tt2Inp?.value || 0)));
+        const ttConv = Math.min(15, (t1 + t2) / 4.0);
+        if (ttConvDisp) ttConvDisp.innerText = formatMarks(ttConv);
+
+        const apt = Math.min(5, Math.max(0, parseFloat(aptInp?.value || 0)));
+        const sk = Math.min(5, Math.max(0, parseFloat(skatInp?.value || 0)));
+        const ta = Math.min(5, Math.max(0, parseFloat(taInp?.value || 0)));
+        const mock = Math.min(5, Math.max(0, parseFloat(mockInp?.value || 0)));
+        const pres = Math.min(5, Math.max(0, parseFloat(presInp?.value || 0)));
+
+        const internal = Math.min(40, Math.max(0, ttConv + apt + sk + ta + mock + pres));
+        if (intDisp) intDisp.innerText = formatMarks(internal);
+
+        const ese = Math.min(60, Math.max(0, parseFloat(eseInp?.value || 0)));
+        const total = Math.min(100, Math.max(0, internal + ese));
+        if (totDisp) totDisp.innerText = formatMarks(total);
+
+        // Grade Point & Letter
+        let letter = 'F';
+        let cls = 'bg-red-100 text-red-700';
+        if (total >= 80) { letter = 'O (10)'; cls = 'bg-emerald-100 text-emerald-700'; }
+        else if (total >= 75) { letter = 'A+ (9)'; cls = 'bg-teal-100 text-teal-700'; }
+        else if (total >= 70) { letter = 'A (8)'; cls = 'bg-blue-100 text-blue-700'; }
+        else if (total >= 60) { letter = 'B+ (7)'; cls = 'bg-indigo-100 text-indigo-700'; }
+        else if (total >= 50) { letter = 'B (6)'; cls = 'bg-yellow-100 text-yellow-700'; }
+        else if (total >= 45) { letter = 'C (5)'; cls = 'bg-orange-100 text-orange-700'; }
+        else if (total >= 40) { letter = 'P (4)'; cls = 'bg-amber-100 text-amber-700'; }
+
+        if (gradeDisp) {
+          gradeDisp.innerText = letter;
+          gradeDisp.className = `display-grade text-xs font-bold px-2 py-0.5 rounded-full ${cls}`;
+        }
+      }
+
+      [tt1Inp, tt2Inp, aptInp, skatInp, taInp, mockInp, presInp, eseInp].forEach(inp => {
+        if (inp) {
+          ['input', 'change', 'keyup', 'paste'].forEach(evt => inp.addEventListener(evt, recalculateRow));
+        }
+      });
+
+      recalculateRow();
+
+      if (saveBtn) {
+        saveBtn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          saveBtn.disabled = true;
+          saveBtn.innerHTML = `⌛ Saving...`;
+
+          try {
+            const res = await fetch('/admin/grade-entry', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                student_prn: row.dataset.prn,
+                semester: parseInt(row.dataset.sem),
+                subject_code: row.dataset.subCode,
+                tt1_score: parseFloat(tt1Inp?.value || 0),
+                tt2_score: parseFloat(tt2Inp?.value || 0),
+                aptitude_score: parseFloat(aptInp?.value || 0),
+                skat_score: parseFloat(skatInp?.value || 0),
+                teacher_assessment_score: parseFloat(taInp?.value || 0),
+                mock_interview_score: parseFloat(mockInp?.value || 0),
+                presentation_score: parseFloat(presInp?.value || 0),
+                ese_score: parseFloat(eseInp?.value || 0)
+              })
+            });
+
+            const data = await res.json();
+            if (res.ok) {
+              saveBtn.className = 'btn-save-grade bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-all';
+              saveBtn.innerHTML = `✓ Saved`;
+              if (data.sgpa !== undefined && data.sgpa !== null) {
+                const sgpaDisp = document.getElementById('sem-sgpa-display');
+                if (sgpaDisp) sgpaDisp.innerText = data.sgpa.toFixed(2);
+              }
+              setTimeout(() => {
+                saveBtn.disabled = false;
+                saveBtn.className = 'btn-save-grade bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg shadow-xs transition-all flex items-center gap-1.5 ml-auto';
+                saveBtn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i><span>Save</span>`;
+              }, 1500);
+            } else {
+              alert(data.error || 'Failed to update marks.');
+              saveBtn.disabled = false;
+              saveBtn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i><span>Save</span>`;
+            }
+          } catch(err) {
+            alert('Network error while saving marks.');
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i><span>Save</span>`;
+          }
+        });
+      }
+    });
+  }
+</script>
+{% endblock %}

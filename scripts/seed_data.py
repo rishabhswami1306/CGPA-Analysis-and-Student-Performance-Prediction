@@ -125,6 +125,17 @@ FACULTY_LIST = [
         "is_active": True,
         "must_change_password": False,
         "failed_login_attempts": 0,
+    {
+        "prn_roll": "FAC_PATIL_PK",
+        "email": "patil.pk@rcpit.ac.in",
+        "role": "faculty",
+        "name": "Dr. P.K. Patil",
+        "branch": "CSE-DS",
+        "admission_year": 2009,
+        "assigned_subjects": ["CMPM", "AJL"],
+        "is_active": True,
+        "must_change_password": False,
+        "failed_login_attempts": 0,
     },
 ]
 
@@ -149,7 +160,15 @@ def make_ongoing_sem5_subjects(att_record: dict) -> list:
 
     subject_keys = ["ML-II", "IS", "DAA", "CCN", "CCS", "CI", "AJL"]
     if honors:
-        subject_keys.append(honors)
+        if isinstance(honors, str):
+            h_list = [h.strip() for h in honors.split(",") if h.strip()]
+        elif isinstance(honors, list):
+            h_list = honors
+        else:
+            h_list = ["EM", "CMPM"]
+        for h in h_list:
+            if h not in subject_keys:
+                subject_keys.append(h)
 
     overall_pct = att_record.get("percentage", 80.0)
     score_factor = min(1.0, overall_pct / 100.0)

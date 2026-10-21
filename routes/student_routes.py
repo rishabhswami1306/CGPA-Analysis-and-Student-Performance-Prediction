@@ -34,6 +34,13 @@ def dashboard_view():
     # Fetch academic records
     records = list(db.academic_records.find({"student_prn": student_prn}).sort("semester", 1))
 
+    # Ensure all academic records have attendance_percentage and subjects safely populated
+    for r in records:
+        if "attendance_percentage" not in r or r["attendance_percentage"] is None:
+            r["attendance_percentage"] = float(user.get("attendance_percentage", 82.5))
+        if "subjects" not in r or not r["subjects"]:
+            r["subjects"] = r.get("courses", [])
+
     # Partition into audited completed records (Sem 1 to 4) and active ongoing record (Sem 5)
     completed_records = [r for r in records if r.get("is_completed", True) and r.get("sgpa") is not None and r.get("semester", 0) <= 4]
     ongoing_record = next((r for r in records if r.get("semester") == 5), None)
@@ -107,32 +114,38 @@ def dashboard_view():
         class_sem_records = list(db.academic_records.find({"semester": active_sem_num}))
         class_sub_scores = {}
         for cr in class_sem_records:
-            for sub_item in cr.get("subjects", []):
-                code = sub_item.get("subject_code")
-                score = float(sub_item.get("total_marks", 0.0) or (sub_item.get("tt1_score", 0.0) * 5))
-                class_sub_scores.setdefault(code, []).append(score)
+            for sub_item in (cr.get("subjects", []) or cr.get("courses", [])):
+                code = sub_item.get("subject_code") or sub_item.get("course_code")
+                score = float(sub_item.get("total_marks", 0.0) or sub_item.get("total_100", 0.0) or (sub_item.get("tt1_score", 0.0) * 5))
+                if code:
+                    class_sub_scores.setdefault(code, []).append(score)
 
         class_averages = {code: round(float(np.mean(scores)), 1) for code, scores in class_sub_scores.items()}
 
-        for sub in eval_sem.get("subjects", []):
-            code = sub.get("subject_code")
+        for sub in (eval_sem.get("subjects", []) or eval_sem.get("courses", [])):
+            code = sub.get("subject_code") or sub.get("course_code")
             tt1 = float(sub.get("tt1_score", 0.0))
             tt2 = float(sub.get("tt2_score", 0.0))
+            ca_m = float(sub.get("ca_marks", 0.0))
+            ese_m = float(sub.get("ese_score", 0.0) or sub.get("ese_marks", 0.0))
+            tot_m = float(sub.get("total_marks", 0.0) or sub.get("total_100", 0.0))
             # Internal continuous assessment score out of 40
-            internal = float(sub.get("internal_score", 0.0))
-            if internal == 0.0:
+            internal = float(sub.get("internal_score", 0.0) or sub.get("total_internal_40", 0.0) or ca_m)
+            if internal == 0.0 and (tt1 > 0 or tt2 > 0):
                 tt_c = (tt1 + tt2) / 4.0 if (tt1 > 20 or tt2 > 20) else (tt1 + tt2) / 2.0
                 internal = min(40.0, round(tt_c + float(sub.get("aptitude_score", 0.0)) + float(sub.get("skat_score", 0.0)) + float(sub.get("teacher_assessment_score", 0.0)) + float(sub.get("mock_interview_score", 0.0)) + float(sub.get("presentation_score", 0.0)), 2))
 
-            if sub.get("total_marks", 0.0) > 0 and sub.get("ese_score", 0.0) > 0:
-                score_pct = min(100.0, max(0.0, round(float(sub.get("total_marks")), 1)))
+            if tot_m > 0 and (ese_m > 0 or sub.get("grade_letter") not in ("Pending", None)):
+                score_pct = min(100.0, max(0.0, round(tot_m, 1)))
+            elif internal > 0:
+                score_pct = round((internal / 40.0) * 100.0, 1)
             else:
-                score_pct = round((internal / 40.0) * 100.0, 1) if internal > 0 else 75.0
+                score_pct = 75.0
             
             class_avg = class_averages.get(code, 70.0)
             radar_subjects.append({
                 "subject_code": code,
-                "subject_name": sub.get("subject_name"),
+                "subject_name": sub.get("subject_name") or sub.get("course_name") or code,
                 "score_pct": score_pct,
                 "class_avg": class_avg,
                 "grade_letter": sub.get("grade_letter", "Pending"),
@@ -147,7 +160,7 @@ def dashboard_view():
                 "mock_interview_score": sub.get("mock_interview_score", 0.0),
                 "presentation_score": sub.get("presentation_score", 0.0),
                 "internal_score": internal,
-                "ese_score": sub.get("ese_score", 0.0)
+                "ese_score": ese_m
             })
 
     # Real attendance from attendance_records collection

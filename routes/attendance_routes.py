@@ -21,6 +21,8 @@ from utils.attendance_engine import (
     HOLIDAYS,
     TERM_TEST_DAYS,
 )
+from utils.detention_list_parser import parse_detention_file, commit_detention_records
+from ml_engine.inference import predict_student_analytics
 
 attendance_bp = Blueprint("attendance", __name__, url_prefix="/attendance")
 
@@ -115,8 +117,10 @@ def forecast_view():
             "is_detained": bool(s.get("is_detained", False)),
             "status": s.get("status", "Safe"),
         }
-    if forecast.get("honors"):
-        h = forecast["honors"]
+    honors_to_map = forecast.get("honors_list", [])
+    if not honors_to_map and forecast.get("honors"):
+        honors_to_map = [forecast["honors"]]
+    for h in honors_to_map:
         h_subj = h.get("subject", "Honors")
         forecast_subjects_map[h_subj] = {
             "name": f"Honors: {h_subj}",
@@ -283,3 +287,72 @@ def api_student_forecast(prn):
 
     forecast = compute_attendance_predictions(prn, att_record)
     return jsonify(forecast), 200
+
+
+@attendance_bp.route("/reupload-detention-list", methods=["GET", "POST"])
+@role_required(["admin", "faculty"])
+def reupload_detention_list():
+    """
+    Allows Admin and Faculty to upload an updated detention list image, PDF, or spreadsheet.
+    Extracts student attendance records, updates db.attendance_records and db.users, and refreshes predictive analytics.
+    """
+    if request.method == "GET":
+        return render_template("attendance/reupload_detention_list.html", preview=None)
+
+    action = request.form.get("action", "parse")
+    current_prn = get_jwt_identity()
+
+    if action == "commit":
+        raw_payload = request.form.get("staged_records")
+        if not raw_payload:
+            flash("No staged attendance records provided.", "danger")
+            return redirect(url_for("attendance.reupload_detention_list"))
+
+        try:
+            staged = json.loads(raw_payload)
+        except Exception as e:
+            flash(f"Invalid record payload: {e}", "danger")
+            return redirect(url_for("attendance.reupload_detention_list"))
+
+        res = commit_detention_records(staged, actor_prn=current_prn)
+
+        # Invalidate predictions cache for all affected students
+        for prn in res.get("affected_prns", []):
+            try:
+                predict_student_analytics(prn, force_recalculate=True)
+            except Exception:
+                pass
+
+        flash(
+            f"Successfully updated attendance for {res['updated_count']} students! Detention list and attendance forecast sections are now synchronized with genuine data.",
+            "success"
+        )
+        return redirect(url_for("attendance.detention_list_view"))
+
+    # Action is "parse"
+    if "file" not in request.files or not request.files["file"].filename:
+        flash("Please select an image, PDF, or spreadsheet file to upload.", "warning")
+        return redirect(url_for("attendance.reupload_detention_list"))
+
+    uploaded_file = request.files["file"]
+    try:
+        parsed_result = parse_detention_file(uploaded_file, uploaded_file.filename)
+    except Exception as e:
+        flash(f"Failed to parse detention notice: {str(e)}", "danger")
+        return redirect(url_for("attendance.reupload_detention_list"))
+
+    if not parsed_result["records"]:
+        flash("No student attendance rows could be identified in the uploaded document. Please check the file formatting.", "danger")
+        return redirect(url_for("attendance.reupload_detention_list"))
+
+    flash(
+        f"Scanned {parsed_result['total_records']} students: {parsed_result['detained_count']} in detention, {parsed_result['safe_count']} safe.",
+        "info"
+    )
+
+    return render_template(
+        "attendance/reupload_detention_list.html",
+        preview=parsed_result,
+        staged_records_json=json.dumps(parsed_result["records"])
+    )
+

@@ -41,20 +41,25 @@ class UserLoginSchema(BaseValidatedSchema):
     password = fields.String(required=True, validate=validate.Length(min=1), error_messages={"required": "Password is required."})
 
 
+ALLOWED_BRANCHES = [
+    "CSE-DS", "Computer Science and Engineering (Data Science)", "Computer Science and Engineering(Data Science)",
+    "CSE", "IT", "EXTC", "AIDS", "MECH", "CIVIL"
+]
+
 class UserRegisterSchema(BaseValidatedSchema):
     prn_roll = fields.String(required=True, validate=validate.Length(min=3, max=30))
     email = fields.Email(required=True)
     password = fields.String(required=True, validate=validate_password_complexity)
     role = fields.String(required=True, validate=validate.OneOf(["admin", "faculty", "student"]))
     name = fields.String(required=True, validate=validate.Length(min=2, max=100))
-    branch = fields.String(required=True, validate=validate.OneOf(["CSE-DS", "CSE", "IT", "EXTC", "AIDS", "MECH", "CIVIL"]))
+    branch = fields.String(required=True, validate=validate.OneOf(ALLOWED_BRANCHES))
     admission_year = fields.Integer(required=True, validate=validate.Range(min=2000, max=2030))
     assigned_subjects = fields.List(fields.String(), required=False, load_default=[])
 
 
 class UserUpdateSchema(BaseValidatedSchema):
     name = fields.String(validate=validate.Length(min=2, max=100))
-    branch = fields.String(validate=validate.OneOf(["CSE-DS", "CSE", "IT", "EXTC", "AIDS", "MECH", "CIVIL"]))
+    branch = fields.String(validate=validate.OneOf(ALLOWED_BRANCHES))
     assigned_subjects = fields.List(fields.String())
     is_active = fields.Boolean()
 

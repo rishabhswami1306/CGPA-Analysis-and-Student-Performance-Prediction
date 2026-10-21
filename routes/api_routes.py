@@ -201,7 +201,9 @@ def get_branch_analytics():
     TY CSE-DS Cohort Academic Analytics: Audited Sem 1-4 CGPA vs Ongoing Sem 5 Forecast Distribution
     """
     db = get_db()
-    students = list(db.users.find({"role": "student", "branch": "CSE-DS"}))
+    students = list(db.users.find({"role": "student", "branch": {"$in": ["CSE-DS", "Computer Science and Engineering (Data Science)", "CSE"]}}))
+    if not students:
+        students = list(db.users.find({"role": "student"}))
 
     sem1_4_cgpas = []
     sem5_preds = []
@@ -231,7 +233,7 @@ def get_branch_analytics():
         }
 
     summary = {
-        "Sem 1–4 Audited CGPA": {
+        "Sem 1-4 Audited CGPA": {
             "total_students": len(sem1_4_cgpas),
             "avg_cgpa": round(float(np.mean(sem1_4_cgpas)), 2) if sem1_4_cgpas else 0.0,
             "cgpa_distribution": build_dist(sem1_4_cgpas)
