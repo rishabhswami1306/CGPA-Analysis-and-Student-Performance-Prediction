@@ -26,7 +26,7 @@
         </span>
       </div>
       <p class="text-xs sm:text-sm text-slate-500 mt-1">
-        Department of <b>{% if user.branch == 'CSE-DS' %}Computer Science and Engineering (Data Science){% else %}{{ user.branch }}{% endif %}</b> | Class: <b>{{ user.class_name or 'TY BTech DS (A)' }}</b> | <b>4 Semesters Audited</b> (Semester 5 Ongoing)
+        Department of <b>{% if user.branch == 'CSE-DS' %}Computer Science and Engineering (Data Science){% else %}{{ user.branch or 'Computer Science' }}{% endif %}</b> | <b>Audited Academic Record</b>
       </p>
     </div>
 
@@ -50,7 +50,7 @@
       </div>
       <div>
         <div class="flex items-center gap-2">
-          <h2 class="text-sm font-bold text-white tracking-wide">Semester 5 Ongoing Evaluation & Prediction Active</h2>
+          <h2 class="text-sm font-bold text-white tracking-wide">Continuous Evaluation & AI Prediction Active</h2>
           <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Live AI Forecast</span>
         </div>
         <p class="text-xs text-purple-200/80 mt-0.5">Semesters 1 to 4 results are finalized. ML models are continuously forecasting your Semester 5 SGPA and placement readiness based on internal unit tests and attendance.</p>
@@ -247,7 +247,7 @@
             </span>
           </h2>
           <p class="text-xs text-slate-500">
-            Official First Detention List data • TY BTech DS (A) • Sem I (2026-27)
+            Official Detention List Register & Real-Time Tracking
           </p>
         </div>
       </div>

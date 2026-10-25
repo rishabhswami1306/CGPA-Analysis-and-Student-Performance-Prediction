@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Student Login | SES's RCPIT{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto my-8 sm:my-12 px-4">
+  <div class="bg-white rounded-2xl p-7 sm:p-9 shadow-sm border border-slate-200 transition-all">
+    
+    <!-- Branding Header -->
+    <div class="text-center mb-6">
+      <div class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xl mx-auto mb-3 shadow-xs">
+        <i class="fa-solid fa-graduation-cap"></i>
+      </div>
+      <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Student Login</h1>
+      <p class="text-xs text-slate-500 mt-1">SES's R. C. Patel Institute of Technology, Shirpur</p>
+    </div>
+
+    <!-- Login Form -->
+    <form action="/auth/login/student" method="POST" class="space-y-4" id="loginForm">
+      <input type="hidden" name="target_role" value="student">
+
+      <div>
+        <label for="email" id="identifier-label" class="block text-xs font-semibold text-slate-700 mb-1.5">
+          Student PRN or Registered Email
+        </label>
+        <input type="text" id="email" name="email" required placeholder="e.g. 241106001 or student@rcpit.ac.in"
+               class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+      </div>
+
+      <div>
+        <div class="flex items-center justify-between mb-1.5">
+          <label for="password" class="block text-xs font-semibold text-slate-700">Password</label>
+          <a href="javascript:void(0)" onclick="openModal('forgot-modal')" class="text-xs text-blue-600 hover:text-blue-700 hover:underline">Forgot password?</a>
+        </div>
+        <div class="relative">
+          <input type="password" id="password" name="password" required placeholder="Enter your password"
+                 class="w-full px-3.5 py-2.5 pr-10 bg-white border border-slate-300 rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+          <button type="button" onclick="togglePasswordVisibility()" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 focus:outline-none">
+            <i id="eye-icon" class="fa-regular fa-eye"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Remember me -->
+      <div class="flex items-center justify-between text-xs text-slate-600 pt-0.5">
+        <label class="flex items-center gap-2 cursor-pointer select-none">
+          <input type="checkbox" name="remember_me" class="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300">
+          <span>Remember me on this device</span>
+        </label>
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit" id="btn-submit"
+              class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg shadow-sm transition-colors text-sm flex items-center justify-center gap-2">
+        <span>Sign In to Student Portal</span>
+        <i class="fa-solid fa-arrow-right text-xs"></i>
+      </button>
+    </form>
+
+    <!-- Friendly Navigation Footer -->
+    <div class="mt-6 pt-5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+      <span>Faculty member? <a href="/auth/login/faculty" class="text-blue-600 font-medium hover:underline">Faculty Login</a></span>
+      <a href="/auth/login/admin" class="text-slate-500 hover:text-slate-800 hover:underline">Admin Login</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- Forgot Password Modal -->
+<div id="forgot-modal" class="hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+  <div class="bg-white rounded-xl p-6 max-w-sm w-full shadow-lg border border-slate-200">
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-2">
+        <span class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-sm font-semibold">
+          <i class="fa-solid fa-key"></i>
+        </span>
+        <h3 class="font-bold text-slate-900 text-sm">Reset Password</h3>
+      </div>
+      <button onclick="closeModal('forgot-modal')" class="text-slate-400 hover:text-slate-600 text-lg">&times;</button>
+    </div>
+    <p class="text-xs text-slate-600 mb-4 leading-relaxed">Enter your registered institutional email to receive a password reset token.</p>
+    <div class="space-y-3">
+      <input type="email" id="reset-email" placeholder="name@rcpit.ac.in" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+      <button type="button" onclick="handleResetRequest()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg text-xs transition-colors shadow-xs">
+        Generate Reset Token
+      </button>
+      <div id="reset-msg" class="text-xs text-emerald-600 font-medium hidden p-2.5 bg-emerald-50 rounded-lg border border-emerald-200"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function togglePasswordVisibility() {
+    const input = document.getElementById('password');
+    const icon = document.getElementById('eye-icon');
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.classList.replace('fa-eye', 'fa-eye-slash');
+    } else {
+      input.type = 'password';
+      icon.classList.replace('fa-eye-slash', 'fa-eye');
+    }
+  }
+
+  function openModal(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('hidden');
+  }
+
+  function closeModal(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.add('hidden');
+  }
+
+  async function handleResetRequest() {
+    const email = document.getElementById('reset-email').value;
+    const msg = document.getElementById('reset-msg');
+    if (!email) return alert('Please enter your registered email address.');
+    try {
+      const res = await fetch('/auth/reset-password-request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+      msg.innerText = data.demo_reset_token ? `Demo Token: ${data.demo_reset_token}` : (data.message || 'Reset instructions sent.');
+      msg.classList.remove('hidden');
+    } catch(e) {
+      alert('Error requesting reset.');
+    }
+  }
+</script>
+{% endblock %}

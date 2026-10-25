@@ -20,7 +20,7 @@
         {% endif %}
       </div>
       <p class="text-xs text-slate-500 mt-1">
-        Class: <b>TY BTech DS (A)</b> | Semester I (AY 2026-27) | Local Guardian: <b>{{ att_record.local_guardian or 'Faculty Mentor' }}</b>
+        Local Guardian: <b>{{ att_record.local_guardian or 'Faculty Mentor' }}</b>
         {% if forecast.honors_names %}
         | Honors Courses: <span class="font-semibold text-purple-700 bg-purple-50 px-2 py-0.5 rounded border border-purple-200">{{ forecast.honors_names }}</span>
         {% elif forecast.honors %}
@@ -633,15 +633,15 @@
   <!-- Academic Calendar Milestones & Timetable Pattern -->
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     
-    <!-- Academic Calendar Milestones (July - Nov 2026) -->
+    <!-- Academic Calendar Milestones -->
     <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm lg:col-span-1">
       <div class="flex items-center justify-between mb-4">
         <div>
           <h3 class="text-sm font-bold text-slate-900 brand-font flex items-center gap-2">
             <i class="fa-regular fa-calendar-days text-blue-600"></i>
-            <span>Academic Calendar AY 2026-27</span>
+            <span>Academic Calendar</span>
           </h3>
-          <p class="text-[11px] text-slate-500 mt-0.5">Sem I: 20 Jul 2026 – 06 Nov 2026</p>
+          <p class="text-[11px] text-slate-500 mt-0.5">Current Semester Milestones</p>
         </div>
         <span class="text-[11px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
           {{ milestones.progress_pct }}% Elapsed
@@ -680,7 +680,7 @@
         <div>
           <h3 class="text-sm font-bold text-slate-900 brand-font flex items-center gap-2">
             <i class="fa-solid fa-table-cells text-indigo-600"></i>
-            <span>Weekly Class Timetable Pattern (TY DS A)</span>
+            <span>Weekly Class Timetable Pattern</span>
           </h3>
           <p class="text-[11px] text-slate-500">Official schedule used to calculate projected remaining lectures per subject.</p>
         </div>

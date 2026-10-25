@@ -23,15 +23,25 @@ MAX_FAILED_ATTEMPTS = 5
 LOCKOUT_DURATION_MINUTES = 15
 
 
-@auth_bp.route("/login", methods=["GET", "POST"])
-def login_view():
-    """Login view supporting both web form submissions and JSON API calls."""
-    if request.method == "GET":
-        return render_template("auth/login.html")
+def _render_login_template(role=None):
+    if role == "admin":
+        return render_template("auth/login_admin.html")
+    elif role == "faculty":
+        return render_template("auth/login_faculty.html")
+    else:
+        return render_template("auth/login_student.html")
 
-    # Handle POST
+
+def _process_login(target_role=None):
+    """Processes login credentials and strictly validates role exclusivity when specified."""
     is_json = request.is_json
     payload = request.get_json() if is_json else request.form.to_dict()
+
+    effective_target_role = (
+        target_role or 
+        payload.get("target_role") or 
+        request.args.get("role") or ""
+    ).strip().lower()
 
     # Allow identifier to be email, username, identifier, prn, or prn_roll
     raw_identifier = (
@@ -47,7 +57,7 @@ def login_view():
         if is_json:
             return jsonify({"error": "Identifier and password are required."}), 400
         flash("Please enter your PRN/Email and password.", "danger")
-        return render_template("auth/login.html"), 400
+        return _render_login_template(effective_target_role), 400
 
     password = raw_password
     db = get_db()
@@ -94,7 +104,7 @@ def login_view():
         if is_json:
             return jsonify({"error": "Invalid email/PRN or password."}), 401
         flash("Invalid email/PRN or password. Check your credentials.", "danger")
-        return render_template("auth/login.html"), 401
+        return _render_login_template(effective_target_role), 401
 
     # Check brute-force account lockout
     locked_until = user.get("locked_until")
@@ -114,7 +124,7 @@ def login_view():
             if is_json:
                 return jsonify({"error": msg}), 429
             flash(msg, "danger")
-            return render_template("auth/login.html"), 429
+            return _render_login_template(effective_target_role), 429
 
     # Verify password (hash + default credentials fallback)
     password_hash = user.get("password_hash", "")
@@ -153,7 +163,43 @@ def login_view():
         if is_json:
             return jsonify({"error": "Invalid email or password."}), 401
         flash("Invalid email or password.", "danger")
-        return render_template("auth/login.html"), 401
+        return _render_login_template(effective_target_role), 401
+
+    # Check Role Exclusivity: Only the respective role can log in on this page!
+    if effective_target_role:
+        expected_role = "student" if effective_target_role in ("student", "user") else effective_target_role
+        actual_role = user.get("role")
+        if actual_role != expected_role:
+            role_labels = {
+                "admin": "Administrators",
+                "faculty": "Faculty Members",
+                "student": "Students / Users"
+            }
+            actual_labels = {
+                "admin": "Administrator",
+                "faculty": "Faculty Member",
+                "student": "Student"
+            }
+            portal_names = {
+                "admin": "Admin Portal",
+                "faculty": "Faculty Portal",
+                "student": "User / Student Portal"
+            }
+            denied_msg = (
+                f"Access Denied: This page is strictly for {role_labels.get(expected_role, expected_role)}. "
+                f"Your account is registered as a {actual_labels.get(actual_role, actual_role)}. "
+                f"Please use the {portal_names.get(actual_role, 'respective')} to log in."
+            )
+            log_audit_event(
+                actor_prn=user.get("prn_roll") or user.get("email") or raw_identifier,
+                actor_role=actual_role,
+                action="LOGIN_ROLE_MISMATCH",
+                details=f"Attempted to log in via {portal_names.get(expected_role, expected_role)}."
+            )
+            if is_json:
+                return jsonify({"error": denied_msg}), 403
+            flash(denied_msg, "danger")
+            return _render_login_template(effective_target_role), 403
 
     # Reset failed attempts upon successful login
     db.users.update_one({"_id": user["_id"]}, {"$set": {"failed_login_attempts": 0, "locked_until": None}})
@@ -163,16 +209,18 @@ def login_view():
         if is_json:
             return jsonify({"error": "Account has been deactivated. Please contact Administrator."}), 403
         flash("Your account has been deactivated. Contact Admin.", "danger")
-        return render_template("auth/login.html"), 403
+        return _render_login_template(effective_target_role), 403
 
     # Generate JWT Tokens
     user_prn = user.get("prn_roll")
     user_role = user.get("role")
+    user_branch = user.get("branch") or "CSE-DS"
+
     additional_claims = {
         "role": user_role,
         "name": user.get("name"),
         "email": user.get("email"),
-        "branch": user.get("branch"),
+        "branch": user_branch,
         "must_change_password": user.get("must_change_password", False)
     }
 
@@ -221,6 +269,44 @@ def login_view():
     set_refresh_cookies(resp, refresh_token)
     flash(f"Welcome back, {user.get('name')}!", "success")
     return resp
+
+
+@auth_bp.route("/login", methods=["GET", "POST"])
+def login_view():
+    """Login view supporting web form submissions and JSON API calls."""
+    if request.method == "GET":
+        role = request.args.get("role", "").lower().strip()
+        return _render_login_template(role)
+    return _process_login()
+
+
+@auth_bp.route("/login/admin", methods=["GET", "POST"])
+def login_admin_view():
+    """Dedicated login view strictly for Administrators."""
+    if request.method == "GET":
+        return render_template("auth/login_admin.html")
+    return _process_login(target_role="admin")
+
+
+@auth_bp.route("/login/faculty", methods=["GET", "POST"])
+def login_faculty_view():
+    """Dedicated login view strictly for Faculty."""
+    if request.method == "GET":
+        return render_template("auth/login_faculty.html")
+    return _process_login(target_role="faculty")
+
+
+@auth_bp.route("/login/student", methods=["GET", "POST"])
+@auth_bp.route("/login/user", methods=["GET", "POST"])
+def login_student_view():
+    """Dedicated login view strictly for Students."""
+    if request.method == "GET":
+        return render_template("auth/login_student.html")
+    return _process_login(target_role="student")
+
+
+# Alias for legacy compatibility
+login_user_view = login_student_view
 
 
 @auth_bp.route("/refresh", methods=["POST"])
